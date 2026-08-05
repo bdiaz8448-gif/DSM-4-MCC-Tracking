@@ -1,6 +1,8 @@
 # DSM-4 MCC Tracking
 
 Live MC constraint board for DSM4 (Project Aura).
-Single-file app deployed on GitHub Pages; data syncs live via Firestore.
+Secured: Firebase Auth (sign-in required) + locked Firestore rules on the
+isolated `dsm4-mcc-tracking` project. Single-file app on GitHub Pages.
 
-Build: v5.3-tab-counts
+Live: https://bdiaz8448-gif.github.io/DSM-4-MCC-Tracking/
+Build: v6.0-secured-login
