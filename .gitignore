@@ -1,0 +1,10 @@
+# never publish project data
+*.json
+!package.json
+*.xlsx
+*.xlsm
+*.csv
+Backups/
+*_PRIVATE*
+index_private*
+seed*.json
