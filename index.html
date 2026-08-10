@@ -188,11 +188,22 @@
   .iconbtn.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:var(--onacc);box-shadow:0 0 20px rgba(56,189,248,.55),inset 0 1px 0 rgba(255,255,255,.35)}
   .iconbtn.on::before{background:conic-gradient(from 215deg,rgba(255,255,255,.9),rgba(255,255,255,.15) 40%,rgba(255,255,255,.7) 70%,rgba(255,255,255,.9))}
   .iconbtn .gold{color:var(--gold)}
+  /* ---- OWNER CROWN: dark disc + gold ring, so the crown reads instead of dark gold sitting on cyan ---- */
+  .iconbtn.on.crown{background:linear-gradient(135deg,#1b2432,#0a0f16);color:#ffc93c;
+    box-shadow:0 0 24px rgba(255,190,50,.50),0 4px 14px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.10)}
+  .iconbtn.on.crown::before{background:conic-gradient(from 215deg,rgba(255,214,102,1),rgba(255,214,102,.28) 38%,rgba(255,236,175,.95) 68%,rgba(255,214,102,1));opacity:1}
+  .iconbtn.on.crown svg{width:25px;height:25px;color:#ffc93c;filter:drop-shadow(0 0 6px rgba(255,190,50,.65))}
+  .iconbtn.on.crown:hover{box-shadow:0 0 32px rgba(255,190,50,.68),0 6px 18px rgba(0,0,0,.5),inset 0 0 12px rgba(255,190,50,.14)}
+  .iconbtn.on.crown:hover::before{filter:brightness(1.15)}
   .theme-light .iconbtn{background:radial-gradient(circle at 32% 26%,rgba(255,255,255,.9),transparent 60%),var(--card);
     box-shadow:0 0 10px rgba(10,135,171,.18),0 2px 8px rgba(16,26,38,.10),inset 0 0 8px rgba(10,135,171,.06)}
   .theme-light .iconbtn::before{opacity:.6}
   .theme-light .iconbtn svg{filter:none}
   .theme-light .iconbtn.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;box-shadow:0 0 16px rgba(10,135,171,.45),inset 0 1px 0 rgba(255,255,255,.35)}
+  .theme-light .iconbtn.on.crown{background:linear-gradient(135deg,#2c2417,#141009);color:#ffc93c;
+    box-shadow:0 0 18px rgba(200,140,20,.45),0 2px 10px rgba(16,26,38,.28),inset 0 1px 0 rgba(255,255,255,.08)}
+  .theme-light .iconbtn.on.crown::before{opacity:1}
+  .theme-light .iconbtn.on.crown svg{color:#ffc93c;filter:drop-shadow(0 0 4px rgba(255,190,50,.5))}
   /* people & contractor rows in Settings — compact, horizontal, never letter-stacked */
   .prow{display:flex;gap:8px;align-items:center;padding:5px 0;min-width:0}
   .pmail{flex:1;min-width:0;font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -652,6 +663,7 @@
     .live{order:2}.whoami{order:3;margin-right:0}
     #themeBtn,#lockBtn,#ownerBtn,#pwBtn,#signOutBtn{order:4}
     .iconbtn{width:37px;height:37px;font-size:15px;border-radius:50%}
+    .iconbtn.on.crown svg{width:22px;height:22px}
     #views{order:9;flex:0 0 100%;width:100%}
     .seg{width:100%}
     .seg button{flex:1;padding:9px 6px;font-size:11.5px;white-space:normal;text-align:center;line-height:1.15}
@@ -681,6 +693,7 @@
     .brand{font-size:14px;padding:4px 12px 4px 4px}
     .brand small{font-size:9px}
     .iconbtn{width:34px;height:34px;font-size:14px}
+    .iconbtn.on.crown svg{width:20px;height:20px}
     .kpi .kn{font-size:23px}
     .gbv{font-size:18px}
     .chips button{padding:8px 10px;font-size:11.5px}
@@ -964,14 +977,14 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v11.8-punch-tracking";
+var MC_BUILD="v11.9-owner-crown";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
 var I_TV='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="19" height="13" rx="2.4"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17.5" x2="12" y2="21"/></svg>';
 var I_LOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9.5" rx="2.5"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/><circle cx="12" cy="15.8" r="1.4" fill="currentColor" stroke="none"/></svg>';
 var I_UNLOCK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9.5" rx="2.5"/><path d="M8 11V7.5a4 4 0 0 1 7.7-1.5"/><circle cx="12" cy="15.8" r="1.4" fill="currentColor" stroke="none"/></svg>';
-var I_CROWN='<svg viewBox="0 0 24 24" class="gold" fill="currentColor" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"><path d="M3.5 8.5l3.8 3.6L12 5.6l4.7 6.5 3.8-3.6-1.6 9H5.1z"/><line x1="5.4" y1="20.4" x2="18.6" y2="20.4" stroke-width="2.2" stroke-linecap="round"/></svg>';
+var I_CROWN='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.6 8.2a1.5 1.5 0 1 1 1.9 1.44l1.02 3.06h13l1.02-3.06A1.5 1.5 0 1 1 21.4 8.2a1.5 1.5 0 0 1-2.28 1.28l-2.6 2.14L12.9 6.6a1.5 1.5 0 1 0-1.8 0l-3.62 5.02-2.6-2.14A1.5 1.5 0 0 1 2.6 8.2z"/><rect x="4.9" y="14.1" width="14.2" height="2.5" rx="1"/><rect x="4.4" y="17.9" width="15.2" height="2.6" rx="1.3"/></svg>';
 var I_KEY='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15.6" r="4.1"/><path d="M11.2 12.4 20.4 3.2"/><path d="M16.6 7l3 3"/><path d="M13.7 9.9l2.3 2.3"/></svg>';
 /* ---------- Firebase (same project as HSE Aura; separate mc_* collections) ---------- */
 var firebaseConfig={apiKey:"AIzaSyAS7TjxDiOCyd5umaVQOQlE9BEjFHr5vyw",authDomain:"dsm4-mcc-tracking.firebaseapp.com",projectId:"dsm4-mcc-tracking",messagingSenderId:"403845397590",appId:"1:403845397590:web:95145ef2238d1c47104ff7",storageBucket:"dsm4-mcc-tracking.firebasestorage.app"};
@@ -1295,7 +1308,7 @@ function requireOwner(fn){
   if(isOwnerUser()){STATE.unlocked=true;STATE.role="owner";markUnlocked();fn();return;}
   alert("Owner only.\n\nThis action (delete / reset) is restricted to the project owner.");
 }
-function markUnlocked(){$("lockBtn").innerHTML=STATE.role==="owner"?I_CROWN:I_UNLOCK;$("lockBtn").title="Editing enabled ("+STATE.role+")";$("lockBtn").classList.add("on");$("ownerBtn").style.display=canEdit()?"":"none";document.body.classList.remove("locked");render();if(STATE.openSysId)renderModal();}
+function markUnlocked(){$("lockBtn").innerHTML=STATE.role==="owner"?I_CROWN:I_UNLOCK;$("lockBtn").title="Editing enabled ("+STATE.role+")";$("lockBtn").classList.add("on");$("lockBtn").classList.toggle("crown",STATE.role==="owner");$("ownerBtn").style.display=canEdit()?"":"none";document.body.classList.remove("locked");render();if(STATE.openSysId)renderModal();}
 /* write one contractor's {total, closed} on a gate. removeIfEmpty drops the row when total hits 0. */
 function writePunch(sysId,gate,contractor,total,closed,logDelta){
   var s=STATE.systems[sysId];if(!s)return;
@@ -1854,7 +1867,7 @@ $("statusF").addEventListener("click",function(e){var b=e.target.closest("[data-
 $("contractorF").addEventListener("change",function(){STATE.f.contractor=this.value;render();});
 $("searchF").addEventListener("input",function(){STATE.f.q=this.value;render();});
 $("views").addEventListener("click",function(e){var b=e.target.closest("[data-view]");if(!b)return;STATE.view=b.getAttribute("data-view");[].forEach.call(this.children,function(c){c.classList.toggle("active",c===b);});render();});
-$("lockBtn").addEventListener("click",function(){if(STATE.unlocked){STATE.unlocked=false;STATE.role=null;STATE.roleName=null;this.innerHTML=I_LOCK;this.title="Unlock to edit";this.classList.remove("on");$("ownerBtn").style.display="none";render();if(STATE.openSysId)renderModal();}else requireUnlock(function(){});updateWhoami();});
+$("lockBtn").addEventListener("click",function(){if(STATE.unlocked){STATE.unlocked=false;STATE.role=null;STATE.roleName=null;this.innerHTML=I_LOCK;this.title="Unlock to edit";this.classList.remove("on");this.classList.remove("crown");$("ownerBtn").style.display="none";render();if(STATE.openSysId)renderModal();}else requireUnlock(function(){});updateWhoami();});
 $("ownerBtn").addEventListener("click",function(){requireUnlock(openOwner);});
 $("themeBtn").addEventListener("click",toggleTheme);
 $("addSysBtn").addEventListener("click",function(){requireUnlock(openAddSystem);});
