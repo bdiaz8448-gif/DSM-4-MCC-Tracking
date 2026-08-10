@@ -964,7 +964,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v11.6-sealed";
+var MC_BUILD="v11.7-invite-only";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2022,7 +2022,11 @@ function openOwner(){
       }
     }
     $("o_save").disabled=true;
-    META_DOC.set(upd,{merge:true}).then(function(){STATE.meta=Object.assign({},STATE.meta,upd);$("ownerDlg").close();render();}).catch(function(e){$("o_save").disabled=false;alert("Save failed: "+(e&&e.code==="permission-denied"?"the database rejected this — editors can't change the access lists; that's owner-only.":(e&&e.message)||e));});};
+    META_DOC.set(upd,{merge:true}).then(function(){
+      STATE.meta=Object.assign({},STATE.meta,upd);
+      if(isOwnerUser())writeGate();          /* keep the sign-up gate in step with the access lists */
+      $("ownerDlg").close();render();
+    }).catch(function(e){$("o_save").disabled=false;alert("Save failed: "+(e&&e.code==="permission-denied"?"the database rejected this — editors can't change the access lists; that's owner-only.":(e&&e.message)||e));});};
 }
 /* Rename a contractor everywhere: roster (saved immediately) + every punch map that
    uses the old name, locally and in Firestore. Merges counts if the new name already
@@ -2163,9 +2167,11 @@ function prefillSavedPassword(){
     if(!navigator.credentials||!navigator.credentials.get||!window.PasswordCredential)return;
     navigator.credentials.get({password:true,mediation:"silent"}).then(function(c){
       if(!c||!c.password)return;
-      var e=$("authEmail"),p=$("authPass");
+      /* fill the EMAIL only. The password is left to the browser's own autofill,
+         which the person can see and choose — a silently pre-filled stale
+         password just looks like "wrong password" over and over. */
+      var e=$("authEmail");
       if(e&&!e.value)e.value=c.id||"";
-      if(p&&!p.value)p.value=c.password;
     }).catch(function(){});
   }catch(e){}
 }
@@ -2176,12 +2182,66 @@ function doSignIn(){
     offerToSavePassword(f.email,f.pass);
   }).catch(function(e){
     $("authSend").disabled=false;$("authSend").textContent="Sign in";
+    var c=e&&e.code;
+    if(c==="auth/wrong-password"||c==="auth/invalid-credential"){var p=$("authPass");if(p){p.value="";p.focus();}}
     showLogin(esc(authErr(e)),"err");
   });
 }
+/* ---- sign-up gate -------------------------------------------------------
+   Only an email the owner has added can create an account. The gate lives in
+   its own document holding ONE-WAY HASHES of the allowed addresses — never the
+   addresses themselves — so it can be checked before anyone signs in without
+   exposing a single email. The database rules remain the real boundary: even a
+   registered stranger reads nothing. If the gate is missing or unreachable the
+   app fails OPEN so a legitimate teammate is never locked out.            */
+var GATE_SALT="dsm4-mcc-gate-v1:";
+function gateHash(email){
+  try{
+    if(!window.crypto||!crypto.subtle)return Promise.resolve(null);
+    var data=new TextEncoder().encode(GATE_SALT+String(email||"").trim().toLowerCase());
+    return crypto.subtle.digest("SHA-256",data).then(function(buf){
+      return Array.prototype.map.call(new Uint8Array(buf),function(b){return ("0"+b.toString(16)).slice(-2);}).join("");
+    }).catch(function(){return null;});
+  }catch(e){return Promise.resolve(null);}
+}
+function gateList(){
+  return db.collection("mc_meta").doc("gate").get().then(function(d){
+    var v=d.exists&&d.data()&&d.data().allowed;
+    return (v&&v.length)?v:null;
+  }).catch(function(){return null;});
+}
+function emailIsInvited(email){
+  return Promise.all([gateHash(email),gateList()]).then(function(r){
+    var h=r[0],list=r[1];
+    if(!h||!list)return true;                    /* can't check -> never block */
+    return list.indexOf(h)>=0;
+  }).catch(function(){return true;});
+}
+/* owner-only: rebuild the gate from the current access lists */
+function writeGate(){
+  var mails=[].concat(OWNER_EMAILS||[],cfgOwnerEmails(),editorEmails(),viewerEmails())
+    .map(function(e){return String(e||"").trim().toLowerCase();}).filter(Boolean);
+  var seen={},uniq=mails.filter(function(e){return seen[e]?false:(seen[e]=true);});
+  return Promise.all(uniq.map(gateHash)).then(function(hs){
+    hs=hs.filter(Boolean);
+    if(!hs.length)return null;
+    return db.collection("mc_meta").doc("gate").set({allowed:hs,count:hs.length,updatedAt:new Date().toISOString()});
+  }).catch(function(e){console.warn("gate write",e);});
+}
 function doCreate(){
   var f=authFields();if(!f)return;
-  $("authCreate").disabled=true;$("authCreate").textContent="Creating…";
+  $("authCreate").disabled=true;$("authCreate").textContent="Checking…";
+  emailIsInvited(f.email).then(function(ok){
+    if(!ok){
+      $("authCreate").disabled=false;$("authCreate").textContent="Create account";
+      showLogin("<b>"+esc(f.email)+"</b> hasn't been added to this board yet.<br>Ask the owner to add your email in Settings, then create your account.","err");
+      return;
+    }
+    $("authCreate").textContent="Creating…";
+    doCreateNow(f);
+  });
+}
+function doCreateNow(f){
   auth.createUserWithEmailAndPassword(f.email,f.pass).then(function(){
     offerToSavePassword(f.email,f.pass);
   }).catch(function(e){
