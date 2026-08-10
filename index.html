@@ -964,7 +964,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v11.7-invite-only";
+var MC_BUILD="v11.8-punch-tracking";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1303,8 +1303,14 @@ function writePunch(sysId,gate,contractor,total,closed,logDelta){
   s.gates[gate].punch=s.gates[gate].punch||{};
   var prev=pv(s.gates[gate].punch[contractor]);
   total=Math.max(0,total|0);closed=Math.min(total,Math.max(0,closed|0));
+  var keep=s.gates[gate].punch[contractor]||{};
   if(total===0)delete s.gates[gate].punch[contractor];
-  else s.gates[gate].punch[contractor]={t:total,c:closed};
+  else{
+    var ent={t:total,c:closed};
+    if(keep.ids)ent.ids=keep.ids;      /* keep the punch-ID history intact on a manual edit */
+    if(keep.cids)ent.cids=keep.cids;
+    s.gates[gate].punch[contractor]=ent;
+  }
   /* keep a newly-added contractor pinned to the bottom of the locked order (not on delete) */
   var rk=rowKey(sysId,gate);
   if(total>0&&STATE.rowOrder[rk]&&STATE.rowOrder[rk].indexOf(contractor)<0)STATE.rowOrder[rk].push(contractor);
@@ -2497,7 +2503,8 @@ function impAutoMap(headers){
   if(m.contractor<0)m.contractor=find(/(responsible|contractor|company|vendor|discipline\s*owner)/);
   m.status=find(/^(status|state|open\/closed|punch\s*status|item\s*status)$/);
   if(m.status<0)m.status=find(/(punch\s*status|item\s*status|open\/closed)/);
-  m.item=find(/^(punch\s*id|punch\s*#|item\s*#|item\s*id|finding|defect)$/);
+  m.item=find(/^(punch\s*id|punch\s*no\.?|punch\s*#|item\s*id|item\s*#|finding\s*id|defect\s*id)$/);
+  if(m.item<0)m.item=find(/(punch\s*id|item\s*id|finding\s*id)/);
   /* The gate comes from the WALKDOWN column (Activity Group / Activity) — never from
      "Category" (a 1/2/3 priority) or "Punch Phase Type" (a discipline). */
   m.gate=find(/^activity\s*group$/);
@@ -2628,9 +2635,18 @@ function impResolveCo(raw,rosterNames){
   for(var i=0;i<rosterNames.length;i++){ if(impCoKey(rosterNames[i])===ini)return rosterNames[i]; }
   return null;
 }
+function impPunchIds(cell){var v=cell&&cell.ids;return (v&&v.length)?v.map(String):null;}
+function impClosedIds(cell){var v=cell&&cell.cids;return (v&&v.length)?v.map(String):[];}
+/* Compare this file against what the board already knows, item by item.
+   The EIDA export lists OPEN items only, so an ID that was here last time and is
+   gone now has been CLOSED; an ID that is here and wasn't is NEWLY RAISED; an ID
+   that comes back after being closed has been REOPENED. Totals are cumulative and
+   never fall — closures move the number into "closed", they don't erase history. */
 function impPlanPunch(rows,map){
   var ix=impIndexSystems(),agg={},plan={kind:"punch",matched:0,unmatched:[],newContractors:[],updates:{},
-        totalItems:0,closedItems:0,changed:0,noGate:0,aliases:[],absent:[],removals:0};
+        totalItems:0,closedItems:0,changed:0,noGate:0,aliases:[],absent:[],removals:0,
+        byId:(map.item>=0),closedNow:0,raisedNow:0,reopened:0,stillOpen:0,noBaseline:0,
+        perCo:{},closedList:[],raisedList:[],reopenList:[]};
   var rosterNames=contractors().map(function(c){return c.name;});
   var resolved={};
   function co(raw){
@@ -2642,6 +2658,7 @@ function impPlanPunch(rows,map){
     if(!hit&&plan.newContractors.indexOf(resolved[key])<0)plan.newContractors.push(resolved[key]);
     return resolved[key];
   }
+  function tally(c,field,n){var p=plan.perCo[c]||(plan.perCo[c]={closed:0,raised:0,reopened:0,open:0});p[field]+=n;}
   rows.forEach(function(r){
     var code=map.code>=0?r[map.code]:"",mc=map.mc>=0?r[map.mc]:"";
     var id=impMatch(ix,code,mc);
@@ -2655,49 +2672,127 @@ function impPlanPunch(rows,map){
     if(!closed&&map.closeDate>=0&&impNorm(r[map.closeDate]))closed=true;
     plan.totalItems++;if(closed)plan.closedItems++;
     agg[id]=agg[id]||{};agg[id][g]=agg[id][g]||{};
-    var cell=agg[id][g][cname]||(agg[id][g][cname]={t:0,c:0});
+    var cell=agg[id][g][cname]||(agg[id][g][cname]={t:0,c:0,ids:[]});
     cell.t++;if(closed)cell.c++;
+    var pid=map.item>=0?impNorm(r[map.item]):"";
+    if(pid&&!closed)cell.ids.push(pid);
   });
-  /* For every system the file covers, the file is the record: its counts replace what
-     is on the board, gate by gate, so items that were closed out simply disappear.
-     Systems the file does not mention are left exactly as they are and listed below. */
   Object.keys(agg).forEach(function(id){
     var sys=STATE.systems[id];if(!sys)return;
     plan.matched++;
-    var lines={},dirty=false;
+    var lines={},full={},dirty=false;
     GATE_ORDER.forEach(function(g){
-      var nw=agg[id][g]||{},cur=((sys.gates||{})[g]||{}).punch||{},names={};
+      var nw=agg[id][g]||{},cur=((sys.gates||{})[g]||{}).punch||{},names={},out={};
       Object.keys(nw).forEach(function(n){names[n]=1;});Object.keys(cur).forEach(function(n){names[n]=1;});
       Object.keys(names).forEach(function(n){
-        var a=nw[n]||{t:0,c:0},b=cur[n]||{t:0,c:0};
-        if(a.t!==(b.t||0)||a.c!==(b.c||0)){
-          dirty=true;if(a.t===0)plan.removals++;
-          lines[g]=lines[g]||{};lines[g][n]={t:a.t,c:a.c,wasT:b.t||0,wasC:b.c||0};
+        var a=nw[n],b=cur[n]||{};
+        var oldT=+b.t||0,oldC=+b.c||0,oldIds=impPunchIds(b),oldCids=impClosedIds(b);
+        var newIds=(a&&a.ids&&a.ids.length)?a.ids:null;
+        var res;
+        if(plan.byId&&newIds){
+          if(oldIds||oldCids.length){
+            var oi=oldIds||[];                       /* a cell may have only closed history */
+            var oldSet={};oi.forEach(function(x){oldSet[x]=1;});
+            var cloSet={};oldCids.forEach(function(x){cloSet[x]=1;});
+            var newSet={};newIds.forEach(function(x){newSet[x]=1;});
+            var closedNow=oi.filter(function(x){return !newSet[x];});
+            var reopened=newIds.filter(function(x){return !oldSet[x]&&cloSet[x];});
+            var raised  =newIds.filter(function(x){return !oldSet[x]&&!cloSet[x];});
+            var t=oldT+raised.length, c=oldC+closedNow.length-reopened.length;
+            if(c<0)c=0;
+            if(t-c!==newIds.length)t=c+newIds.length;      /* keep open = total − closed exact */
+            var cids=oldCids.filter(function(x){return !newSet[x];}).concat(closedNow);
+            res={t:t,c:c,ids:newIds,cids:cids,
+                 closedNow:closedNow,raisedNow:raised,reopenedNow:reopened};
+          }else{
+            /* nothing recorded for this pairing yet — take the file as the baseline,
+               claim no closures we cannot prove */
+            res={t:Math.max(oldT,oldC+newIds.length),c:oldC,ids:newIds,cids:oldCids,
+                 closedNow:[],raisedNow:[],reopenedNow:[],baseline:true};
+            plan.noBaseline++;
+          }
+        }else if(plan.byId&&!newIds&&oldIds){
+          /* every item this contractor held has gone from the file -> all closed */
+          res={t:oldT,c:oldC+oldIds.length,ids:[],cids:oldCids.concat(oldIds),
+               closedNow:oldIds,raisedNow:[],reopenedNow:[]};
+        }else if(plan.byId){
+          /* nothing new for this pairing and nothing open on the board: leave the
+             record exactly as it stands — a closed-out contractor is history, not
+             something to erase on the next import. */
+          res={t:oldT,c:oldC,ids:[],cids:oldCids,closedNow:[],raisedNow:[],reopenedNow:[],untouched:true};
+        }else{
+          var na=a||{t:0,c:0};
+          res={t:na.t,c:na.c,ids:na.ids||[],cids:oldCids,closedNow:[],raisedNow:[],reopenedNow:[]};
         }
+        var changed=(res.t!==oldT||res.c!==oldC||(oldIds||[]).join(",")!==(res.ids||[]).join(","));
+        if(res.untouched)changed=false;
+        if(res.ids&&res.ids.length){out[n]={t:res.t,c:res.c,ids:res.ids,cids:res.cids};}
+        else if(res.t>0){out[n]={t:res.t,c:res.c,ids:[],cids:res.cids};}
+        if(changed){
+          dirty=true;
+          if(!out[n]&&oldT)plan.removals++;
+          plan.closedNow+=res.closedNow.length;
+          plan.raisedNow+=res.raisedNow.length;
+          plan.reopened +=res.reopenedNow.length;
+          tally(n,"closed",res.closedNow.length);
+          tally(n,"raised",res.raisedNow.length);
+          tally(n,"reopened",res.reopenedNow.length);
+          if(res.closedNow.length)plan.closedList.push({id:id,g:g,c:n,n:res.closedNow.length,ids:res.closedNow.slice(0,12)});
+          if(res.raisedNow.length)plan.raisedList.push({id:id,g:g,c:n,n:res.raisedNow.length,ids:res.raisedNow.slice(0,12)});
+          if(res.reopenedNow.length)plan.reopenList.push({id:id,g:g,c:n,n:res.reopenedNow.length,ids:res.reopenedNow.slice(0,12)});
+          lines[g]=lines[g]||{};
+          lines[g][n]={t:res.t,c:res.c,wasT:oldT,wasC:oldC,
+                       closed:res.closedNow.length,raised:res.raisedNow.length,reopened:res.reopenedNow.length,baseline:!!res.baseline};
+        }
+        if(res.ids)plan.stillOpen+=res.ids.length;
+        if(res.ids&&res.ids.length)tally(n,"open",res.ids.length);
       });
+      full[g]=out;
     });
-    if(dirty){
-      plan.changed++;
-      var full={};GATE_ORDER.forEach(function(g){full[g]=agg[id][g]||{};});
-      plan.updates[id]={punchFull:full,punch:lines};
-    }
+    if(dirty){plan.changed++;plan.updates[id]={punchFull:full,punch:lines};}
   });
+  /* Systems that hold open items but appear nowhere in this file. If the export is the
+     whole project, that means every one of their items was closed — but a partial or
+     filtered export would look identical, so this is never assumed. The review offers
+     it as an explicit choice with the numbers attached. */
+  plan.absentUpdates={};plan.absentItems=0;
   Object.keys(STATE.systems).forEach(function(id){
     if(agg[id])return;
-    var open=0;GATE_ORDER.forEach(function(g){
-      var p=((STATE.systems[id].gates||{})[g]||{}).punch||{};
-      Object.keys(p).forEach(function(c){open+=Math.max(0,(p[c].t||0)-(p[c].c||0));});});
-    if(open>0)plan.absent.push({id:id,open:open});
+    var sys=STATE.systems[id],open=0,full={},lines={},any=false;
+    GATE_ORDER.forEach(function(g){
+      var p=((sys.gates||{})[g]||{}).punch||{},out={};
+      Object.keys(p).forEach(function(n){
+        var b=p[n],t=+b.t||0,c=+b.c||0,ids=impPunchIds(b),cids=impClosedIds(b);
+        var o=ids?ids.length:Math.max(0,t-c);
+        open+=o;
+        if(o>0){any=true;
+          out[n]={t:t,c:c+o,ids:[],cids:cids.concat(ids||[])};
+          lines[g]=lines[g]||{};lines[g][n]={t:t,c:c+o,wasT:t,wasC:c,closed:o,raised:0,reopened:0};
+        }else out[n]={t:t,c:c,ids:ids||[],cids:cids};
+      });
+      full[g]=out;
+    });
+    if(open>0){
+      plan.absent.push({id:id,open:open});plan.absentItems+=open;
+      if(any)plan.absentUpdates[id]={punchFull:full,punch:lines,absentClose:true};
+    }
   });
   return plan;
 }
 /* ---------- what the plan does to the client numbers ---------- */
+function impAllUpdates(plan){
+  if(!plan.closeAbsent||!plan.absentUpdates)return plan.updates;
+  var m={};Object.keys(plan.updates).forEach(function(k){m[k]=plan.updates[k];});
+  Object.keys(plan.absentUpdates).forEach(function(k){if(!m[k])m[k]=plan.absentUpdates[k];});
+  return m;
+}
 function impProject(plan){
   var before={comp:0,out:0,miss:0,open:0},after={comp:0,out:0,miss:0,open:0};
   var ids=Object.keys(STATE.systems);
   var clone=JSON.parse(JSON.stringify(STATE.systems));
-  Object.keys(plan.updates).forEach(function(id){
-    var u=plan.updates[id],s=clone[id];if(!s)return;
+  var UPD=impAllUpdates(plan);
+  Object.keys(UPD).forEach(function(id){
+    var u=UPD[id],s=clone[id];if(!s)return;
     if(u.gates)Object.keys(u.gates).forEach(function(g){
       s.gates[g]=Object.assign({},s.gates[g],u.gates[g]);
     });
@@ -2800,6 +2895,7 @@ function impShowMapping(){
     h+='<div><span>Contractor</span>'+impSel("imp_contractor",m.contractor)+'</div>';
     h+='<div><span>Status (open / closed)</span>'+impSel("imp_status",m.status)+'</div>';
     h+='<div><span>Gate (W0 / W1 / MC / MCC)</span>'+impSel("imp_gate",m.gate)+'</div>';
+    h+='<div><span>Punch ID <i style="font-style:normal;color:var(--acc)">(tracks closures)</i></span>'+impSel("imp_item",m.item)+'</div>';
   }else{
     ["FAT","W0","W1","MC","MCC"].forEach(function(g){
       var c=m.gates[g]||{done:-1,target:-1};
@@ -2818,6 +2914,7 @@ function impShowMapping(){
     m2.code=+($("imp_code").value);m2.mc=+($("imp_mc").value);m2.desc=IMP.map.desc;
     if(IMP.kind==="punch"){
       m2.contractor=+($("imp_contractor").value);m2.status=+($("imp_status").value);m2.gate=+($("imp_gate").value);
+      m2.item=+($("imp_item").value);m2.closeDate=IMP.map.closeDate;
     }else{
       ["FAT","W0","W1","MC","MCC"].forEach(function(g){
         var d=+($("imp_"+g+"_done").value),t=+($("imp_"+g+"_target").value);
@@ -2838,7 +2935,8 @@ function impList(title,arr,fmt,cls){
   return h+'</div></details>';
 }
 function impShowReview(){
-  var p=IMP.plan,pr=impProject(p),n=Object.keys(p.updates).length;
+  var p=IMP.plan,pr=impProject(p),n=Object.keys(impAllUpdates(p)).length;
+  var extraClosed=(p.closeAbsent&&p.absentItems)?p.absentItems:0;
   var h='<div class="impsec"><div class="imphead">Nothing has been changed yet.</div>';
   h+='<div class="impstat"><div><b>'+(p.matched||0)+'</b><span>rows matched</span></div>'+
      '<div><b>'+n+'</b><span>systems would change</span></div>'+
@@ -2856,8 +2954,31 @@ function impShowReview(){
         var v=u.punch[g][c];lines.push({id:id,g:g,c:c,v:v});});});
     });
     h+='<div class="impsec"><div class="impstat"><div><b>'+p.totalItems+'</b><span>punch items read</span></div>'+
-       '<div><b>'+p.closedItems+'</b><span>closed in file</span></div>'+
-       '<div><b>'+(p.totalItems-p.closedItems)+'</b><span>open in file</span></div></div></div>';
+       '<div><b>'+(p.totalItems-p.closedItems)+'</b><span>open in file</span></div>'+
+       '<div><b>'+p.matched+'</b><span>systems covered</span></div></div></div>';
+    if(p.byId){
+      h+='<div class="impsec"><label>Movement since the last file — matched item by item on Punch ID</label><div class="impstat">'+
+         '<div class="good"><b>'+(p.closedNow+extraClosed)+'</b><span>closed</span></div>'+
+         '<div><b>'+p.raisedNow+'</b><span>newly raised</span></div>'+
+         '<div class="'+(p.reopened?"warn":"")+'"><b>'+p.reopened+'</b><span>reopened</span></div></div>';
+      if(p.noBaseline&&!p.closedNow&&!p.raisedNow&&!p.reopened)
+        h+='<div class="impnote"><b>This file sets the starting point.</b> The board had counts but no item history, so every punch ID in this file is being recorded as the baseline. <b>No count changes</b> — totals, open and closed all stay exactly where they are. From the next file on, closures are tracked item by item.</div>';
+      else if(p.noBaseline)
+        h+='<div class="impnote">'+p.noBaseline+' contractor/gate pairing'+(p.noBaseline>1?'s have':' has')+' no item history yet — recorded as a starting point, with no closures claimed.</div>';
+      h+='</div>';
+      var per=Object.keys(p.perCo).filter(function(c){return p.perCo[c].closed||p.perCo[c].raised||p.perCo[c].reopened;})
+                .sort(function(a,b){return p.perCo[b].closed-p.perCo[a].closed;});
+      h+=impList("By contractor",per,function(c){var x=p.perCo[c];
+          return '<b>'+esc(c)+'</b> — closed <b>'+x.closed+'</b> · new '+x.raised+(x.reopened?' · reopened '+x.reopened:'')+' · still open '+x.open;});
+      h+=impList("Items closed since the last file",p.closedList,function(x){
+          return esc(impRowName(x.id))+' · <b>'+x.g+'</b> · '+esc(x.c)+' — <b>'+x.n+'</b> closed (#'+x.ids.join(", #")+(x.n>x.ids.length?" …":"")+')';},"good");
+      h+=impList("New punch items raised",p.raisedList,function(x){
+          return esc(impRowName(x.id))+' · <b>'+x.g+'</b> · '+esc(x.c)+' — <b>'+x.n+'</b> new (#'+x.ids.join(", #")+(x.n>x.ids.length?" …":"")+')';});
+      h+=impList("Reopened — closed before, back in this file",p.reopenList,function(x){
+          return esc(impRowName(x.id))+' · <b>'+x.g+'</b> · '+esc(x.c)+' — <b>'+x.n+'</b> (#'+x.ids.join(", #")+')';},"warn");
+    }else{
+      h+='<div class="impnote">This file has no Punch ID column, so closures can\'t be matched item by item — the counts are replaced as-is. Map the Punch ID column on the previous screen to get closed / new / reopened tracking.</div>';
+    }
     h+=impList("Counts that change",lines,function(x){return esc(impRowName(x.id))+' · <b>'+x.g+'</b> · '+esc(x.c)+': '+x.v.wasT+'/'+x.v.wasC+' → <b>'+x.v.t+' total, '+x.v.c+' closed</b>';});
     if(p.aliases.length){
       var seenA={},al=[];p.aliases.forEach(function(a){var k=a.from+"|"+a.to;if(!seenA[k]){seenA[k]=1;al.push(a);}});
@@ -2866,8 +2987,13 @@ function impShowReview(){
     if(p.newContractors.length)h+=impList("Contractors not yet on the roster (they'll be added)",p.newContractors,function(x){return esc(x);},"warn");
     if(p.noGate)h+='<div class="impnote">'+p.noGate+' row'+(p.noGate>1?'s':'')+' had no recognisable walk (W0 / W1 / MC / MCC / FAT) — skipped rather than guessed onto a gate.</div>';
     if(p.absent.length){
-      var tot=p.absent.reduce(function(a,x){return a+x.open;},0);
-      h+='<div class="impnote">'+p.absent.length+' system'+(p.absent.length>1?'s':'')+' on the board carry '+tot+' open item'+(tot>1?'s':'')+' but appear nowhere in this file — <b>left untouched</b>.</div>';
+      var tot=p.absentItems||p.absent.reduce(function(a,x){return a+x.open;},0);
+      h+='<div class="impnote"><label style="display:flex;gap:9px;align-items:flex-start;cursor:pointer;margin:0">'+
+         '<input type="checkbox" id="imp_closeabsent"'+(p.closeAbsent?' checked':'')+' style="margin-top:2px">'+
+         '<span><b>'+p.absent.length+' system'+(p.absent.length>1?'s':'')+'</b> on the board hold <b>'+tot+' open item'+(tot>1?'s':'')+
+         '</b> but appear nowhere in this file. If this export covers the whole project they are closed. '+
+         'Tick to count them as closed; leave it clear and they stay exactly as they are.</span></label></div>';
+      h+=impList("Systems that vanished from the file",p.absent,function(x){return esc(impRowName(x.id))+' — '+x.open+' open';},"warn");
     }
   }
   h+=impList("Rows that match nothing on the board (skipped)",p.unmatched,function(x){return esc((x.code||"")+(x.mc?" · MC "+x.mc:""));},"warn");
@@ -2883,15 +3009,17 @@ function impShowReview(){
      '<button class="btn pri" id="imp_apply"'+(n?"":" disabled")+'>'+(n?("Apply to "+n+" system"+(n>1?"s":"")):"Nothing to apply")+'</button></div>';
   impSay(h);
   $("imp_back").onclick=impShowMapping;
+  var ca=$("imp_closeabsent");
+  if(ca)ca.onchange=function(){IMP.plan.closeAbsent=this.checked;impShowReview();};
   if(n)$("imp_apply").onclick=function(){impApply(pr);};
 }
 /* ---------- apply (with an undo snapshot saved first) ---------- */
 function impApply(pr){
-  var p=IMP.plan,ids=Object.keys(p.updates);
+  var p=IMP.plan,UPD=impAllUpdates(p),ids=Object.keys(UPD);
   if(!confirm("Apply "+ids.length+" system change"+(ids.length>1?"s":"")+" from "+IMP.file.name+"?\n\nCompleted "+pr.before.comp+" → "+pr.after.comp+"\nOutstanding "+pr.before.out+" → "+pr.after.out+"\nMissed MCC "+pr.before.miss+" → "+pr.after.miss+"\n\nAn undo snapshot is saved first."))return;
   var prev=[],ops=[];
   ids.forEach(function(id){
-    var s=STATE.systems[id],u=p.updates[id];
+    var s=STATE.systems[id],u=UPD[id];
     var before={id:id,gates:{}},merged=JSON.parse(JSON.stringify(s));
     function touch(g){
       if(!before.gates[g]){var cg=(s.gates||{})[g]||{};
