@@ -444,6 +444,15 @@
   .mbody{padding:16px 22px 20px;max-height:64vh;overflow:auto}
   .gbox{background:var(--bg2);border:1.5px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:12px}
   .gbox.gov{border-color:var(--line2)}
+  /* target-date history — quiet by default, only shows when a date has actually moved */
+  .tgthist{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:2px 0 8px}
+  .tgthist .thl{font-size:9.5px;font-weight:900;letter-spacing:.5px;text-transform:uppercase;color:var(--mut2)}
+  .tgthist .thm{font-size:11px;font-weight:800;color:var(--mut);background:var(--card2);border:1px solid var(--line);
+    border-radius:999px;padding:3px 9px;display:inline-flex;align-items:center;gap:6px}
+  .tgthist .thm b{color:var(--mut2)}
+  .tgthist .thm i{font-style:normal;font-size:10px;color:var(--mut2);opacity:.8}
+  .tgthist .thm.late{border-color:rgba(194,92,0,.45)} .tgthist .thm.late b{color:var(--org)}
+  .tgthist .thm.early{border-color:rgba(10,135,90,.45)} .tgthist .thm.early b{color:var(--grn)}
   .gbhd{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:6px}
   .gbhd .gbn{font-size:17px;font-weight:900}
   .gbhd .gbd{font-size:12px;color:var(--mut);font-weight:700}
@@ -1034,7 +1043,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v12.3-import-receipt";
+var MC_BUILD="v12.4-tracker-history";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1781,6 +1790,29 @@ function renderMcc(v){
        507 systems sync to every user on load; 295KB of descriptions would ride along for
        nothing. These load per-system, once, only when someone opens the panel. ---- */
 var PUNCH_COL="mc_punch", PTXT={}, PTXT_LOADING={}, PT_OPEN={};
+/* target-date history — every move a tracker import makes, kept out of the live stream */
+var HIST_COL="mc_history", HIST={}, HIST_LOADING={};
+function loadHistory(sysId){
+  if(!sysId||HIST[sysId]||HIST_LOADING[sysId]||!window.db)return;
+  HIST_LOADING[sysId]=1;
+  db.collection(HIST_COL).doc(sysId).get().then(function(d){
+    HIST[sysId]=(d.exists&&d.data()&&d.data().moves)||{};
+    delete HIST_LOADING[sysId];
+    if(STATE.openSysId===sysId)renderModal();
+  }).catch(function(e){console.warn("history",e);HIST[sysId]={};delete HIST_LOADING[sysId];});
+}
+/* the moves recorded for one gate, oldest first */
+function histFor(sysId,gate){
+  var m=HIST[sysId];if(!m)return [];
+  return Object.keys(m).map(function(k){return m[k];})
+    .filter(function(x){return x&&x.g===gate&&x.to;})
+    .sort(function(a,b){return (a.at||"")<(b.at||"")?-1:1;});
+}
+function dayGap(a,b){
+  if(!a||!b)return null;
+  var d=(new Date(b+"T00:00:00")-new Date(a+"T00:00:00"))/86400000;
+  return Math.round(d);
+}
 function ptxtFor(sysId){return PTXT[sysId]||null;}
 function loadPunchText(sysId){
   if(!sysId||PTXT[sysId]||PTXT_LOADING[sysId]||!window.db)return;
@@ -1803,7 +1835,7 @@ function openIdsFor(s,gate,name){
   var g=(s.gates||{})[gate]||{},e=(g.punch||{})[name]||{};
   var ids=e.ids||[]; return ids.slice();
 }
-function openSys(id,at){if(STATE.openSysId!==id)PT_OPEN={};STATE.openSysId=id;lockRowOrder(id);loadPunchText(id);
+function openSys(id,at){if(STATE.openSysId!==id)PT_OPEN={};STATE.openSysId=id;lockRowOrder(id);loadPunchText(id);loadHistory(id);
   if(at&&at.gate&&at.name)PT_OPEN[at.gate+"|"+at.name]=1;
   renderModal();var dlg=$("sysDlg");if(!dlg.open)dlg.showModal();}
 function renderModal(){
@@ -1844,7 +1876,18 @@ function renderModal(){
       h+='<span class="gbd" style="color:'+dc+';font-weight:800">walk '+(g.date?fmtMD(g.date):'no date set')+(g.target&&g.target!==g.date?' · target '+fmtMD(g.target):'')+'</span>';
     }
     h+=g.done?'<span class="mpill done">signed off'+(g.doneAt?' · '+fmtMD(g.doneAt):'')+'</span>':dsPill(ds);
+    var _hv=histFor(s.id,k);
     h+='<span style="flex:1"></span><label class="sw"><input type="checkbox" data-act="done" data-sys="'+esc(s.id)+'" data-gate="'+k+'" '+(g.done?'checked':'')+'>walk signed off</label></div>';
+    if(_hv.length){
+      h+='<div class="tgthist"><span class="thl">target moved</span>';
+      _hv.forEach(function(x){
+        var gap=dayGap(x.from,x.to);
+        h+='<span class="thm'+(gap>0?' late':(gap<0?' early':''))+'">'+(x.from?fmtMD(x.from):'not set')+' → '+fmtMD(x.to)+
+           (gap!==null&&gap!==0?' <b>'+(gap>0?'+':'')+gap+'d</b>':'')+
+           '<i>'+(x.at?fmtMD(x.at.slice(0,10)):'')+'</i></span>';
+      });
+      h+='</div>';
+    }
     var p=g.punch||{},names=orderedNames(s.id,k,p); /* LOCKED order — never re-sort while the panel is open */
     var gst=gateStats(g);
     h+='<div class="grollup"><span class="rs"><b class="num">'+gst.t+'</b> total</span><span class="rs ok"><b class="num">'+gst.c+'</b> closed</span><span class="rs hot"><b class="num">'+gst.o+'</b> open</span></div>';
@@ -2521,8 +2564,12 @@ function impRead(z,name){
   return impInflate(data).then(function(b){return dec.decode(b);});
 }
 /* ---------- sheet XML -> rows of plain values ---------- */
-function impTags(xml,tag){var out=[],re=new RegExp("<"+tag+"(\\s[^>]*)?>([\\s\\S]*?)<\\/"+tag+">|<"+tag+"(\\s[^>]*)?\\/>","g"),m;
-  while((m=re.exec(xml)))out.push({attr:m[1]||m[3]||"",body:m[2]||""});return out;}
+/* Self-closing tags MUST be tried first. Excel writes empty cells as <c r="E5" s="12"/>,
+   and with the paired form first the greedy attribute match swallowed the "/" and then ran
+   on to the NEXT cell's </c> — so an empty cell stole the following cell's value and every
+   value after it slid a column left. That silently produced 1900-xx-xx dates. */
+function impTags(xml,tag){var out=[],re=new RegExp("<"+tag+"(\\s[^>]*?)?\\/>|<"+tag+"(\\s[^>]*?)?>([\\s\\S]*?)<\\/"+tag+">","g"),m;
+  while((m=re.exec(xml)))out.push({attr:m[1]||m[2]||"",body:m[3]||""});return out;}
 function impAttr(a,n){var m=new RegExp(n+'="([^"]*)"').exec(a||"");return m?m[1]:null;}
 function impUnesc(s){return String(s).replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/&quot;/g,'"').replace(/&apos;/g,"'").replace(/&#(\d+);/g,function(_,d){return String.fromCharCode(+d);}).replace(/&amp;/g,"&");}
 function impCol(ref){var s=String(ref||"").replace(/[0-9]/g,""),n=0;for(var i=0;i<s.length;i++)n=n*26+(s.charCodeAt(i)-64);return n-1;}
@@ -2618,8 +2665,9 @@ function impAutoMap(headers){
      which holds things like 22JAAA00-1003 and matches nothing on the board. */
   m.code=find(/^(system\s*no\.?|system\s*#|system\s*number|system\s*id|ad\s*code|system\s*code)$/);
   if(m.code<0)m.code=find(/system\s*(no\b|#|number|code|id)/);
+  if(m.code<0)m.code=find(/^system$/);                            /* the MC tracker heads it just "System" */
   if(m.code<0)m.code=find(/^(code|system\s*tag|tag)$/);          /* last resort only */
-  m.mc=find(/^(mc\s*#|mc\s*no\.?|mc\s*number)$/);
+  m.mc=find(/^(mc\s*#|mc\s*no\.?|mc\s*number|mc\s*group|mc)$/);
   m.desc=find(/(system\s*(name|description)|description|equipment\s*name)/);
   m.group=find(/(priority\s*group|group|area|board)/);
   m.contractor=find(/^(responsible\s*contractor|responsible|contractor|company|vendor)$/);
@@ -2643,7 +2691,10 @@ function impAutoMap(headers){
     var gl=g.toLowerCase(),done=-1,tgt=-1;
     for(var i=0;i<H.length;i++){
       var h=H[i];if(!h||impIsLive(h))continue;
-      var mine=(g==="MC")?(/\bmc\b/.test(h)&&!/mcc/.test(h)):(new RegExp("\\b"+gl+"\\b").test(h));
+      /* the tracker spells W0 with a letter O in "WO Target Date" — treat wo as w0,
+         otherwise the W0 target column is silently skipped and the import looks fine */
+      var hh=(g==="W0")?h.replace(/\bwo\b/g,"w0"):h;
+      var mine=(g==="MC")?(/\bmc\b/.test(hh)&&!/mcc/.test(hh)):(new RegExp("\\b"+gl+"\\b").test(hh));
       if(!mine)continue;
       if(/(done|eida|sign|status|complete)/.test(h)&&done<0)done=i;
       else if(/(target|plan|scheduled|due|date)/.test(h)&&tgt<0)tgt=i;
@@ -2661,20 +2712,31 @@ function impDetectKind(map,headers){
 }
 /* ---------- match a sheet row to a board system ---------- */
 function impIndexSystems(){
-  var byCode={},byMc={};
+  var byCode={},byMc={},byMcNum={};
   Object.keys(STATE.systems).forEach(function(id){
     var s=STATE.systems[id];
     byCode[impKey(s.code||id).replace(/\s/g,"")]=id;
     byCode[impKey(id).replace(/\s/g,"")]=id;
-    if(s.mc)byMc[impKey(s.mc)]=id;
+    if(s.mc){
+      byMc[impKey(s.mc)]=id;
+      var num=impKey(s.mc).replace(/^mc[\s\-_]*/,"").replace(/^0+/,"");
+      if(num)byMcNum[num]=id;
+    }
   });
-  return {byCode:byCode,byMc:byMc};
+  return {byCode:byCode,byMc:byMc,byMcNum:byMcNum};
 }
 function impMatch(ix,code,mc){
   var c=impKey(code).replace(/\s/g,"");
   if(c&&ix.byCode[c])return ix.byCode[c];
   var m=impKey(mc);
   if(m&&ix.byMc[m])return ix.byMc[m];
+  /* the tracker writes "MC0042" where the board holds "0042" */
+  var bare=m.replace(/^mc[\s\-_]*/,"");
+  if(bare&&ix.byMc[bare])return ix.byMc[bare];
+  if(bare&&/^\d+$/.test(bare)){
+    var stripped=bare.replace(/^0+/,"");
+    if(ix.byMcNum[stripped])return ix.byMcNum[stripped];
+  }
   return null;
 }
 function impDoneVal(v){
@@ -2717,10 +2779,18 @@ function impPlanTracker(rows,map){
         }
       }
       if(col.target>=0){
-        var nd=impDateVal(r[col.target]),od=cur.target||null;
-        if((nd||null)!==(od||null)){
-          plan.dates.push({id:id,g:g,from:od,to:nd});
-          up.gates[g]=Object.assign({},up.gates[g],{target:nd});
+        var raw=impKey(r[col.target]);
+        var isNA=/^n\/?a$|^not applicable$/.test(raw);
+        if(isNA){
+          /* "N/A" in a target cell means this walk does not apply to this system */
+          if(!cur.na){plan.applic.push({id:id,g:g,from:"applies",to:"N/A"});
+            up.gates[g]=Object.assign({},up.gates[g],{na:true});}
+        }else{
+          var nd=impDateVal(r[col.target]),od=cur.target||null;
+          if((nd||null)!==(od||null)){
+            plan.dates.push({id:id,g:g,from:od,to:nd});
+            up.gates[g]=Object.assign({},up.gates[g],{target:nd});
+          }
         }
       }
     });
@@ -3192,6 +3262,19 @@ function impApply(pr){
     ops.push(function(b){b.set(db.collection(PUNCH_COL).doc(id),{items:_t},{merge:true});});
     PTXT[id]=Object.assign({},PTXT[id]||{},_t);
   });
+  /* ---- target-date history: one row per date that actually moved ---- */
+  var stampISO=new Date().toISOString(), who=(CURRENT_USER&&CURRENT_USER.email)||"", hist={};
+  ((p&&p.dates)||[]).forEach(function(d){
+    if(!d.to||!UPD[d.id])return;                 /* only dates that are really being written */
+    var key=(stampISO+"_"+d.g).replace(/[^A-Za-z0-9_]/g,"_");
+    (hist[d.id]=hist[d.id]||{})[key]={g:d.g,from:d.from||null,to:d.to,at:stampISO,by:who,file:IMP.file.name};
+  });
+  var histIds=Object.keys(hist);
+  histIds.forEach(function(id){
+    var _h=hist[id];
+    ops.push(function(b){b.set(db.collection(HIST_COL).doc(id),{moves:_h},{merge:true});});
+    HIST[id]=Object.assign({},HIST[id]||{},_h);
+  });
   /* roster additions from a punch file */
   var meta=null;
   if(p.kind==="punch"&&p.newContractors.length){
@@ -3209,6 +3292,15 @@ function impApply(pr){
   /* say what actually moved, so nobody has to guess whether the import landed */
   function movementLine(){
     var bits=[];
+    if(p.kind==="tracker"){
+      var nd=((p.dates||[]).filter(function(d){return d.to&&UPD[d.id];})).length;
+      var ns=(p.signoffs||[]).length,nu=(p.unsignoffs||[]).length,na=(p.applic||[]).length;
+      if(nd)bits.push(nd+" target date"+(nd===1?"":"s")+" moved");
+      if(ns)bits.push(ns+" gate"+(ns===1?"":"s")+" signed off");
+      if(nu)bits.push(nu+" un-signed");
+      if(na)bits.push(na+" applicability change"+(na===1?"":"s"));
+      return bits.length?bits.join(" · "):"Nothing moved — the tracker matches the board already.";
+    }
     if(p.closedNow)bits.push(p.closedNow+" item"+(p.closedNow===1?"":"s")+" closed");
     if(p.raisedNow)bits.push(p.raisedNow+" newly raised");
     if(p.reopened)bits.push(p.reopened+" reopened");
