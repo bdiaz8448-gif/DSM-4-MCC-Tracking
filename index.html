@@ -1034,7 +1034,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v12.2-column-lock";
+var MC_BUILD="v12.3-import-receipt";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -3202,13 +3202,37 @@ function impApply(pr){
   var snap={at:new Date().toISOString(),by:(CURRENT_USER&&CURRENT_USER.email)||"",file:IMP.file.name,kind:p.kind,count:ids.length,prev:prev};
   var snapSize=JSON.stringify(snap).length;
   if(snapSize>700000){snap.prev=[];snap.tooBig=true;}
-  META_DOC.set(Object.assign({},meta||{},{lastImport:snap}),{merge:true}).then(function(){
+  /* An import that moves no counts must NOT overwrite the undo snapshot — otherwise
+     re-running the same file wipes the rollback point for the import before it. */
+  var keepUndo=(ids.length===0);
+  var metaWrite=keepUndo?(meta||{}):Object.assign({},meta||{},{lastImport:snap});
+  /* say what actually moved, so nobody has to guess whether the import landed */
+  function movementLine(){
+    var bits=[];
+    if(p.closedNow)bits.push(p.closedNow+" item"+(p.closedNow===1?"":"s")+" closed");
+    if(p.raisedNow)bits.push(p.raisedNow+" newly raised");
+    if(p.reopened)bits.push(p.reopened+" reopened");
+    if(!bits.length)return "No punch item moved — every item in the file was already where the board had it.";
+    return bits.join(" · ");
+  }
+  function headlineLine(pr){
+    var b=pr.before,a=pr.after;
+    var same=(b.comp===a.comp&&b.out===a.out&&b.miss===a.miss);
+    var moved=!!(p.closedNow||p.raisedNow||p.reopened);
+    return "Completed "+b.comp+" → "+a.comp+" · Outstanding "+b.out+" → "+a.out+" · Missed MCC "+b.miss+" → "+a.miss+
+      "\nOpen punch items "+b.open+" → "+a.open+
+      ((same&&moved)?"\n\nThe top three did not move — closing punch items does not complete a system on its own. That is expected, not a failed import.":"");
+  }
+  var _mw = keepUndo ? META_DOC.set(metaWrite,{merge:true}) : META_DOC.set(metaWrite,{merge:true});
+  _mw.then(function(){
     chunkedWrite(ops,function(){
       snapshotBurn&&snapshotBurn();
       $("impDlg").close();
-      alert((ids.length?("Imported "+ids.length+" system"+(ids.length===1?"":"s")):"No count changed")+" from "+IMP.file.name+"."+
-        (txtIds.length?"\nItem detail (description + phase type) saved for "+txtIds.length+" systems.":"")+"\n\n"+
-        (snap.tooBig?"That change was too large to store an undo snapshot — re-import the previous file to roll back.":"Undo is available in Settings if this needs rolling back."));
+      alert((ids.length?("Imported "+ids.length+" system"+(ids.length===1?"":"s")):"No count changed")+" from "+IMP.file.name+".\n\n"+
+        movementLine()+"\n"+headlineLine(pr)+
+        (txtIds.length?"\n\nItem detail (description + phase type) saved for "+txtIds.length+" systems.":"")+"\n\n"+
+        (keepUndo?"No counts changed, so the previous undo point was left untouched.":
+         (snap.tooBig?"That change was too large to store an undo snapshot — re-import the previous file to roll back.":"Undo is available in Settings if this needs rolling back.")));
     });
   }).catch(function(e){alert("Could not save the undo snapshot, so nothing was written: "+e.message);});
 }
