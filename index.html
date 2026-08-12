@@ -228,6 +228,18 @@
   .cardck{flex:0 0 auto;align-self:flex-start;width:30px;height:30px;margin:2px 6px 0 4px;border-radius:50%;cursor:pointer;font-size:14px;font-weight:900;display:grid;place-items:center;
     color:var(--grn);background:var(--grnbg);border:1.5px solid rgba(52,211,153,.45);transition:.15s;position:relative;z-index:2}
   .cardck:hover{background:var(--grn);color:#04170f;box-shadow:0 0 14px rgba(52,211,153,.55);transform:scale(1.1)}
+  /* NOT closed yet = hollow neutral circle (an unchecked box), never a green check.
+     A green check on an unfinished system reads as "done" and it isn't. */
+  .cardck.todo{color:transparent;background:transparent;border:2px solid var(--line2);box-shadow:none}
+  .cardck.todo::after{content:"";position:absolute;inset:0;border-radius:50%}
+  .cardck.todo:hover{color:#04170f;background:var(--grn);border-color:var(--grn);box-shadow:0 0 14px rgba(52,211,153,.55)}
+  /* complete = solid green check that is STATE, not a button */
+  .cardck.state{cursor:default;color:#fff;background:linear-gradient(135deg,var(--grn),var(--grng));border-color:transparent;
+    box-shadow:0 0 12px rgba(52,211,153,.45),inset 0 1px 0 rgba(255,255,255,.35)}
+  .cardck.state:hover{transform:none;box-shadow:0 0 12px rgba(52,211,153,.45),inset 0 1px 0 rgba(255,255,255,.35)}
+  /* completed + owner shows state AND reopen — keep the pair the same footprint as one button
+     so the card head never re-wraps and the layout stays exactly as it was */
+  .reopenrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
   .cardck.reopen{color:var(--org);background:var(--orgbg);border-color:rgba(255,140,26,.45)}
   .cardck.reopen:hover{background:var(--org);color:#1a0e00;box-shadow:0 0 14px rgba(255,140,26,.5)}
   /* completed systems read GREEN — closed, dated, done */
@@ -505,6 +517,32 @@
   .grollup{display:flex;gap:14px;flex-wrap:wrap;margin:2px 0 10px;font-size:11.5px;font-weight:700;color:var(--mut)}
   .grollup b{font-size:16px;font-weight:900;color:var(--txt);margin-right:3px}
   .grollup .ok b{color:var(--grn)} .grollup .hot b{color:var(--red)}
+  /* ---- collapsible punch-item descriptions (panel only; cards never show these) ---- */
+  .pexp{flex:0 0 auto;width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:var(--card2);color:var(--mut);
+    cursor:pointer;display:grid;place-items:center;font-size:11px;font-weight:900;transition:.15s;padding:0}
+  .pexp:hover{border-color:var(--acc);color:var(--acc);background:var(--card)}
+  .pexp.on{background:linear-gradient(135deg,var(--acc),var(--acc2));border-color:transparent;color:var(--onacc)}
+  .pexp[disabled]{opacity:.3;cursor:default}
+  .pitems{margin:2px 0 8px;padding:8px 10px;border-radius:12px;background:var(--card2);border:1px solid var(--line);display:flex;flex-direction:column;gap:1px}
+  .pitem{display:flex;gap:9px;align-items:flex-start;padding:7px 2px;border-top:1px dashed var(--line);cursor:pointer}
+  .pitem:first-child{border-top:0}
+  .pitem .pid{flex:0 0 auto;min-width:46px;font-size:11px;font-weight:900;color:var(--mut2)}
+  .ptype{flex:0 0 auto;font-size:9.5px;font-weight:900;letter-spacing:.2px;text-transform:uppercase;padding:2px 7px;border-radius:999px;
+    background:var(--card);border:1px solid var(--line2);color:var(--mut);white-space:nowrap}
+  .ptype.t-mech{border-color:rgba(7,104,139,.5);color:var(--acc)}
+  .ptype.t-ins{border-color:rgba(194,92,0,.5);color:var(--org)}
+  .ptype.t-tag{border-color:rgba(124,58,237,.45);color:#6d28d9}
+  .ptype.t-doc{border-color:rgba(120,140,160,.6);color:var(--mut2)}
+  .ptype.t-elec{border-color:rgba(166,116,0,.55);color:var(--gold)}
+  .ptxt{flex:1;min-width:0;font-size:12px;line-height:1.4;color:var(--txt);font-weight:600;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .pitem.open .ptxt{-webkit-line-clamp:unset;overflow:visible}
+  .pitems .pnote{font-size:11px;font-weight:700;color:var(--mut2);padding:4px 2px}
+  @media(max-width:760px){
+    .pitem .pid{min-width:0}
+    .pitem{flex-wrap:wrap;gap:6px}
+    .ptxt{flex:1 0 100%}
+  }
   .phead{display:flex;align-items:center;gap:10px;padding:2px 0 4px;font-size:9.5px;font-weight:900;color:var(--mut2);text-transform:uppercase;letter-spacing:.5px}
   .phead .pn{flex:1} .phead .ch{min-width:62px;text-align:center}
   .prow .cell{min-width:62px;display:flex;justify-content:center}
@@ -981,7 +1019,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v11.10-owner-gold";
+var MC_BUILD="v12.0-punch-detail";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1568,8 +1606,10 @@ function renderBoard(v){
     h+='<div class="strip"></div><div class="body">';
     var mtag=miss?'<span class="missbadge">⚠ Missed MCC · '+fmtMD((s.gates.MCC||{}).target)+'</span>':phaseBadge(s);
     var sOpen=sysOpen(s),quickCk='';
-    if(sysPhase(s)!=="done")quickCk='<button class="cardck" data-act="closeSysAll" data-sys="'+esc(s.id)+'" title="Close this system: all punch items closed + W0/W1/MC/MCC signed off">✓</button>';
-    else quickCk='<button class="cardck reopen" data-act="reopenSys" data-sys="'+esc(s.id)+'" title="Owner: reopen this system to log new punch items">↺</button>';
+    if(sysPhase(s)!=="done")quickCk='<button class="cardck todo" data-act="closeSysAll" data-sys="'+esc(s.id)+'" title="Not closed yet — click to close this system: all punch items closed + W0/W1/MC/MCC signed off">✓</button>';
+    else{
+      quickCk='<span class="cardck state" title="Complete — all walks signed off and every punch item closed">✓</span>';
+    }
     h+='<div class="schead"><span class="light '+st+'"></span><div class="h1"><div class="mc num">'+esc(s.mc)+'</div><div class="desc">'+esc(s.desc)+'</div><div class="code">'+esc(s.code)+' · target MC '+fmtMD(s.target)+'</div></div>'+quickCk+'<span class="btagcol"><span class="btag">'+esc(s.board||'')+'</span>'+mtag+'</span></div>';
     h+='<div class="gaterow">';
     GATE_ORDER.forEach(function(k){h+=gatePill(k,s.gates[k]);});
@@ -1579,7 +1619,7 @@ function renderBoard(v){
     GATE_ORDER.forEach(function(k){
       var g=s.gates[k];if(!g)return;
       var p=g.punch||{},parts=Object.keys(p).map(function(n){return{n:n,o:pOpen(p[n])};}).filter(function(x){return x.o>0;}).sort(function(a,b){return b.o-a.o;});
-      if(parts.length)gh+='<div class="ghold"><span class="ggk">'+k+'</span>'+parts.map(function(x){return '<span class="ghc">'+esc(x.n)+' <b>'+x.o+'</b></span>';}).join('')+'</div>';
+      if(parts.length)gh+='<div class="ghold"><span class="ggk">'+k+'</span>'+parts.map(function(x){return '<span class="ghc" data-act="openSysAt" data-sys="'+esc(s.id)+'" data-gate="'+k+'" data-name="'+esc(x.n)+'" title="See what '+esc(x.n)+"'s "+x.o+' open item'+(x.o===1?'':'s')+' are">'+esc(x.n)+' <b>'+x.o+'</b></span>';}).join('')+'</div>';
     });
     if(gh)h+='<div class="gholds">'+gh+'</div>';
     var sst=sysStats(s);
@@ -1722,7 +1762,35 @@ function renderMcc(v){
 }
 
 /* ---------- system detail modal ---------- */
-function openSys(id){STATE.openSysId=id;lockRowOrder(id);renderModal();var dlg=$("sysDlg");if(!dlg.open)dlg.showModal();}
+/* ---- punch-item text (description + phase type), kept OUT of the live board stream.
+       507 systems sync to every user on load; 295KB of descriptions would ride along for
+       nothing. These load per-system, once, only when someone opens the panel. ---- */
+var PUNCH_COL="mc_punch", PTXT={}, PTXT_LOADING={}, PT_OPEN={};
+function ptxtFor(sysId){return PTXT[sysId]||null;}
+function loadPunchText(sysId){
+  if(!sysId||PTXT[sysId]||PTXT_LOADING[sysId]||!window.db)return;
+  PTXT_LOADING[sysId]=1;
+  db.collection(PUNCH_COL).doc(sysId).get().then(function(d){
+    PTXT[sysId]=(d.exists&&d.data()&&d.data().items)||{};
+    delete PTXT_LOADING[sysId];
+    if(STATE.openSysId===sysId)renderModal();
+  }).catch(function(e){console.warn("punchText",e);PTXT[sysId]={};delete PTXT_LOADING[sysId];});
+}
+function ptypeClass(t){t=(t||"").toLowerCase();
+  if(t.indexOf("mech")>=0||t.indexOf("reassembly")>=0)return "t-mech";
+  if(t.indexOf("insul")>=0)return "t-ins";
+  if(t.indexOf("tag")>=0||t.indexOf("label")>=0)return "t-tag";
+  if(t.indexOf("doc")>=0||t.indexOf("redline")>=0||t.indexOf("test pack")>=0)return "t-doc";
+  if(t.indexOf("elec")>=0||t.indexOf("i&c")>=0||t.indexOf("automation")>=0)return "t-elec";
+  return "";}
+/* the open Punch IDs a contractor is holding on one walk */
+function openIdsFor(s,gate,name){
+  var g=(s.gates||{})[gate]||{},e=(g.punch||{})[name]||{};
+  var ids=e.ids||[]; return ids.slice();
+}
+function openSys(id,at){if(STATE.openSysId!==id)PT_OPEN={};STATE.openSysId=id;lockRowOrder(id);loadPunchText(id);
+  if(at&&at.gate&&at.name)PT_OPEN[at.gate+"|"+at.name]=1;
+  renderModal();var dlg=$("sysDlg");if(!dlg.open)dlg.showModal();}
 function renderModal(){
   var s=STATE.systems[STATE.openSysId];if(!s)return;
   /* preserve scroll + focus so tapping +/- never jumps the panel to the top */
@@ -1775,11 +1843,29 @@ function renderModal(){
       h+='<span class="cell">'+stepper(s.id,k,n,op)+'</span>';
       if(op>0)h+='<button class="rowck" data-act="closeAllRow" data-sys="'+esc(s.id)+'" data-gate="'+k+'" data-name="'+esc(n)+'" title="Close ALL of '+esc(n)+"'s open items on this walk"+'">✓</button>';
       else h+='<span class="rowck ghost">✓</span>';
+      var _txt=ptxtFor(s.id),_ids=openIdsFor(s,k,n),_key=k+"|"+n,_isOpen=!!PT_OPEN[_key];
+      var _have=_ids.filter(function(x){return _txt&&_txt[x];}).length;
+      h+='<button class="pexp'+(_isOpen?' on':'')+'" data-act="togglePItems" data-gate="'+k+'" data-name="'+esc(n)+'"'+(_ids.length?'':' disabled')+' title="'+(_ids.length?'Show what these '+_ids.length+' items are':'No item detail on file for this line')+'">'+(_isOpen?'\u2013':'\u22ee')+'</button>';
       if(STATE.unlocked)h+='<button class="rowdel" data-act="delPunch" data-sys="'+esc(s.id)+'" data-gate="'+k+'" data-name="'+esc(n)+'" title="Delete this punch line (owner)">🗑</button>';
-      h+='</div>';});
+      h+='</div>';
+      if(_isOpen&&_ids.length){
+        h+='<div class="pitems">';
+        if(op!==_ids.length)h+='<div class="pnote">'+_ids.length+' item'+(_ids.length===1?'':'s')+' from the last punch list import. The open count above ('+op+') reflects closures logged on the board since then.</div>';
+        if(!_txt&&PTXT_LOADING[s.id])h+='<div class="pnote">loading item detail…</div>';
+        else if(!_have)h+='<div class="pnote">No description on file for these '+_ids.length+' items. They will fill in on the next punch list import.</div>';
+        else _ids.forEach(function(pid){
+          var it=_txt&&_txt[pid];if(!it)return;
+          h+='<div class="pitem" data-act="togglePText"><span class="pid num">'+esc(pid)+'</span>'+
+             (it.p?'<span class="ptype '+ptypeClass(it.p)+'">'+esc(it.p)+'</span>':'')+
+             '<span class="ptxt">'+esc(it.d||"")+'</span></div>';
+        });
+        h+='</div>';
+      }
+    });
     h+='<div class="addc"><input type="text" data-role="addcInput" data-act="addcKey" data-sys="'+esc(s.id)+'" data-gate="'+k+'" list="mcroster" placeholder="Type contractor name…" autocomplete="off" spellcheck="false"><input type="number" min="1" class="addtot" data-role="addcTot" data-act="addcKey" data-sys="'+esc(s.id)+'" data-gate="'+k+'" placeholder="Total" title="Total punch items"><button class="btn pri" data-act="addcGo" data-sys="'+esc(s.id)+'" data-gate="'+k+'">Add</button></div>';
     h+='</div>';
   });
+  if(sysPhase(s)==="done"&&isOwnerUser())h+='<div class="reopenrow"><button class="btn" data-act="reopenSys" data-sys="'+esc(s.id)+'">↺ Reopen this system</button><span class="hint" style="margin:0">Owner only — reopens the walks so new punch items can be logged.</span></div>';
   if(STATE.unlocked)h+='<div style="display:flex;justify-content:flex-end;margin-top:4px"><button class="btn danger" data-act="delSys" data-sys="'+esc(s.id)+'">🗑 Delete this system</button></div>';
   h+='</div>';
   dlg.innerHTML=h;
@@ -1806,6 +1892,10 @@ document.addEventListener("click",function(e){
   var t=e.target.closest("[data-act]");if(!t)return;
   var act=t.getAttribute("data-act"),sys=t.getAttribute("data-sys"),gate=t.getAttribute("data-gate"),name=t.getAttribute("data-name");
   if(act==="openSys")openSys(sys);
+  else if(act==="openSysAt")openSys(sys,{gate:t.getAttribute("data-gate"),name:t.getAttribute("data-name")});
+  else if(act==="togglePItems"){var _k=t.getAttribute("data-gate")+"|"+t.getAttribute("data-name");
+    if(PT_OPEN[_k])delete PT_OPEN[_k];else PT_OPEN[_k]=1;renderModal();return;}
+  else if(act==="togglePText"){t.classList.toggle("open");return;}
   else if(act==="closeSys"){unlockRowOrder(STATE.openSysId);STATE.openSysId=null;$("sysDlg").close();}
   else if(act==="home")goHome();
   else if(act==="kpi")applyKpi(t.getAttribute("data-kpi"));
@@ -2528,6 +2618,11 @@ function impAutoMap(headers){
   m.gate=find(/^activity\s*group$/);
   if(m.gate<0)m.gate=find(/^(activity|walkdown|walk|gate|milestone)$/);
   if(m.gate<0)m.gate=find(/(activity\s*group|walkdown)/);
+  /* item detail — carried for display only; never used in any count or date calculation */
+  m.pdesc=find(/^description$/);
+  if(m.pdesc<0)m.pdesc=find(/^(punch\s*description|item\s*description|finding\s*description)$/);
+  m.ptype=find(/^punch\s*phase\s*type$/);
+  if(m.ptype<0)m.ptype=find(/(punch\s*phase\s*type|phase\s*type|punch\s*type)/);
   m.closeDate=find(/^(complete\s*date|completion\s*date|date\s*verified|closed\s*date|date\s*closed)$/);
   ["FAT","W0","W1","MC","MCC"].forEach(function(g){
     var gl=g.toLowerCase(),done=-1,tgt=-1;
@@ -2663,7 +2758,7 @@ function impClosedIds(cell){var v=cell&&cell.cids;return (v&&v.length)?v.map(Str
 function impPlanPunch(rows,map){
   var ix=impIndexSystems(),agg={},plan={kind:"punch",matched:0,unmatched:[],newContractors:[],updates:{},
         totalItems:0,closedItems:0,changed:0,noGate:0,aliases:[],absent:[],removals:0,
-        byId:(map.item>=0),closedNow:0,raisedNow:0,reopened:0,stillOpen:0,noBaseline:0,
+        byId:(map.item>=0),text:{},closedNow:0,raisedNow:0,reopened:0,stillOpen:0,noBaseline:0,
         perCo:{},closedList:[],raisedList:[],reopenList:[]};
   var rosterNames=contractors().map(function(c){return c.name;});
   var resolved={};
@@ -2694,6 +2789,11 @@ function impPlanPunch(rows,map){
     cell.t++;if(closed)cell.c++;
     var pid=map.item>=0?impNorm(r[map.item]):"";
     if(pid&&!closed)cell.ids.push(pid);
+    if(pid&&!closed&&(map.pdesc>=0||map.ptype>=0)){
+      var dsc=map.pdesc>=0?impNorm(r[map.pdesc]).replace(/_x000D_/g," ").replace(/\s+/g," ").trim():"";
+      var typ=map.ptype>=0?impNorm(r[map.ptype]).trim():"";
+      if(dsc||typ){plan.text[id]=plan.text[id]||{};plan.text[id][pid]={d:dsc,p:typ};}
+    }
   });
   Object.keys(agg).forEach(function(id){
     var sys=STATE.systems[id];if(!sys)return;
@@ -2933,6 +3033,7 @@ function impShowMapping(){
     if(IMP.kind==="punch"){
       m2.contractor=+($("imp_contractor").value);m2.status=+($("imp_status").value);m2.gate=+($("imp_gate").value);
       m2.item=+($("imp_item").value);m2.closeDate=IMP.map.closeDate;
+      m2.pdesc=IMP.map.pdesc;m2.ptype=IMP.map.ptype;   /* item detail rides along with the auto-map */
     }else{
       ["FAT","W0","W1","MC","MCC"].forEach(function(g){
         var d=+($("imp_"+g+"_done").value),t=+($("imp_"+g+"_target").value);
@@ -3034,7 +3135,9 @@ function impShowReview(){
 /* ---------- apply (with an undo snapshot saved first) ---------- */
 function impApply(pr){
   var p=IMP.plan,UPD=impAllUpdates(p),ids=Object.keys(UPD);
-  if(!confirm("Apply "+ids.length+" system change"+(ids.length>1?"s":"")+" from "+IMP.file.name+"?\n\nCompleted "+pr.before.comp+" → "+pr.after.comp+"\nOutstanding "+pr.before.out+" → "+pr.after.out+"\nMissed MCC "+pr.before.miss+" → "+pr.after.miss+"\n\nAn undo snapshot is saved first."))return;
+  var nTxt=Object.keys((p&&p.text)||{}).length;
+  if(!ids.length&&!nTxt){alert("Nothing to apply from "+IMP.file.name+".");return;}
+  if(!confirm("Apply "+ids.length+" system change"+(ids.length===1?"":"s")+(nTxt?" (plus item detail for "+nTxt+" systems)":"")+" from "+IMP.file.name+"?\n\nCompleted "+pr.before.comp+" → "+pr.after.comp+"\nOutstanding "+pr.before.out+" → "+pr.after.out+"\nMissed MCC "+pr.before.miss+" → "+pr.after.miss+"\n\nAn undo snapshot is saved first."))return;
   var prev=[],ops=[];
   ids.forEach(function(id){
     var s=STATE.systems[id],u=UPD[id];
@@ -3063,6 +3166,15 @@ function impApply(pr){
     prev.push(before);
     ops.push(function(b){b.set(db.collection(SYS_COL).doc(id),merged);});
   });
+  /* item detail lives in its own collection so the board's live stream stays light.
+     Written for every system in the file, including ones whose counts did not move. */
+  var txtIds=Object.keys((p&&p.text)||{});
+  txtIds.forEach(function(id){
+    if(!STATE.systems[id])return;
+    var _t=p.text[id];
+    ops.push(function(b){b.set(db.collection(PUNCH_COL).doc(id),{items:_t},{merge:true});});
+    PTXT[id]=Object.assign({},PTXT[id]||{},_t);
+  });
   /* roster additions from a punch file */
   var meta=null;
   if(p.kind==="punch"&&p.newContractors.length){
@@ -3077,7 +3189,8 @@ function impApply(pr){
     chunkedWrite(ops,function(){
       snapshotBurn&&snapshotBurn();
       $("impDlg").close();
-      alert("Imported "+ids.length+" system"+(ids.length>1?"s":"")+" from "+IMP.file.name+".\n\n"+
+      alert((ids.length?("Imported "+ids.length+" system"+(ids.length===1?"":"s")):"No count changed")+" from "+IMP.file.name+"."+
+        (txtIds.length?"\nItem detail (description + phase type) saved for "+txtIds.length+" systems.":"")+"\n\n"+
         (snap.tooBig?"That change was too large to store an undo snapshot — re-import the previous file to roll back.":"Undo is available in Settings if this needs rolling back."));
     });
   }).catch(function(e){alert("Could not save the undo snapshot, so nothing was written: "+e.message);});
