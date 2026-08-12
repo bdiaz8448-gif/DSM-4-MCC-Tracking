@@ -1019,7 +1019,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v12.0-punch-detail";
+var MC_BUILD="v12.1-detail-apply";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -3055,6 +3055,7 @@ function impList(title,arr,fmt,cls){
 }
 function impShowReview(){
   var p=IMP.plan,pr=impProject(p),n=Object.keys(impAllUpdates(p)).length;
+  var nTxt=Object.keys((p&&p.text)||{}).length;   /* item detail can be worth applying on its own */
   var extraClosed=(p.closeAbsent&&p.absentItems)?p.absentItems:0;
   var h='<div class="impsec"><div class="imphead">Nothing has been changed yet.</div>';
   h+='<div class="impstat"><div><b>'+(p.matched||0)+'</b><span>rows matched</span></div>'+
@@ -3124,13 +3125,14 @@ function impShowReview(){
      '<div><span>Missed MCC</span><b>'+b.miss+' → '+a.miss+'</b>'+delta(b.miss,a.miss,true)+'</div>'+
      '<div><span>Open punch items</span><b>'+b.open+' → '+a.open+'</b>'+delta(b.open,a.open,true)+'</div>'+
      '</div></div>';
+  if(nTxt)h+='<div class="impnote">📝 Item detail (description + punch phase type) will be saved for <b>'+nTxt+'</b> systems. This is display only — it touches no count, date or formula.</div>';
   h+='<div class="dlgrow"><span style="flex:1"></span><button class="btn" id="imp_back">← Back</button>'+
-     '<button class="btn pri" id="imp_apply"'+(n?"":" disabled")+'>'+(n?("Apply to "+n+" system"+(n>1?"s":"")):"Nothing to apply")+'</button></div>';
+     '<button class="btn pri" id="imp_apply"'+((n||nTxt)?"":" disabled")+'>'+(n?("Apply to "+n+" system"+(n>1?"s":"")):(nTxt?("Save item detail for "+nTxt+" systems"):"Nothing to apply"))+'</button></div>';
   impSay(h);
   $("imp_back").onclick=impShowMapping;
   var ca=$("imp_closeabsent");
   if(ca)ca.onchange=function(){IMP.plan.closeAbsent=this.checked;impShowReview();};
-  if(n)$("imp_apply").onclick=function(){impApply(pr);};
+  if(n||nTxt)$("imp_apply").onclick=function(){impApply(pr);};
 }
 /* ---------- apply (with an undo snapshot saved first) ---------- */
 function impApply(pr){
