@@ -1043,7 +1043,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v12.4-tracker-history";
+var MC_BUILD="v12.5-na-precedence";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2782,9 +2782,18 @@ function impPlanTracker(rows,map){
         var raw=impKey(r[col.target]);
         var isNA=/^n\/?a$|^not applicable$/.test(raw);
         if(isNA){
-          /* "N/A" in a target cell means this walk does not apply to this system */
-          if(!cur.na){plan.applic.push({id:id,g:g,from:"applies",to:"N/A"});
-            up.gates[g]=Object.assign({},up.gates[g],{na:true});}
+          /* "N/A" in a target cell means this walk does not apply to this system.
+             Compare against the PENDING value, not the stored one — the Done column may
+             have just set na=false on this same gate, and the target cell overrides it. */
+          var pend=(up.gates[g]&&("na" in up.gates[g]))?up.gates[g].na:cur.na;
+          if(!pend){
+            if(up.gates[g]&&("na" in up.gates[g])){
+              plan.applic=plan.applic.filter(function(a){return !(a.id===id&&a.g===g);});
+            }else{
+              plan.applic.push({id:id,g:g,from:"applies",to:"N/A"});
+            }
+            up.gates[g]=Object.assign({},up.gates[g],{na:true});
+          }
         }else{
           var nd=impDateVal(r[col.target]),od=cur.target||null;
           if((nd||null)!==(od||null)){
