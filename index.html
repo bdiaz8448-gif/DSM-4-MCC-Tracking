@@ -544,9 +544,21 @@
     .ptxt{flex:1 0 100%}
   }
   .phead{display:flex;align-items:center;gap:10px;padding:2px 0 4px;font-size:9.5px;font-weight:900;color:var(--mut2);text-transform:uppercase;letter-spacing:.5px}
-  .phead .pn{flex:1} .phead .ch{min-width:62px;text-align:center}
-  .prow .cell{min-width:62px;display:flex;justify-content:center}
-  .prow .cell:last-child{min-width:138px}
+  .prow .cell{display:flex;justify-content:center;min-width:0}
+  /* ---- COLUMN LOCK ----
+     Header and rows share one grid template, and every row renders all seven slots
+     (ghosting the ones it does not use) so TOTAL / CLOSED / OPEN always sit exactly
+     over their values — locked or unlocked, with or without the delete button. */
+  .gbox .phead,.gbox .prow{display:grid;grid-template-columns:minmax(0,1fr) 62px 62px 150px 30px 26px 34px;gap:10px;align-items:center}
+  .gbox .phead .ch{text-align:center}
+  .gbox .prow .pn{flex:none;min-width:0}
+  .gbox .step{width:100%;max-width:150px}
+  .gbox .step button{flex:none}
+  .gbox .step input{flex:none;min-width:0}
+  .gbox .rowdel{margin-left:0;justify-self:center}
+  .gbox .rowck,.gbox .pexp{justify-self:center}
+  .gbox .pitems{grid-column:1/-1}
+  .rowdel.ghost{visibility:hidden;cursor:default}
   .totin{width:58px;height:38px;background:var(--bg);border:1px solid var(--acc);border-radius:9px;color:var(--txt);text-align:center;font-size:15px;font-weight:900;padding:0}
   .totin:focus{outline:none;box-shadow:0 0 0 2px rgba(56,189,248,.3)}
   .cval{font-size:16px;font-weight:900;color:var(--grn)}
@@ -558,9 +570,12 @@
   .lsub{font-size:11px;color:var(--mut);font-weight:700;margin-top:3px}
   .lsub b{color:var(--grn)}
   @media(max-width:560px){
-    .phead{display:none}
+    .phead,.gbox .phead{display:none}
     .prow{flex-wrap:wrap}.prow .pn{flex:1 0 100%;margin-bottom:6px}
     .prow .cell,.prow .cell:last-child{min-width:0}
+    .gbox .prow{display:flex;flex-wrap:wrap;gap:8px}
+    .gbox .prow .pn{flex:1 0 100%}
+    .gbox .rowdel.ghost{display:none}
   }
   .gdate{background:var(--bg);border:1px solid var(--line2);border-radius:8px;padding:6px 9px;color:var(--txt);font-weight:700;font-size:13px}
   .gdate:focus{border-color:var(--acc);outline:none}
@@ -1019,7 +1034,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v12.1-detail-apply";
+var MC_BUILD="v12.2-column-lock";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1835,7 +1850,7 @@ function renderModal(){
     h+='<div class="grollup"><span class="rs"><b class="num">'+gst.t+'</b> total</span><span class="rs ok"><b class="num">'+gst.c+'</b> closed</span><span class="rs hot"><b class="num">'+gst.o+'</b> open</span></div>';
     if(g.done){h+='<div class="hint">Walk signed off — items already logged were closed. New items logged here still count as open.</div>';}
     else if(!names.length){h+='<div class="hint">No punch items yet. Type a contractor and their total below.</div>';}
-    h+=names.length?'<div class="phead"><span class="pn"></span><span class="ch">Total</span><span class="ch">Closed</span><span class="ch" style="min-width:138px">Open</span></div>':'';
+    h+=names.length?'<div class="phead"><span class="pn"></span><span class="ch">Total</span><span class="ch">Closed</span><span class="ch">Open</span><span></span><span></span><span></span></div>':'';
     names.forEach(function(n){var q=pv(p[n]),op=Math.max(0,q.t-q.c);
       h+='<div class="prow"><span class="pn'+(op>0?' hot':'')+'">'+esc(n)+' <span class="trade">'+esc(tradeOf(n))+'</span>'+(q.t>0&&op===0?' <span class="trade">all closed</span>':'')+'</span>';
       h+='<span class="cell"><input class="totin num" type="number" min="0" value="'+q.t+'" data-act="setTotal" data-sys="'+esc(s.id)+'" data-gate="'+k+'" data-name="'+esc(n)+'" title="Total punch items (admin)"></span>';
@@ -1846,7 +1861,7 @@ function renderModal(){
       var _txt=ptxtFor(s.id),_ids=openIdsFor(s,k,n),_key=k+"|"+n,_isOpen=!!PT_OPEN[_key];
       var _have=_ids.filter(function(x){return _txt&&_txt[x];}).length;
       h+='<button class="pexp'+(_isOpen?' on':'')+'" data-act="togglePItems" data-gate="'+k+'" data-name="'+esc(n)+'"'+(_ids.length?'':' disabled')+' title="'+(_ids.length?'Show what these '+_ids.length+' items are':'No item detail on file for this line')+'">'+(_isOpen?'\u2013':'\u22ee')+'</button>';
-      if(STATE.unlocked)h+='<button class="rowdel" data-act="delPunch" data-sys="'+esc(s.id)+'" data-gate="'+k+'" data-name="'+esc(n)+'" title="Delete this punch line (owner)">🗑</button>';
+      h+=STATE.unlocked?('<button class="rowdel" data-act="delPunch" data-sys="'+esc(s.id)+'" data-gate="'+k+'" data-name="'+esc(n)+'" title="Delete this punch line (owner)">🗑</button>'):'<span class="rowdel ghost"></span>';
       h+='</div>';
       if(_isOpen&&_ids.length){
         h+='<div class="pitems">';
