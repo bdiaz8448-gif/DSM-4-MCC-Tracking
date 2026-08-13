@@ -287,25 +287,6 @@
   .kpi.hot{border-color:var(--red)}
   .kpi.hot .kn{font-size:30px;color:var(--redg);letter-spacing:0}
   .kpi.hot .kbar{height:8px;border-radius:6px;background:linear-gradient(90deg,var(--red),var(--redg));margin-top:12px}
-  /* top-5 constraint strip */
-  .tcwrap{margin:0 0 14px}
-  .tclab{font-size:10px;font-weight:900;color:var(--mut);text-transform:uppercase;letter-spacing:.9px;margin:0 0 7px;display:flex;align-items:center;gap:8px}
-  .tclab i{font-style:normal;color:var(--mut2);font-weight:700;letter-spacing:0;text-transform:none;font-size:11px}
-  .tcgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
-  .tcard{position:relative;border:2px solid transparent;border-radius:15px;padding:11px 13px;cursor:pointer;transition:.16s;overflow:hidden;
-    background:var(--glass) padding-box,var(--edge) border-box;box-shadow:var(--gloss),0 3px 12px rgba(0,0,0,.12)}
-  .tcard:hover{transform:translateY(-2px);box-shadow:var(--gloss),var(--shadow)}
-  .tcard.act{box-shadow:var(--gloss),0 0 0 2px var(--acc)}
-  .tcard.n1{background:var(--glass) padding-box,var(--edgeRed) border-box}
-  .tcard .th{display:flex;align-items:baseline;gap:7px}
-  .tcard .trk{font-size:11px;font-weight:900;color:var(--mut2)}
-  .tcard.n1 .trk{color:var(--red)}
-  .tcard .tnm{font-size:14.5px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1}
-  .tcard .tvl{font-size:22px;font-weight:900;color:var(--red);letter-spacing:-.5px;line-height:1;margin-left:auto}
-  .tcard .tsb{font-size:10px;color:var(--mut2);font-weight:700;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .tcard .tbar{height:6px;border-radius:4px;background:var(--card2);margin-top:8px;overflow:hidden}
-  .tcard .tfill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--red),var(--redg))}
-  .tcempty{background:linear-gradient(180deg,var(--card),var(--bg2));border:1px dashed var(--line2);border-radius:13px;padding:14px;color:var(--mut2);font-size:12.5px;font-weight:700;text-align:center}
   /* brand — a real pill tab, so it reads as clickable like the rest of the header */
   .brand{cursor:pointer;border:2px solid transparent;border-radius:9999px;padding:5px 17px 5px 5px;margin-left:0;
     background:var(--glass) padding-box,var(--edge) border-box;backdrop-filter:blur(12px);box-shadow:var(--gloss);
@@ -398,7 +379,7 @@
   .lexp{display:none;padding:2px 18px 16px;background:var(--expbg)}
   .lc.open .lexp{display:block}
   .mrow{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
-  /* a system row on Who's Holding Who opens that system on the Board */
+  /* a system row on Top Constraints opens that system on the Board */
   .mrow.go{cursor:pointer;border-radius:10px;padding-left:8px;padding-right:8px;transition:background .14s,box-shadow .14s}
   .mrow.go:hover{background:var(--card2);box-shadow:inset 0 0 0 1px var(--line2)}
   .mrow.go::after{content:"›";margin-left:6px;font-size:19px;font-weight:900;color:var(--mut2);opacity:.55}
@@ -651,6 +632,21 @@
   .hdate .hd2{font-size:9.5px;font-weight:800;color:var(--gold);text-transform:uppercase;letter-spacing:.7px}
   .goalbar{max-width:1580px;margin:14px auto 2px;padding:2px;border:2px solid transparent;border-radius:20px;
     background:var(--glass) padding-box,var(--edgeGold) border-box;box-shadow:var(--gloss),0 14px 40px rgba(0,0,0,.34);overflow:hidden}
+  /* collapsible countdown — the four tiles fold away, the summary line keeps the numbers */
+  .goalwrap{max-width:1580px;margin:14px auto 2px}
+  .goalwrap .goalbar{margin:8px 0 0;max-width:none}
+  .goalwrap .goalbar{display:none}
+  .goalwrap.open .goalbar{display:block}
+  .gsum{display:flex;align-items:center;gap:12px;flex-wrap:wrap;cursor:pointer;user-select:none;
+    padding:9px 15px;border:1px solid var(--line);border-radius:14px;background:var(--glass)}
+  .gsum:hover{border-color:var(--line2)}
+  .gsum .wcar{font-size:13px;font-weight:900;color:var(--mut2);transition:transform .18s;display:inline-block}
+  .goalwrap.open .gsum .wcar{transform:rotate(90deg)}
+  .gsum .wttl{font-size:12px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;color:var(--mut)}
+  .gsq{margin-left:auto;font-size:12px;font-weight:800;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gsq b{color:var(--txt);font-weight:900}
+  .gsq .gold{background:linear-gradient(180deg,var(--goldg),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  @media(max-width:560px){.gsq{margin-left:0;flex:1 0 100%;white-space:normal}}
   .gbstats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)}
   .gbcell{background:var(--glass);padding:13px 18px;display:flex;flex-direction:column;gap:2px;min-width:0}
   .gbk{font-size:10px;font-weight:900;letter-spacing:1.1px;text-transform:uppercase;color:var(--mut2)}
@@ -923,9 +919,6 @@
   body.present .kpi .go{display:none}
   body.present .tclab{font-size:14px;letter-spacing:1.2px}
   body.present .tcard{padding:18px}
-  body.present .tcard .tnm{font-size:20px}
-  body.present .tcard .tvl{font-size:34px}
-  body.present .tcard .tsb{font-size:13px}
   body.present .tcard .tbar{height:10px}
   body.present .grid{grid-template-columns:repeat(3,1fr);gap:20px}
   body.present .scard{padding:20px}
@@ -1030,9 +1023,9 @@
     <div class="spacer"></div>
     <div class="seg" id="views">
       <button data-view="board" class="active">Board</button>
-      <button data-view="who">Who's Holding Who</button>
+      <button data-view="who">Top Constraints</button>
       <button data-view="mcc">MCC Closed</button>
-      <button data-view="burn">Burn-down</button>
+      <button data-view="burn">Punch Tracker</button>
     </div>
     <span class="whoami" id="whoami"></span>
     <button class="iconbtn" id="presentBtn" title="Present mode — big numbers for the room">TV</button>
@@ -1046,10 +1039,12 @@
 </header>
 
 <div class="wrap">
-  <div class="goalbar" id="goalbar"></div>
+  <div class="goalwrap" id="goalwrap">
+    <div class="gsum" data-act="toggleGoal"><span class="wcar">&#9656;</span><span class="wttl">Turnover countdown</span><span class="gsq" id="gs_q"></span></div>
+    <div class="goalbar" id="goalbar"></div>
+  </div>
   <div class="hero" id="hero"></div>
   <div id="walks"></div>
-  <div class="tcwrap" id="topcon"></div>
   <div class="toolbar" id="toolbar">
     <div class="chips" id="compF">
       <button data-c="ALL" class="on">All</button>
@@ -1092,7 +1087,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v12.7-pace-and-categories";
+var MC_BUILD="v12.8-space-and-names";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1570,7 +1565,6 @@ function render(){
   var v=$("view");
   var chartView=(STATE.view==="burn"||STATE.view==="mcc");
   $("toolbar").style.display=chartView?"none":"flex";
-  $("topcon").style.display=chartView?"none":"";
   $("clearF").style.display=isFiltered()?"":"none";
   var wk=$("walks");if(wk){wk.style.display=(STATE.view==="board")?"":"none";if(STATE.view==="board")renderWalks();}
   if(STATE.view==="board")renderBoard(v);else if(STATE.view==="who")renderWho(v);else if(STATE.view==="mcc")renderMcc(v);else renderBurn(v);
@@ -1601,7 +1595,8 @@ var _gbBuilt=false,_gbMsg=null;
 function updateHeaderDate(){var el=$("hdate");if(!el)return;var t=todayISO();el.innerHTML='<span class="hd1">'+wkday(t)+' · '+MONS[(+t.split("-")[1])-1]+' '+(+t.split("-")[2])+'</span><span class="hd2">'+t.split("-")[0]+'</span>';}
 function renderGoalBar(){
   var el=$("goalbar");if(!el)return;
-  if(!_gbBuilt){el.innerHTML=GOALBAR_HTML;_gbBuilt=true;}
+  if(!_gbBuilt){el.innerHTML=GOALBAR_HTML;_gbBuilt=true;
+    var gw=$("goalwrap");if(gw)gw.classList.toggle("open",lsGet(GOAL_KEY)==="1");}
   var t=todayISO();
   $("gb_today").textContent=fmtLong(t);
   $("gb_dow").textContent=wkday(t);
@@ -1613,11 +1608,14 @@ function renderGoalBar(){
   var msg=composeMsg();
   if(msg!==_gbMsg){_gbMsg=msg;var tr=$("gb_track");
     if(tr)tr.innerHTML=esc(msg)+'<span class="sep">◆</span>'+esc(msg)+'<span class="sep">◆</span>';}
+  /* the summary line has to carry the same four numbers, or collapsing loses them */
+  var q=$("gs_q");
+  if(q)q.innerHTML=fmtLong(t)+' &nbsp;·&nbsp; <b>'+w+'</b> weeks left &nbsp;·&nbsp; turnover <b>'+fmtLong(goalEnd())+'</b> &nbsp;·&nbsp; <b class="gold">'+weeklyTarget()+'</b>/wk';
 }
 /* ---------- walk progress & pace ----------
    pace = walks signed off ÷ walks whose OWN target date has already passed.
    Nothing here reads or writes a date; it only counts the target dates already on the board. */
-var WALK_KEY="mcWalkOpen";
+var WALK_KEY="mcWalkOpen",GOAL_KEY="mcGoalOpen";
 function walkStats(){
   var t=todayISO(),out=[];
   ["W0","W1","MC","MCC"].forEach(function(k){
@@ -1683,27 +1681,9 @@ function renderHero(){
     kpi(red,"Red · ≤ "+th.red+"d","red","past due / due soon · tap","red",f.status==="red")+
     kpi(org,"Orange · ≤ "+th.org+"d","org","due in two weeks · tap","org",f.status==="org")+
     kpi(yel,"Yellow · ≤ "+th.yel+"d","yel","due within a month · tap","yel",f.status==="yel");
-  renderTopConstraints();
 }
-/* Top 5 contractors holding the most open punch items — the "who's blocking us" strip */
-function renderTopConstraints(){
-  var el=$("topcon");if(!el)return;
-  var who=whoAgg().slice(0,5);
-  var h='<div class="tclab">🚧 Top 5 constraints — most open punch items <i>tap a contractor to isolate their systems</i></div>';
-  if(!who.length){el.innerHTML=h+'<div class="tcempty">No open punch items logged yet — add totals inside a system to see who is holding the job.</div>';return;}
-  var max=who[0].total||1;
-  h+='<div class="tcgrid">';
-  who.forEach(function(c,i){
-    var act=STATE.f.contractor===c.name;
-    h+='<div class="tcard'+(act?' act':'')+'" data-act="kpi" data-kpi="contractor:'+esc(c.name)+'">';
-    h+='<div class="th"><span class="trk">#'+(i+1)+'</span><span class="tnm">'+esc(c.name)+'</span><span class="tvl num">'+c.total+'</span></div>';
-    h+='<div class="tsb">'+esc(tradeOf(c.name))+' · '+c.systems.length+' system'+(c.systems.length===1?'':'s')+' · '+(c.closed||0)+' closed</div>';
-    h+='<div class="tbar"><div class="tfill" style="width:'+Math.max(5,Math.round(c.total/max*100))+'%"></div></div>';
-    h+='</div>';
-  });
-  h+='</div>';
-  el.innerHTML=h;
-}
+/* The Top 5 constraints strip was removed in v12.8 — the Top Constraints tab already
+   carries the same contractors, ranked ten deep, so the board keeps that space. */
 /* ---------- back / forward ----------
    Every view change and every opened system becomes a real history entry, so the browser
    back button, the phone back gesture and the trackpad swipe all work the way people expect. */
@@ -1854,7 +1834,7 @@ function renderWho(v){
   }
   if(!arr.length){v.innerHTML='<div class="empty">No open punch items logged yet.<br>Go to <b>Board</b>, open a system, and add counts — this leaderboard ranks who\'s blocking the most and which MCs they\'re putting at risk.</div>';return;}
   var max=arr[0].total||1;
-  var h='<div class="infob"><span class="big2">🎯 Who\'s Holding Who — top 10 blockers</span>This flips the board around: instead of "MC-104 has 20 open," it stacks the <b>top 10 contractors by open punch items across all systems</b>. #1 at the top is your biggest blocker on the whole job. Tap any name to expand the exact MCs they\'re holding and how many on each. Walk in, point at #1, say "you\'re the constraint today."</div><div class="lead">';
+  var h='<div class="infob"><span class="big2">🎯 Top Constraints — the ten holding the most</span>This flips the board around: instead of "MC-104 has 20 open," it stacks the <b>top 10 contractors by open punch items across all systems</b>. #1 at the top is your biggest blocker on the whole job. Tap any name to expand the exact MCs they\'re holding and how many on each. Walk in, point at #1, say "you\'re the constraint today."</div><div class="lead">';
   arr.forEach(function(c,i){
     c.systems.sort(function(a,b){return b.open-a.open;});
     var atRisk=c.systems.filter(function(x){return x.status==="red"||x.status==="org"||x.status==="yel";}).length;
@@ -1872,7 +1852,7 @@ function renderWho(v){
 
 function renderBurn(v){
   var data=STATE.burn;
-  var explain='<div class="infob"><span class="big2">📉 Burn-down — are we actually closing items?</span>Every day, the board records your <b>total open punch items across the whole job</b> as one dot. Connect the dots and you get a line. If the team is closing faster than new items appear, the line falls — <b>"Monday we had 47 open, today we\'re at 31."</b> That\'s the one slide leadership wants: proof the number is going down, not a list of tasks. It fills in automatically as you edit counts each morning.</div>';
+  var explain='<div class="infob"><span class="big2">📉 Punch Tracker — are we actually closing items?</span>Every day, the board records your <b>total open punch items across the whole job</b> as one dot. Connect the dots and you get a line. If the team is closing faster than new items appear, the line falls — <b>"Monday we had 47 open, today we\'re at 31."</b> That\'s the one slide leadership wants: proof the number is going down, not a list of tasks. It fills in automatically as you edit counts each morning.</div>';
   if(!data.length){v.innerHTML=explain+'<div class="empty">No history logged yet.<br>As you enter and close counts over the coming days, each day\'s total lands here and the trend line builds itself.</div>';return;}
   var w=1000,h=280,pad=36;
   var ys=data.map(function(d){return d.total||0;}),maxY=Math.max(10,Math.max.apply(null,ys)),n=data.length;
@@ -2120,6 +2100,7 @@ document.addEventListener("click",function(e){
   var t=e.target.closest("[data-act]");if(!t)return;
   var act=t.getAttribute("data-act"),sys=t.getAttribute("data-sys"),gate=t.getAttribute("data-gate"),name=t.getAttribute("data-name");
   if(act==="toggleWalks"){var w=$("walkwrap");if(w){var o=!w.classList.contains("open");w.classList.toggle("open",o);lsSet(WALK_KEY,o?"1":"0");}return;}
+  if(act==="toggleGoal"){var gw=$("goalwrap");if(gw){var go=!gw.classList.contains("open");gw.classList.toggle("open",go);lsSet(GOAL_KEY,go?"1":"0");}return;}
   if(act==="openSys")openSys(sys);
   else if(act==="gotoSys"){
     if(!sys||!STATE.systems[sys])return;
