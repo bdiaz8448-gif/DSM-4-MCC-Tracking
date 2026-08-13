@@ -527,6 +527,43 @@
   .prog{height:7px;border-radius:5px;background:var(--card2);margin-top:11px;overflow:hidden}
   .progfill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--grn),var(--grng))}
   .gv .oft{font-size:11px;color:var(--mut2);font-weight:800}
+  /* ---- walk progress & pace: one slim bar, opens only if you ask ---- */
+  .walkwrap{margin:0 0 14px}
+  .wsum{display:flex;align-items:center;gap:12px;flex-wrap:wrap;cursor:pointer;user-select:none;
+    background:var(--glass);border:1.5px solid var(--line);border-radius:14px;padding:9px 14px;box-shadow:var(--gloss)}
+  .wsum:hover{border-color:var(--line2)}
+  .wsum .wcar{font-size:13px;font-weight:900;color:var(--mut2);transition:transform .18s;display:inline-block}
+  .walkwrap.open .wsum .wcar{transform:rotate(90deg)}
+  .wsum .wttl{font-size:12px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;color:var(--mut)}
+  .wsum .wq{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:900;color:var(--mut)}
+  .wsum .wq b{font-size:13px;padding:1px 8px;border-radius:99px}
+  .pace-bad{background:var(--redbg);color:var(--redg)} .pace-warn{background:var(--orgbg);color:var(--org)} .pace-ok{background:var(--grnbg);color:var(--grng)}
+  .wsum .asof{margin-left:auto;font-size:10.5px;font-weight:800;color:var(--mut2)}
+  .walkgrid{display:none;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:10px}
+  .walkwrap.open .walkgrid{display:grid}
+  .wcard{background:var(--glass);border:1.5px solid var(--line);border-radius:16px;padding:13px 15px;box-shadow:var(--gloss)}
+  .wtop{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:6px}
+  .wname{font-size:15px;font-weight:900;letter-spacing:.3px}
+  .wpct{font-size:12px;font-weight:900;color:var(--mut)}
+  .wnum{font-size:28px;font-weight:900;line-height:1}
+  .wnum small{font-size:14px;font-weight:800;color:var(--mut2)}
+  .wbar{height:9px;border-radius:99px;background:var(--card2);overflow:hidden;margin:9px 0 8px;border:1px solid var(--line)}
+  .wbar i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+  .wpace{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;color:var(--mut)}
+  .wpace b{font-size:16px;font-weight:900;padding:1px 9px;border-radius:99px}
+  @media(max-width:900px){.walkgrid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.walkgrid{grid-template-columns:1fr}.wsum .asof{margin-left:0;flex:1 0 100%}}
+  /* ---- Cat 1 marker: rides the existing punch line, adds no new row ---- */
+  .catpill{font-size:10.5px;font-weight:900;padding:2px 9px;border-radius:99px;border:1px solid rgba(224,11,40,.45);
+    background:var(--redbg);color:var(--redg);white-space:nowrap}
+  /* ---- days of slip on a late gate, as a corner badge ---- */
+  .gp{position:relative}
+  .gp .slip{position:absolute;top:-7px;right:-5px;font-size:9.5px;font-weight:900;padding:1px 6px;border-radius:99px;
+    background:linear-gradient(135deg,var(--red),var(--redg));color:#fff;box-shadow:0 2px 7px rgba(224,11,40,.4);pointer-events:none}
+  .gp.sok .slip{background:linear-gradient(135deg,var(--org),var(--orgg));box-shadow:0 2px 7px rgba(194,92,0,.35)}
+  .catline{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 8px}
+  .catline .cb{font-size:10.5px;font-weight:900;padding:3px 9px;border-radius:99px;border:1px solid var(--line2);background:var(--card2);color:var(--mut)}
+  .catline .cb.c1{background:var(--redbg);border-color:rgba(224,11,40,.45);color:var(--redg)}
   .sstrip{display:flex;gap:14px;flex-wrap:wrap;align-items:baseline;font-size:11px;font-weight:800;color:var(--mut);padding:8px 0 0;border-top:1px dashed var(--line2);margin-top:auto}
   .sstrip b{font-size:13px;font-weight:900;color:var(--txt)}
   .sstrip .ok b{color:var(--grn)}
@@ -666,13 +703,13 @@
   .theme-light .chips button.on{color:#fff}
   /* active tab: SOLID white pill + near-black number so the count is legible on any gradient (dark & light), meeting-room readable */
   .chips button.on .cnt{background:#fff;color:#0a1220;box-shadow:0 1px 3px rgba(0,0,0,.28);font-weight:900}
-  .chips button.on[data-s="red"],.chips button.on[data-c="missed"]{background:linear-gradient(135deg,var(--red),var(--redg));box-shadow:0 5px 16px rgba(255,77,94,.42),inset 0 1px 0 rgba(255,255,255,.28);color:#fff}
+  .chips button.on[data-s="red"],.chips button.on[data-c="missed"],.chips button.on[data-c="cat1"]{background:linear-gradient(135deg,var(--red),var(--redg));box-shadow:0 5px 16px rgba(255,77,94,.42),inset 0 1px 0 rgba(255,255,255,.28);color:#fff}
   .chips button.on[data-s="org"]{background:linear-gradient(135deg,var(--org),var(--orgg));box-shadow:0 5px 16px rgba(255,140,26,.42),inset 0 1px 0 rgba(255,255,255,.28);color:#fff}
   .chips button.on[data-s="yel"]{background:linear-gradient(135deg,var(--yel),var(--yelg));box-shadow:0 5px 16px rgba(251,191,36,.4),inset 0 1px 0 rgba(255,255,255,.3);color:#1a1204}
   .chips button.on[data-s="grn"]{background:linear-gradient(135deg,var(--grn),var(--grng));box-shadow:0 5px 16px rgba(52,211,153,.4),inset 0 1px 0 rgba(255,255,255,.28);color:#04170f}
-  .chips button[data-c="missed"]{color:var(--miss)}
-  .chips button[data-c="missed"] .cnt{background:rgba(var(--missrgb),.16);color:var(--miss);box-shadow:inset 0 0 0 1px rgba(var(--missrgb),.4)}
-  .chips button.on[data-c="missed"] .cnt{background:#fff;color:#0a1220;box-shadow:0 1px 3px rgba(0,0,0,.28)}
+  .chips button[data-c="missed"],.chips button[data-c="cat1"]{color:var(--miss)}
+  .chips button[data-c="missed"] .cnt,.chips button[data-c="cat1"] .cnt{background:rgba(var(--missrgb),.16);color:var(--miss);box-shadow:inset 0 0 0 1px rgba(var(--missrgb),.4)}
+  .chips button.on[data-c="missed"] .cnt,.chips button.on[data-c="cat1"] .cnt{background:#fff;color:#0a1220;box-shadow:0 1px 3px rgba(0,0,0,.28)}
   /* ============ v8.0 DESIGN LAYER — command-center polish ============
      Three shape tiers: panels 24px · cards 16px · controls full pill.
      One dark canvas + elevation; glow reserved for the active element.  */
@@ -793,6 +830,7 @@
     background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;border-color:transparent;
     box-shadow:0 5px 16px rgba(56,189,248,.42),inset 0 1px 0 rgba(255,255,255,.3)}
   .chips button.on[data-c="missed"],.chips button.on[data-c="missed"]:hover,
+  .chips button.on[data-c="cat1"],.chips button.on[data-c="cat1"]:hover,
   .chips button.on[data-s="red"],.chips button.on[data-s="red"]:hover{
     background:linear-gradient(135deg,var(--red),var(--redg));color:#fff;border-color:transparent;
     box-shadow:0 5px 16px rgba(255,77,94,.45),inset 0 1px 0 rgba(255,255,255,.3)}
@@ -1010,6 +1048,7 @@
 <div class="wrap">
   <div class="goalbar" id="goalbar"></div>
   <div class="hero" id="hero"></div>
+  <div id="walks"></div>
   <div class="tcwrap" id="topcon"></div>
   <div class="toolbar" id="toolbar">
     <div class="chips" id="compF">
@@ -1053,7 +1092,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v12.6-navigation";
+var MC_BUILD="v12.7-pace-and-categories";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1210,9 +1249,10 @@ function passExceptComp(s){var f=STATE.f;
   if(f.q){var q=f.q.toLowerCase();if((s.mc+" "+s.desc+" "+s.code).toLowerCase().indexOf(q)<0)return false;}
   return true;}
 function refreshCompLabels(){
-  var n={all:0,out:0,pending:0,upcoming:0,done:0,missed:0};
+  var n={all:0,out:0,pending:0,upcoming:0,done:0,missed:0,cat1:0};
   sysList().forEach(function(s){if(!passExceptComp(s))return;n.all++;
     if(missedMCC(s))n.missed++;
+    if(cat1(s)>0)n.cat1++;
     var ph=sysPhase(s);
     if(ph==="done"){n.done++;return;}
     n.out++;
@@ -1226,6 +1266,16 @@ function refreshCompLabels(){
   setChip("pending","In progress",n.pending);
   setChip("upcoming","Coming up ≤"+CW()+"d",n.upcoming);
   setChip("done","✓ Completed",n.done);
+  /* the Cat 1 chip exists only when the export actually carries categories */
+  var cb=document.querySelector('#compF [data-c="cat1"]');
+  if(n.cat1>0){
+    if(!cb){cb=document.createElement("button");cb.setAttribute("data-c","cat1");$("compF").appendChild(cb);}
+    setChip("cat1","⚠ Cat 1",n.cat1);
+    cb.classList.toggle("on",STATE.f.comp==="cat1");
+  }else if(cb){
+    if(STATE.f.comp==="cat1"){STATE.f.comp="ALL";}
+    cb.parentNode.removeChild(cb);
+  }
 }
 function refreshThresholdLabels(){var th=TH(),f=$("statusF");if(!f)return;
   var b1=f.querySelector('[data-s="red"]'),b2=f.querySelector('[data-s="org"]'),b3=f.querySelector('[data-s="yel"]');
@@ -1492,6 +1542,7 @@ function passFilter(s){var f=STATE.f;
     if(f.comp==="out"){if(sysPhase(s)==="done")return false;}
     else if(f.comp==="missed"){if(!missedMCC(s))return false;}
     else if(f.comp==="upcoming"){if(!isComingUp(s))return false;}
+    else if(f.comp==="cat1"){if(cat1(s)<=0)return false;}
     else if(sysPhase(s)!==f.comp)return false;}
   if(f.onlyOpen&&sysOpen(s)<=0)return false;
   if(f.status!=="ALL"){var st=sysStatus(s);
@@ -1521,6 +1572,7 @@ function render(){
   $("toolbar").style.display=chartView?"none":"flex";
   $("topcon").style.display=chartView?"none":"";
   $("clearF").style.display=isFiltered()?"":"none";
+  var wk=$("walks");if(wk){wk.style.display=(STATE.view==="board")?"":"none";if(STATE.view==="board")renderWalks();}
   if(STATE.view==="board")renderBoard(v);else if(STATE.view==="who")renderWho(v);else if(STATE.view==="mcc")renderMcc(v);else renderBurn(v);
   $("sysCount").textContent=sysList().length+" systems";
 }
@@ -1561,6 +1613,60 @@ function renderGoalBar(){
   var msg=composeMsg();
   if(msg!==_gbMsg){_gbMsg=msg;var tr=$("gb_track");
     if(tr)tr.innerHTML=esc(msg)+'<span class="sep">◆</span>'+esc(msg)+'<span class="sep">◆</span>';}
+}
+/* ---------- walk progress & pace ----------
+   pace = walks signed off ÷ walks whose OWN target date has already passed.
+   Nothing here reads or writes a date; it only counts the target dates already on the board. */
+var WALK_KEY="mcWalkOpen";
+function walkStats(){
+  var t=todayISO(),out=[];
+  ["W0","W1","MC","MCC"].forEach(function(k){
+    var appl=0,done=0,due=0;
+    sysList().forEach(function(s){
+      var g=(s.gates||{})[k];if(!g||g.na)return;
+      appl++; if(g.done){done++;}
+      if((g.target||"")&&g.target<=t)due++;
+    });
+    out.push({k:k,appl:appl,done:done,due:due,pace:due?done/due:null,pct:appl?100*done/appl:0});
+  });
+  return out;
+}
+function paceCls(p){return p===null?"":(p<0.8?"pace-bad":(p<1?"pace-warn":"pace-ok"));}
+/* days a gate is past its target (open gates only) — target vs today, never a live date */
+function gateSlip(g){
+  if(!g||g.na||g.done||!g.target)return 0;
+  var d=daysBetween(g.target,todayISO());
+  return d>0?d:0;
+}
+/* days between the target and the day it was actually signed off */
+function gateLate(g){
+  if(!g||g.na||!g.done||!g.target||!g.doneAt)return 0;
+  var d=daysBetween(g.target,g.doneAt);
+  return d>0?d:0;
+}
+/* open punch items by EIDA category, kept as a small summary on the system record */
+function catOpen(s){var c=s&&s.catOpen;return (c&&typeof c==="object")?c:null;}
+function cat1(s){var c=catOpen(s);return c?(+c["1"]||0):0;}
+function renderWalks(){
+  var el=$("walks");if(!el)return;
+  var ws=walkStats(),open=lsGet(WALK_KEY)==="1";
+  var li=lastImportInfo(),asof=(li&&li.at)?fmtMD(String(li.at).slice(0,10)):null;
+  var h='<div class="walkwrap'+(open?" open":"")+'" id="walkwrap">';
+  h+='<div class="wsum" data-act="toggleWalks"><span class="wcar">▸</span><span class="wttl">Walk progress &amp; pace</span>';
+  ws.forEach(function(w){
+    h+='<span class="wq">'+w.k+' <b class="'+paceCls(w.pace)+'">'+(w.pace===null?"—":w.pace.toFixed(2))+'</b></span>';
+  });
+  h+='<span class="asof">Gate dates and sign-offs are live'+(asof?' · punch list as of '+asof:'')+'</span></div>';
+  h+='<div class="walkgrid">';
+  ws.forEach(function(w){
+    h+='<div class="wcard"><div class="wtop"><span class="wname">'+w.k+'</span><span class="wpct">'+w.pct.toFixed(1)+'% complete</span></div>'+
+       '<div class="wnum num">'+w.done+'<small> / '+w.appl+' applicable</small></div>'+
+       '<div class="wbar"><i style="width:'+Math.max(2,Math.min(100,w.pct))+'%"></i></div>'+
+       '<div class="wpace">pace <b class="'+paceCls(w.pace)+'">'+(w.pace===null?"—":w.pace.toFixed(2))+'</b> '+
+       w.done+' signed vs '+w.due+' due by today</div></div>';
+  });
+  h+='</div></div>';
+  el.innerHTML=h;
 }
 function renderHero(){
   var all=sysList(),red=0,org=0,yel=0,open=0,openSys=0,miss=0;
@@ -1649,7 +1755,7 @@ function goHome(){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 function kpi(n,l,cls,sub,act,active){return '<div class="kpi '+cls+' clk'+(active?' act':'')+'" data-act="kpi" data-kpi="'+esc(act)+'"><div class="go">›</div><div class="kn num">'+n+'</div><div class="kl">'+esc(l)+'</div>'+(sub?'<div class="ksub">'+esc(sub)+'</div>':'')+'</div>';}
-function applyKpi(k){var f=STATE.f;f.onlyOpen=false;f.status="ALL";f.contractor="ALL";f.comp=(k==="missed")?"missed":"ALL";
+function applyKpi(k){var f=STATE.f;f.onlyOpen=false;f.status="ALL";f.contractor="ALL";f.comp=(k==="missed")?"missed":((k==="cat1")?"cat1":"ALL");
   if(k==="open")f.onlyOpen=true;else if(k==="risk")f.status="risk";else if(k==="red")f.status="red";else if(k==="yel")f.status="yel";
   else if(k.indexOf("contractor:")===0)f.contractor=k.slice(11);
   STATE.view="board";syncUI();render();document.querySelector('.wrap').scrollIntoView({behavior:'smooth',block:'start'});}
@@ -1700,7 +1806,8 @@ function renderBoard(v){
     });
     if(gh)h+='<div class="gholds">'+gh+'</div>';
     var sst=sysStats(s);
-    if(sst.t>0)h+='<div class="sstrip"><span><b class="num">'+sst.t+'</b> total</span><span class="ok"><b class="num">'+sst.c+'</b> closed</span><span class="hot"><b class="num">'+sst.o+'</b> open items</span></div>';
+    var _c1=cat1(s);
+    if(sst.t>0)h+='<div class="sstrip">'+(_c1?'<span class="catpill" title="'+_c1+' Category 1 item'+(_c1===1?'':'s')+' still open — these block the walk">⚠ '+_c1+' Cat 1</span>':'')+'<span><b class="num">'+sst.t+'</b> total</span><span class="ok"><b class="num">'+sst.c+'</b> closed</span><span class="hot"><b class="num">'+sst.o+'</b> open items</span></div>';
     else h+='<div class="sstrip"><span class="nofill">'+(st==="done"?'✓ complete':'no punch items logged yet')+'</span></div>';
     h+='</div></div>';
   });
@@ -1722,10 +1829,14 @@ function phaseBadge(s){
 }
 function gatePill(k,g){
   if(!g||g.na)return '<div class="gp d-unset"><div class="gl">'+k+'</div><div class="gd">'+(k==="FAT"?"vendor":"— set —")+'</div><div class="gv">'+(g&&g.punch?(gateStats(g).o||0):0)+'</div></div>';
-  if(g.done)return '<div class="gp sok"><div class="gl">'+k+' ✓</div><div class="gd">'+fmtMD(g.date)+'</div><div class="gv" style="color:var(--grn)">✓</div></div>';
+  if(g.done){var lt=gateLate(g);
+    return '<div class="gp sok"><div class="gl">'+k+' ✓</div><div class="gd">'+fmtMD(g.date)+'</div><div class="gv" style="color:var(--grn)">✓</div>'+
+      (lt>0?'<span class="slip" title="signed '+lt+' days after target">+'+lt+'d</span>':'')+'</div>';}
   var ds=gateDateState(g),st=gateStats(g);
   var dtxt=g.date?fmtMD(g.date):(k==="FAT"?"vendor":"— set —");
-  return '<div class="gp d-'+ds+'"><div class="gl">'+k+'</div><div class="gd">'+dtxt+'</div><div class="gv num'+(st.o>0?' hot':'')+'">'+st.o+(st.t>0?'<span class="oft">/'+st.t+'</span>':'')+'</div></div>';
+  var sl=gateSlip(g);
+  return '<div class="gp d-'+ds+'"><div class="gl">'+k+'</div><div class="gd">'+dtxt+'</div><div class="gv num'+(st.o>0?' hot':'')+'">'+st.o+(st.t>0?'<span class="oft">/'+st.t+'</span>':'')+'</div>'+
+    (sl>0?'<span class="slip" title="'+sl+' days past the target date">+'+sl+'d</span>':'')+'</div>';
 }
 
 function renderWho(v){
@@ -1909,6 +2020,12 @@ function renderModal(){
   var h='<div class="mhead"><div class="mstrip" style="background:'+stripc+'"></div>';
   h+='<div class="mtop"><span class="light '+st+'"></span><span class="mmc num">'+esc(s.mc)+'</span><span class="btag">'+esc(s.board||'')+'</span>'+pill+'<span style="flex:1"></span><button class="iconbtn" data-act="closeSys">✕</button></div>';
   h+='<div class="mdesc">'+esc(s.desc)+'</div><div class="mmeta">'+esc(s.code)+' · target MC '+fmtMD(s.target)+' · '+open+' open punch item'+(open===1?'':'s')+(STATE.unlocked?'':' · 🔒 unlock to edit')+'</div>';
+  var _co=catOpen(s);
+  if(_co){
+    var _ks=["1","2","3","4"].filter(function(k){return +_co[k]>0;});
+    if(_ks.length)h+='<div class="catline">'+_ks.map(function(k){
+      return '<span class="cb'+(k==="1"?" c1":"")+'">Cat '+k+' · '+(+_co[k])+'</span>';}).join('')+'</div>';
+  }
   if(missedMCC(s)){var mg=s.gates.MCC||{};h+='<div class="missbanner">⚠ Did not meet MCC date — target was '+fmtMD(mg.target)+' ('+Math.abs(daysBetween(mg.target,todayISO()))+' days past). MCC is not yet signed off.</div>';}
   if(STATE.unlocked){
     h+='<div class="editrow"><div class="ef"><label>MC #</label><input data-act="editField" data-sys="'+esc(s.id)+'" data-field="mc" value="'+esc(s.mc)+'"></div>';
@@ -2002,6 +2119,7 @@ function refreshContractorFilter(){var sel=$("contractorF");if(!sel)return;var c
 document.addEventListener("click",function(e){
   var t=e.target.closest("[data-act]");if(!t)return;
   var act=t.getAttribute("data-act"),sys=t.getAttribute("data-sys"),gate=t.getAttribute("data-gate"),name=t.getAttribute("data-name");
+  if(act==="toggleWalks"){var w=$("walkwrap");if(w){var o=!w.classList.contains("open");w.classList.toggle("open",o);lsSet(WALK_KEY,o?"1":"0");}return;}
   if(act==="openSys")openSys(sys);
   else if(act==="gotoSys"){
     if(!sys||!STATE.systems[sys])return;
@@ -2747,6 +2865,8 @@ function impAutoMap(headers){
   /* item detail — carried for display only; never used in any count or date calculation */
   m.pdesc=find(/^description$/);
   if(m.pdesc<0)m.pdesc=find(/^(punch\s*description|item\s*description|finding\s*description)$/);
+  m.pcat=find(/^category$/);
+  if(m.pcat<0)m.pcat=find(/^(punch\s*category|item\s*category|cat)$/);
   m.ptype=find(/^punch\s*phase\s*type$/);
   if(m.ptype<0)m.ptype=find(/(punch\s*phase\s*type|phase\s*type|punch\s*type)/);
   m.closeDate=find(/^(complete\s*date|completion\s*date|date\s*verified|closed\s*date|date\s*closed)$/);
@@ -2915,7 +3035,7 @@ function impClosedIds(cell){var v=cell&&cell.cids;return (v&&v.length)?v.map(Str
 function impPlanPunch(rows,map){
   var ix=impIndexSystems(),agg={},plan={kind:"punch",matched:0,unmatched:[],newContractors:[],updates:{},
         totalItems:0,closedItems:0,changed:0,noGate:0,aliases:[],absent:[],removals:0,
-        byId:(map.item>=0),text:{},closedNow:0,raisedNow:0,reopened:0,stillOpen:0,noBaseline:0,
+        byId:(map.item>=0),text:{},cats:{},closedNow:0,raisedNow:0,reopened:0,stillOpen:0,noBaseline:0,
         perCo:{},closedList:[],raisedList:[],reopenList:[]};
   var rosterNames=contractors().map(function(c){return c.name;});
   var resolved={};
@@ -2946,10 +3066,16 @@ function impPlanPunch(rows,map){
     cell.t++;if(closed)cell.c++;
     var pid=map.item>=0?impNorm(r[map.item]):"";
     if(pid&&!closed)cell.ids.push(pid);
-    if(pid&&!closed&&(map.pdesc>=0||map.ptype>=0)){
+    if(pid&&!closed&&(map.pdesc>=0||map.ptype>=0||map.pcat>=0)){
       var dsc=map.pdesc>=0?impNorm(r[map.pdesc]).replace(/_x000D_/g," ").replace(/\s+/g," ").trim():"";
       var typ=map.ptype>=0?impNorm(r[map.ptype]).trim():"";
-      if(dsc||typ){plan.text[id]=plan.text[id]||{};plan.text[id][pid]={d:dsc,p:typ};}
+      var ct=map.pcat>=0?impNorm(r[map.pcat]).trim():"";
+      if(dsc||typ||ct){plan.text[id]=plan.text[id]||{};plan.text[id][pid]={d:dsc,p:typ};if(/^[1-4]$/.test(ct))plan.text[id][pid].c=ct;}
+    }
+    /* open punch items by EIDA category — a tiny per-system summary the board can read cheaply */
+    if(!closed&&map.pcat>=0){
+      var cc=impNorm(r[map.pcat]).trim();
+      if(/^[1-4]$/.test(cc)){plan.cats[id]=plan.cats[id]||{};plan.cats[id][cc]=(plan.cats[id][cc]||0)+1;}
     }
   });
   Object.keys(agg).forEach(function(id){
@@ -3190,7 +3316,7 @@ function impShowMapping(){
     if(IMP.kind==="punch"){
       m2.contractor=+($("imp_contractor").value);m2.status=+($("imp_status").value);m2.gate=+($("imp_gate").value);
       m2.item=+($("imp_item").value);m2.closeDate=IMP.map.closeDate;
-      m2.pdesc=IMP.map.pdesc;m2.ptype=IMP.map.ptype;   /* item detail rides along with the auto-map */
+      m2.pdesc=IMP.map.pdesc;m2.ptype=IMP.map.ptype;m2.pcat=IMP.map.pcat;   /* item detail rides along with the auto-map */
     }else{
       ["FAT","W0","W1","MC","MCC"].forEach(function(g){
         var d=+($("imp_"+g+"_done").value),t=+($("imp_"+g+"_target").value);
@@ -3322,11 +3448,19 @@ function impApply(pr){
       merged.gates[g].punch=Object.assign({},merged.gates[g].punch);
       Object.keys(u.punch[g]).forEach(function(c){var v=u.punch[g][c];merged.gates[g].punch[c]={t:v.t,c:v.c};});
     });
+    if(p.cats&&p.cats[id])merged.catOpen=p.cats[id];
+    else if(p.kind==="punch"&&p.cats&&Object.keys(p.cats).length&&!p.cats[id])delete merged.catOpen;
     prev.push(before);
     ops.push(function(b){b.set(db.collection(SYS_COL).doc(id),merged);});
   });
   /* item detail lives in its own collection so the board's live stream stays light.
      Written for every system in the file, including ones whose counts did not move. */
+  var catIds=Object.keys((p&&p.cats)||{});
+  catIds.forEach(function(id){
+    if(!STATE.systems[id])return;
+    var _c=p.cats[id];
+    ops.push(function(b){b.set(db.collection(SYS_COL).doc(id),{catOpen:_c},{merge:true});});
+  });
   var txtIds=Object.keys((p&&p.text)||{});
   txtIds.forEach(function(id){
     if(!STATE.systems[id])return;
