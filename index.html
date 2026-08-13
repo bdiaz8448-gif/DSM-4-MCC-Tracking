@@ -398,6 +398,14 @@
   .lexp{display:none;padding:2px 18px 16px;background:var(--expbg)}
   .lc.open .lexp{display:block}
   .mrow{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+  /* a system row on Who's Holding Who opens that system on the Board */
+  .mrow.go{cursor:pointer;border-radius:10px;padding-left:8px;padding-right:8px;transition:background .14s,box-shadow .14s}
+  .mrow.go:hover{background:var(--card2);box-shadow:inset 0 0 0 1px var(--line2)}
+  .mrow.go::after{content:"›";margin-left:6px;font-size:19px;font-weight:900;color:var(--mut2);opacity:.55}
+  .mrow.go:hover::after{color:var(--acc);opacity:1}
+  /* Back — appears once there is somewhere to go back to */
+  #backBtn{display:none}
+  body.cannav #backBtn{display:grid}
   .mrow .mlight{width:11px;height:11px;border-radius:50%;flex:none}
   .mrow .mtxt{flex:1;min-width:0}
   .mrow .mt1{font-weight:800;font-size:14px}
@@ -727,7 +735,7 @@
     .brand small{display:block;font-size:9.5px;letter-spacing:.15px;margin-top:0;white-space:nowrap}
     .logo{width:30px;height:30px;font-size:13px}
     .live{order:2}.whoami{order:3;margin-right:0}
-    #themeBtn,#lockBtn,#ownerBtn,#pwBtn,#signOutBtn{order:4}
+    #backBtn,#themeBtn,#lockBtn,#ownerBtn,#pwBtn,#signOutBtn{order:4}
     .iconbtn{width:37px;height:37px;font-size:15px;border-radius:50%}
     .iconbtn.crown.on svg{width:22px;height:22px}
     #views{order:9;flex:0 0 100%;width:100%}
@@ -849,6 +857,7 @@
   #presentDock button.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;
     box-shadow:0 6px 20px rgba(56,189,248,.5),inset 0 1px 0 rgba(255,255,255,.3)}
   #presentBtn.on{box-shadow:0 0 0 2px var(--acc),0 0 22px rgba(56,189,248,.6),inset 0 0 12px rgba(56,189,248,.2)}
+  body.present #backBtn,
   body.present #addSysBtn,body.present #themeBtn,body.present #lockBtn,body.present #ownerBtn,
   body.present #pwBtn,body.present #signOutBtn,body.present .whoami,body.present .live{display:none!important}
   body.present .wrap{padding:0 34px 44px;max-width:1860px;margin:0 auto}
@@ -991,6 +1000,7 @@
     <button class="iconbtn" id="presentBtn" title="Present mode — big numbers for the room">TV</button>
     <button class="iconbtn" id="themeBtn" title="Switch dark / light">☾</button>
     <button class="iconbtn" id="lockBtn" title="Unlock to edit">🔒</button>
+    <button class="iconbtn" id="backBtn" title="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg></button>
     <button class="iconbtn" id="ownerBtn" title="Settings" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg></button>
     <button class="iconbtn" id="pwBtn" title="Change password" style="display:none">🔑</button>
     <button class="iconbtn" id="signOutBtn" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
@@ -1043,7 +1053,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v12.5-na-precedence";
+var MC_BUILD="v12.6-navigation";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1243,7 +1253,7 @@ function whoAgg(){
         agg[c]=agg[c]||{name:c,total:0,tot:0,closed:0,systems:{}};
         agg[c].total+=v;agg[c].tot+=pvv.t;agg[c].closed+=pvv.c;
         if(v<=0)continue;
-        agg[c].systems[s.id]=agg[c].systems[s.id]||{mc:s.mc,desc:s.desc,open:0,status:st,gates:[]};
+        agg[c].systems[s.id]=agg[c].systems[s.id]||{id:s.id,mc:s.mc,desc:s.desc,open:0,status:st,gates:[]};
         agg[c].systems[s.id].open+=v;agg[c].systems[s.id].gates.push(k+" "+v);
       }});});
   return Object.keys(agg).map(function(n){var o=agg[n];return{name:n,total:o.total,tot:o.tot,closed:o.closed,systems:Object.keys(o.systems).map(function(k){return o.systems[k];})};})
@@ -1588,6 +1598,49 @@ function renderTopConstraints(){
   h+='</div>';
   el.innerHTML=h;
 }
+/* ---------- back / forward ----------
+   Every view change and every opened system becomes a real history entry, so the browser
+   back button, the phone back gesture and the trackpad swipe all work the way people expect. */
+var NAV_LOCK=false, NAV_VIEWS=["board","who","mcc","burn"];
+function navHash(){return STATE.openSysId?("#sys/"+encodeURIComponent(STATE.openSysId)):("#"+(STATE.view||"board"));}
+function navPush(){
+  if(NAV_LOCK)return;
+  try{
+    var h=navHash();
+    if(location.hash===h)return;
+    NAV_DEPTH++;
+    history.pushState({v:STATE.view,sys:STATE.openSysId||null,d:NAV_DEPTH},"",h);
+    navSyncBack();
+  }catch(e){}
+}
+function navReplace(){try{history.replaceState({v:STATE.view,sys:STATE.openSysId||null,d:NAV_DEPTH},"",navHash());}catch(e){}}
+function navApply(st){
+  NAV_LOCK=true;
+  try{
+    var v=st&&st.v, sys=(st&&st.sys)||null;
+    if(!st){
+      var hh=(location.hash||"").replace(/^#/,"");
+      if(hh.indexOf("sys/")===0)sys=decodeURIComponent(hh.slice(4));
+      else if(NAV_VIEWS.indexOf(hh)>=0)v=hh;
+    }
+    if(v&&NAV_VIEWS.indexOf(v)>=0&&v!==STATE.view){STATE.view=v;syncUI();render();}
+    var dlg=$("sysDlg");
+    if(sys&&STATE.systems[sys]){
+      if(STATE.openSysId!==sys)openSys(sys);
+      else if(dlg&&!dlg.open)dlg.showModal();
+    }else if(STATE.openSysId){
+      unlockRowOrder(STATE.openSysId);STATE.openSysId=null;
+      if(dlg&&dlg.open)dlg.close();
+      render();
+    }
+  }finally{NAV_LOCK=false;}
+}
+var NAV_DEPTH=0;
+function navSyncBack(){document.body.classList.toggle("cannav",NAV_DEPTH>0);}
+window.addEventListener("popstate",function(e){
+  NAV_DEPTH=(e.state&&typeof e.state.d==="number")?e.state.d:0;
+  navSyncBack();navApply(e.state);
+});
 function goHome(){
   STATE.f={comp:"ALL",group:"ALL",status:"ALL",contractor:"ALL",look:STATE.f.look,q:"",onlyOpen:false};
   STATE.view="board";
@@ -1700,7 +1753,7 @@ function renderWho(v){
     h+='<div class="lmid"><div class="lname">'+esc(c.name)+'<span class="trade">'+esc(tradeOf(c.name))+'</span></div><div class="track"><div class="fill" style="width:'+Math.max(4,Math.round(c.total/max*100))+'%"></div></div><div class="lsub">'+(c.tot||0)+' total · <b>'+(c.closed||0)+' closed</b> · '+c.total+' open</div></div>';
     h+='<div class="lright"><div class="ltot num">'+c.total+'</div>'+(atRisk>0?'<div class="lrisk">'+atRisk+' at risk</div>':'<div class="lrisk" style="color:var(--mut)">'+c.systems.length+' systems</div>')+'</div><span class="caret">▶</span></div>';
     h+='<div class="lexp">';
-    c.systems.forEach(function(x){h+='<div class="mrow"><span class="mlight light '+x.status+'"></span><div class="mtxt"><div class="mt1">'+esc(x.mc)+' · '+esc(x.desc)+'</div><div class="mt2">'+x.gates.join(" · ")+' open</div></div><div class="mo num" style="color:'+(x.status==="red"?"var(--red)":x.status==="org"?"var(--org)":x.status==="yel"?"var(--yel)":"var(--txt)")+'">'+x.open+'</div></div>';});
+    c.systems.forEach(function(x){h+='<div class="mrow go" data-act="gotoSys" data-sys="'+esc(x.id||"")+'" title="Open '+esc(x.mc)+' on the Board"><span class="mlight light '+x.status+'"></span><div class="mtxt"><div class="mt1">'+esc(x.mc)+' · '+esc(x.desc)+'</div><div class="mt2">'+x.gates.join(" · ")+' open</div></div><div class="mo num" style="color:'+(x.status==="red"?"var(--red)":x.status==="org"?"var(--org)":x.status==="yel"?"var(--yel)":"var(--txt)")+'">'+x.open+'</div></div>';});
     h+='</div></div>';
   });
   h+='</div>';v.innerHTML=h;
@@ -1835,7 +1888,7 @@ function openIdsFor(s,gate,name){
   var g=(s.gates||{})[gate]||{},e=(g.punch||{})[name]||{};
   var ids=e.ids||[]; return ids.slice();
 }
-function openSys(id,at){if(STATE.openSysId!==id)PT_OPEN={};STATE.openSysId=id;lockRowOrder(id);loadPunchText(id);loadHistory(id);
+function openSys(id,at){if(STATE.openSysId!==id)PT_OPEN={};STATE.openSysId=id;lockRowOrder(id);loadPunchText(id);loadHistory(id);navPush();
   if(at&&at.gate&&at.name)PT_OPEN[at.gate+"|"+at.name]=1;
   renderModal();var dlg=$("sysDlg");if(!dlg.open)dlg.showModal();}
 function renderModal(){
@@ -1950,6 +2003,11 @@ document.addEventListener("click",function(e){
   var t=e.target.closest("[data-act]");if(!t)return;
   var act=t.getAttribute("data-act"),sys=t.getAttribute("data-sys"),gate=t.getAttribute("data-gate"),name=t.getAttribute("data-name");
   if(act==="openSys")openSys(sys);
+  else if(act==="gotoSys"){
+    if(!sys||!STATE.systems[sys])return;
+    if(STATE.view!=="board"){STATE.view="board";syncUI();navPush();render();}
+    openSys(sys);return;
+  }
   else if(act==="openSysAt")openSys(sys,{gate:t.getAttribute("data-gate"),name:t.getAttribute("data-name")});
   else if(act==="togglePItems"){var _k=t.getAttribute("data-gate")+"|"+t.getAttribute("data-name");
     if(PT_OPEN[_k])delete PT_OPEN[_k];else PT_OPEN[_k]=1;renderModal();return;}
@@ -2012,15 +2070,19 @@ function cssq(s){return String(s).replace(/"/g,'\\"');}
 document.addEventListener("keydown",function(e){var t=e.target;if(t&&t.getAttribute&&t.getAttribute("data-act")==="addcKey"&&e.key==="Enter"){e.preventDefault();addContractorToGate(t.getAttribute("data-sys"),t.getAttribute("data-gate"));}});
 $("clearF").addEventListener("click",function(){STATE.f={comp:"ALL",group:"ALL",status:"ALL",contractor:"ALL",look:STATE.f.look,q:"",onlyOpen:false};$("searchF").value="";syncUI();render();});
 $("sysDlg").addEventListener("click",function(e){if(e.target===this){unlockRowOrder(STATE.openSysId);STATE.openSysId=null;this.close();}});
-$("sysDlg").addEventListener("close",function(){unlockRowOrder(STATE.openSysId);STATE.openSysId=null;render();});
+$("sysDlg").addEventListener("close",function(){
+  unlockRowOrder(STATE.openSysId);STATE.openSysId=null;render();
+  if(!NAV_LOCK&&/^#sys\//.test(location.hash||"")){try{history.back();}catch(e){}}
+});
 
 $("compF").addEventListener("click",function(e){var b=e.target.closest("[data-c]");if(!b)return;STATE.f.comp=b.getAttribute("data-c");[].forEach.call(this.children,function(c){c.classList.toggle("on",c===b);});render();});
 $("groupF").addEventListener("change",function(){STATE.f.group=this.value;render();});
 $("statusF").addEventListener("click",function(e){var b=e.target.closest("[data-s]");if(!b)return;STATE.f.status=b.getAttribute("data-s");STATE.f.onlyOpen=false;[].forEach.call(this.children,function(c){c.classList.toggle("on",c===b);});render();});
 $("contractorF").addEventListener("change",function(){STATE.f.contractor=this.value;render();});
 $("searchF").addEventListener("input",function(){STATE.f.q=this.value;render();});
-$("views").addEventListener("click",function(e){var b=e.target.closest("[data-view]");if(!b)return;STATE.view=b.getAttribute("data-view");[].forEach.call(this.children,function(c){c.classList.toggle("active",c===b);});render();});
+$("views").addEventListener("click",function(e){var b=e.target.closest("[data-view]");if(!b)return;STATE.view=b.getAttribute("data-view");[].forEach.call(this.children,function(c){c.classList.toggle("active",c===b);});navPush();render();});
 $("lockBtn").addEventListener("click",function(){if(STATE.unlocked){STATE.unlocked=false;STATE.role=null;STATE.roleName=null;this.innerHTML=I_LOCK;this.title="Unlock to edit";this.classList.remove("on");this.classList.toggle("crown",isOwnerUser());$("ownerBtn").style.display="none";render();if(STATE.openSysId)renderModal();}else requireUnlock(function(){});updateWhoami();});
+(function(){var bb=$("backBtn");if(bb)bb.addEventListener("click",function(){try{history.back();}catch(e){}});})();
 $("ownerBtn").addEventListener("click",function(){requireUnlock(openOwner);});
 $("themeBtn").addEventListener("click",toggleTheme);
 $("addSysBtn").addEventListener("click",function(){requireUnlock(openAddSystem);});
@@ -2493,6 +2555,7 @@ function signOut(){
 
 /* kick off: wire login form immediately (script runs after the markup); auth listener drives the rest */
 (function(){
+  navApply(null);navReplace();navSyncBack();   /* honour a #view or #sys/... link on first load */
   var f=$("authForm");if(f)f.addEventListener("submit",function(e){e.preventDefault();doSignIn();});
   var ac=$("authCreate");if(ac)ac.addEventListener("click",function(e){e.preventDefault();doCreate();});
   var af=$("authForgot");if(af)af.addEventListener("click",function(e){e.preventDefault();doForgot();});
