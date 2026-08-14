@@ -297,7 +297,7 @@
   .brand:hover .logo{box-shadow:0 4px 18px rgba(56,189,248,.6)}
   .brand:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
   /* toolbar */
-  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:16px 0 18px}
+  .toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:12px 0 14px}
   .chips{display:flex;gap:6px;flex-wrap:wrap;border:2px solid transparent;border-radius:14px;padding:5px;
     background:var(--glass) padding-box,var(--edge) border-box;backdrop-filter:blur(12px);box-shadow:var(--gloss)}
   .chips button{background:transparent;border:0;color:var(--mut);border-radius:8px;padding:7px 13px;font-size:12.5px;font-weight:800;cursor:pointer}
@@ -631,6 +631,57 @@
   .editrow label{font-size:10px;color:var(--acc);font-weight:900;text-transform:uppercase;letter-spacing:.5px}
   .editrow input{background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:9px 11px;color:var(--txt);font-weight:700;font-size:14px;width:100%}
   .editrow input:focus{border-color:var(--acc);outline:none}
+
+  /* ---- v13.0 header: live rides in the brand pill, search moves up, one account circle ---- */
+  .brand small .livein{display:inline-flex;align-items:center;gap:5px;margin-left:9px;padding:1px 9px 1px 6px;border-radius:99px;
+    border:1px solid var(--line);background:var(--card2);font-size:9px;font-weight:900;letter-spacing:.4px;
+    color:var(--mut);text-transform:uppercase;vertical-align:middle}
+  .brand small .livein .dot{width:7px;height:7px}
+  .hsearch{position:relative;display:flex;align-items:center;flex:0 1 320px;min-width:150px}
+  .hsearch svg{position:absolute;left:14px;width:15px;height:15px;color:var(--mut2);pointer-events:none}
+  .hsearch input{width:100%;padding:11px 14px 11px 37px;border-radius:99px;border:2px solid transparent;font-size:13px;
+    font-weight:700;color:var(--txt);background:var(--glass) padding-box,var(--edge) border-box;box-shadow:var(--gloss);outline:none}
+  .hsearch input::placeholder{color:var(--mut2);font-weight:700}
+  .hsearch input:focus{background:var(--card) padding-box,linear-gradient(135deg,var(--acc),var(--acc2)) border-box}
+  #searchBtn{display:none}
+  #searchBtn svg{width:19px;height:19px}
+  .acct{position:relative}
+  .avbtn{width:42px;height:42px;border-radius:50%;cursor:pointer;border:2px solid transparent;padding:0;
+    background:linear-gradient(135deg,#1b2634,#0d151e) padding-box,var(--edge) border-box;
+    box-shadow:0 4px 14px rgba(0,0,0,.4);display:grid;place-items:center}
+  .avbtn.owner{background:linear-gradient(135deg,#1b2634,#0d151e) padding-box,var(--edgeGold) border-box}
+  .avin{font-size:13.5px;font-weight:900;letter-spacing:.3px;color:var(--acc)}
+  .avbtn.owner .avin{background:linear-gradient(180deg,var(--goldg),var(--gold));-webkit-background-clip:text;
+    background-clip:text;-webkit-text-fill-color:transparent}
+  .acmenu{display:none;position:absolute;top:54px;right:0;width:268px;z-index:60;overflow:hidden;
+    border:2px solid transparent;border-radius:18px;
+    background:linear-gradient(var(--card),var(--card)) padding-box,var(--edge) border-box;box-shadow:0 24px 64px rgba(0,0,0,.6)}
+  .acct.open .acmenu{display:block}
+  .achead{padding:18px 16px 15px;text-align:center;background:var(--card2);border-bottom:1px solid var(--line)}
+  .avbig{width:56px;height:56px;border-radius:50%;margin:0 auto 9px;display:grid;place-items:center;font-size:19px;font-weight:900;
+    border:2px solid transparent;background:linear-gradient(135deg,#1b2634,#0d151e) padding-box,var(--edge) border-box;color:var(--acc)}
+  .avbig.owner{background:linear-gradient(135deg,#1b2634,#0d151e) padding-box,var(--edgeGold) border-box;color:var(--gold)}
+  .acname{font-size:14.5px;font-weight:900;color:var(--txt)}
+  .acmail{font-size:11.5px;font-weight:700;color:var(--mut);margin-top:2px;word-break:break-all}
+  .acrole{display:inline-block;margin-top:9px;padding:3px 11px;border-radius:99px;font-size:9.5px;font-weight:900;letter-spacing:.6px;
+    text-transform:uppercase;background:var(--card);color:var(--mut2)}
+  .acrole.owner{background:var(--tagUtilBg);color:var(--tagUtilFg)}
+  .acrole.editor{background:var(--tagAirBg);color:var(--tagAirFg)}
+  .acbody{padding:6px;background:var(--card)}
+  .acitem{display:flex;align-items:center;gap:11px;width:100%;padding:11px 12px;border:0;border-radius:11px;background:transparent;
+    color:var(--txt);font-size:13px;font-weight:800;cursor:pointer;text-align:left}
+  .acitem:hover{background:var(--card2)}
+  .acitem.out{color:var(--redg)}
+  .acitem.on{background:var(--card2);box-shadow:inset 0 0 0 1px var(--acc)}
+  .aci{width:20px;text-align:center;font-size:14px;color:var(--mut)}
+  .acsep{height:1px;background:var(--line);margin:5px 8px}
+  @media(max-width:1120px){.hsearch{flex:0 1 220px}}
+  @media(max-width:900px){
+    #searchBtn{display:grid}
+    .hsearch{display:none}
+    body.searchopen .hsearch{display:flex;flex:1 0 100%;order:8}
+    body.searchopen #searchBtn{box-shadow:0 0 0 2px var(--acc)}
+  }
   /* ---- countdown / goal band ---- */
   .hdate{display:flex;flex-direction:column;line-height:1.15;padding:5px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
   .hdate .hd1{font-size:12.5px;font-weight:900;color:var(--txt);letter-spacing:.2px}
@@ -768,15 +819,16 @@
   @media(max-width:1240px){.hero{grid-template-columns:repeat(4,1fr)}.tcgrid{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:760px){
     /* ---- header: wrap into tidy, centered rows that fit any phone ---- */
-    .bar{flex-wrap:wrap;gap:8px;padding:10px 12px;justify-content:center}
+    .bar{flex-wrap:wrap;gap:8px;padding:10px 12px;justify-content:space-between}
     .spacer{display:none}
-    .brand{order:1;font-size:15.5px;gap:8px;min-width:0;padding:4px 14px 4px 4px}
+    /* the brand takes whatever room the three circles leave, and ellipsises rather than wrapping them onto their own row */
+    .brand{order:1;font-size:15.5px;gap:8px;min-width:0;flex:1 1 auto;max-width:calc(100% - 142px);padding:4px 14px 4px 4px}
     .brand>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     /* keep the BDiaz · DSM4 · Project Aura line on the phone — small enough not to crowd the header */
     .brand small{display:block;font-size:9.5px;letter-spacing:.15px;margin-top:0;white-space:nowrap}
+    .brand small .bwho{display:none}
     .logo{width:30px;height:30px;font-size:13px}
-    .live{order:2}.whoami{order:3;margin-right:0}
-    #themeBtn,#lockBtn,#ownerBtn,#pwBtn,#signOutBtn{order:4}
+    #searchBtn,#lockBtn{order:4}.acct{order:5}
     .iconbtn{width:37px;height:37px;font-size:15px;border-radius:50%}
     .iconbtn.crown.on svg{width:22px;height:22px}
     #views{order:9;flex:0 0 100%;width:100%}
@@ -799,8 +851,7 @@
     .toolbar{gap:8px;justify-content:center}
     .chips{flex:1 1 100%;width:100%;justify-content:center;padding:7px;border-radius:22px}
     .chips button{padding:8px 12px;font-size:12px}
-    #groupF,#contractorF,#searchF{flex:1 1 100%;max-width:none;text-align:center;text-align-last:center}
-    #searchF{text-align:center}
+    #groupF,#contractorF{flex:1 1 100%;max-width:none;text-align:center;text-align-last:center}
     .clearf{flex:1 1 100%;text-align:center}
     .gbstats{grid-template-columns:repeat(2,1fr)}
   }
@@ -898,9 +949,8 @@
   #presentDock button:hover{transform:translateY(-1px);box-shadow:var(--gloss),0 14px 34px rgba(0,0,0,.5)}
   #presentDock button.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;
     box-shadow:0 6px 20px rgba(56,189,248,.5),inset 0 1px 0 rgba(255,255,255,.3)}
-  #presentBtn.on{box-shadow:0 0 0 2px var(--acc),0 0 22px rgba(56,189,248,.6),inset 0 0 12px rgba(56,189,248,.2)}
-  body.present #addSysBtn,body.present #themeBtn,body.present #lockBtn,body.present #ownerBtn,
-  body.present #pwBtn,body.present #signOutBtn,body.present .whoami,body.present .live{display:none!important}
+
+  body.present #addSysBtn,body.present #lockBtn{display:none!important}
   body.present .wrap{padding:0 34px 44px;max-width:1860px;margin:0 auto}
   body.present .bar{padding:14px 26px}
   body.present .brand{font-size:22px}
@@ -908,7 +958,8 @@
   body.present .toolbar{gap:12px;margin:18px 0 20px}
   body.present .chips button{font-size:15px;padding:12px 18px}
   body.present .chips .cnt{font-size:14px;min-width:28px;padding:3px 9px}
-  body.present #groupF,body.present #contractorF,body.present #searchF{font-size:15px;padding:12px 16px}
+  body.present #groupF,body.present #contractorF{font-size:15px;padding:12px 16px}
+  body.present .hsearch,body.present #searchBtn,body.present .acct{display:none!important}
   /* the goal band is capped at 1580px for the normal layout; present mode is wider,
      so let it run the full content width — its edges must line up with the KPI row */
   body.present .goalbar{max-width:none;margin-left:0;margin-right:0}
@@ -1036,8 +1087,7 @@
 </div>
 <header>
   <div class="bar">
-    <div class="brand" data-act="home" title="Home — show all systems"><span class="logo">MC</span><span>MC Constraint Board<small>BDiaz · DSM4 · Project Aura</small></span></div>
-    <div class="live"><span class="dot" id="syncDot"></span><span id="syncTxt">connecting…</span></div>
+    <div class="brand" data-act="home" title="Home — show all systems"><span class="logo">MC</span><span>MC Constraint Board<small><span class="bwho">BDiaz · </span>DSM4 · Project Aura<i class="livein"><span class="dot" id="syncDot"></span><span id="syncTxt">connecting…</span></i></small></span></div>
     <div class="spacer"></div>
     <div class="seg" id="views">
       <button data-view="board" class="active">Board</button>
@@ -1045,13 +1095,32 @@
       <button data-view="mcc">MCC Closed</button>
       <button data-view="burn">Punch Tracker</button>
     </div>
-    <span class="whoami" id="whoami"></span>
-    <button class="iconbtn" id="presentBtn" title="Present mode — big numbers for the room">TV</button>
-    <button class="iconbtn" id="themeBtn" title="Switch dark / light">☾</button>
-    <button class="iconbtn" id="lockBtn" title="Unlock to edit">🔒</button>
-    <button class="iconbtn" id="ownerBtn" title="Settings" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg></button>
-    <button class="iconbtn" id="pwBtn" title="Change password" style="display:none">🔑</button>
-    <button class="iconbtn" id="signOutBtn" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+    <div class="hsearch" id="hsearch">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.4-3.4"/></svg>
+      <input type="search" id="searchF" placeholder="Search MC#, system or punch ID…">
+    </div>
+    <button class="iconbtn" id="searchBtn" title="Search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.4-3.4"/></svg></button>
+    <button class="iconbtn" id="lockBtn" title="Unlock to edit">&#128274;</button>
+    <div class="acct" id="acct">
+      <button class="avbtn" id="avBtn" title="Account"><span class="avin" id="avIn">&nbsp;</span></button>
+      <div class="acmenu">
+        <div class="achead">
+          <div class="avbig" id="avBig">&nbsp;</div>
+          <div class="acname" id="acName" style="display:none"></div>
+          <div class="acmail" id="acMail"></div>
+          <div class="acrole" id="acRole"></div>
+        </div>
+        <div class="acbody">
+          <button class="acitem" id="presentBtn"><span class="aci" id="tvIco">&#128421;</span><span>Present mode (TV)</span></button>
+          <button class="acitem" id="themeBtn"><span class="aci" id="themeIco">&#9790;</span><span>Dark / light</span></button>
+          <div class="acsep"></div>
+          <button class="acitem" id="ownerBtn" style="display:none"><span class="aci" id="gearIco">&#9881;</span><span>Settings</span></button>
+          <button class="acitem" id="pwBtn" style="display:none"><span class="aci" id="pwIco">&#128273;</span><span>Change password</span></button>
+          <div class="acsep"></div>
+          <button class="acitem out" id="signOutBtn"><span class="aci" id="outIco">&#8677;</span><span>Sign out</span></button>
+        </div>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -1080,7 +1149,6 @@
       <button data-s="grn">Green</button>
     </div>
     <select id="contractorF"><option value="ALL">All contractors</option></select>
-    <input type="search" id="searchF" placeholder="Search MC# or system…">
     <button class="clearf" id="clearF" style="display:none">✕ Clear filters</button>
   </div>
   <div id="view"></div>
@@ -1104,7 +1172,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v12.10-no-back-button";
+var MC_BUILD="v13.0-header-account-search";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1250,6 +1318,25 @@ function missedMCC(s){var g=s.gates&&s.gates.MCC;if(!g||g.na||g.done)return fals
 function govGate(s){var order={red:0,org:1,yel:2},best=null,br=9;for(var i=0;i<GATE_ORDER.length;i++){var g=s.gates[GATE_ORDER[i]];if(!g||g.na||g.done)continue;var ds=gateDateState(g);if(ds in order&&order[ds]<br){br=order[ds];best=GATE_ORDER[i];}}return best;}
 function dsColor(ds){return ds==="red"?"var(--redg)":ds==="org"?"var(--orgg)":ds==="yel"?"var(--yelg)":ds==="grn"?"var(--grng)":"var(--mut)";}
 function dsPill(ds){var th=TH();return ds==="red"?'<span class="mpill red">≤ '+th.red+' days</span>':ds==="org"?'<span class="mpill org">≤ '+th.org+' days</span>':ds==="yel"?'<span class="mpill yel">≤ '+th.yel+' days</span>':ds==="grn"?'<span class="mpill grn">'+th.yel+'+ days out</span>':ds==="unset"?'<span class="mpill" style="background:var(--card2);color:var(--mut)">no date</span>':'';}
+/* One box searches the whole board: MC number, system name, system code, the priority
+   group, any contractor logged on the system, and any Punch ID — open or closed. Paste
+   13580 out of EIDA and it lands on the system holding it. Both the cards and the chip
+   counts call this, so they can never disagree. */
+function sysMatchesQ(s,q){
+  if(!q)return true;
+  if(((s.mc||"")+" "+(s.desc||"")+" "+(s.code||"")+" "+(s.board||"")).toLowerCase().indexOf(q)>=0)return true;
+  var hit=false;
+  GATE_ORDER.forEach(function(k){
+    if(hit)return;
+    var g=(s.gates||{})[k];if(!g||!g.punch)return;
+    for(var n in g.punch){
+      if(String(n).toLowerCase().indexOf(q)>=0){hit=true;return;}
+      var c=g.punch[n]||{},ids=(c.ids||[]).concat(c.cids||[]);
+      for(var i=0;i<ids.length;i++){if(String(ids[i]).toLowerCase().indexOf(q)>=0){hit=true;return;}}
+    }
+  });
+  return hit;
+}
 function passExceptComp(s){var f=STATE.f;
   if(f.group!=="ALL"&&s.board!==f.group)return false;
   if(f.onlyOpen&&sysOpen(s)<=0)return false;
@@ -1258,7 +1345,7 @@ function passExceptComp(s){var f=STATE.f;
     else if(f.status==="grn"){if(st!=="grn"&&st!=="done")return false;}
     else if(st!==f.status)return false;}
   if(f.contractor!=="ALL"){var has=false;GATE_ORDER.forEach(function(k){var g=s.gates[k];if(g&&pOpen((g.punch||{})[f.contractor])>0)has=true;});if(!has)return false;}
-  if(f.q){var q=f.q.toLowerCase();if((s.mc+" "+s.desc+" "+s.code).toLowerCase().indexOf(q)<0)return false;}
+  if(f.q&&!sysMatchesQ(s,f.q.toLowerCase()))return false;
   return true;}
 function refreshCompLabels(){
   var n={all:0,out:0,pending:0,upcoming:0,done:0,missed:0,cat1:0};
@@ -1335,7 +1422,9 @@ function applyTheme(mode){
   var light=(mode==="light");
   document.documentElement.classList.toggle("theme-light",light);
   var b=$("themeBtn");
-  if(b){b.innerHTML=light?I_SUN:I_MOON;b.title=light?"Switch to dark mode":"Switch to light mode";}
+  var bi=$("themeIco");
+  if(bi)bi.innerHTML=light?I_SUN:I_MOON;
+  if(b)b.title=light?"Switch to dark mode":"Switch to light mode";
   var m=document.querySelector('meta[name="theme-color"]');
   if(m)m.setAttribute("content",light?"#f4f7fb":"#04060a");
   STATE.theme=mode;
@@ -1562,7 +1651,7 @@ function passFilter(s){var f=STATE.f;
     else if(f.status==="grn"){if(st!=="grn"&&st!=="done")return false;}
     else if(st!==f.status)return false;}
   if(f.contractor!=="ALL"){var has=false;GATE_ORDER.forEach(function(k){var g=s.gates[k];if(g&&pOpen((g.punch||{})[f.contractor])>0)has=true;});if(!has)return false;}
-  if(f.q){var q=f.q.toLowerCase();if((s.mc+" "+s.desc+" "+s.code).toLowerCase().indexOf(q)<0)return false;}
+  if(f.q&&!sysMatchesQ(s,f.q.toLowerCase()))return false;
   return true;}
 function isFiltered(){var f=STATE.f;return f.comp!=="ALL"||f.group!=="ALL"||f.status!=="ALL"||f.contractor!=="ALL"||f.onlyOpen||!!f.q;}
 function updateChrome(){
@@ -2199,6 +2288,36 @@ $("groupF").addEventListener("change",function(){STATE.f.group=this.value;render
 $("statusF").addEventListener("click",function(e){var b=e.target.closest("[data-s]");if(!b)return;STATE.f.status=b.getAttribute("data-s");STATE.f.onlyOpen=false;[].forEach.call(this.children,function(c){c.classList.toggle("on",c===b);});render();});
 $("contractorF").addEventListener("change",function(){STATE.f.contractor=this.value;render();});
 $("searchF").addEventListener("input",function(){STATE.f.q=this.value;render();});
+/* the account circle behaves like every other profile menu: click to open,
+   click anywhere else or press Esc to close, and picking anything closes it */
+(function(){
+  var av=$("avBtn"),ac=$("acct");
+  if(av)av.addEventListener("click",function(e){e.stopPropagation();ac.classList.toggle("open");});
+  if(ac)ac.addEventListener("click",function(e){
+    if(e.target.closest&&e.target.closest(".acitem"))setTimeout(acctClose,0);
+  });
+  document.addEventListener("click",function(e){
+    if(ac&&ac.classList.contains("open")&&!ac.contains(e.target))acctClose();
+  });
+})();
+/* phone: the magnifier opens the search bar on its own row */
+function searchOpen(on){
+  document.body.classList.toggle("searchopen",on);
+  if(on){var sf=$("searchF");if(sf)sf.focus();}
+}
+(function(){var sb=$("searchBtn");if(sb)sb.addEventListener("click",function(e){
+  e.stopPropagation();searchOpen(!document.body.classList.contains("searchopen"));});})();
+/* "/" jumps straight into search from anywhere on the board */
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"){acctClose();return;}
+  if(e.key!=="/"||e.metaKey||e.ctrlKey||e.altKey)return;
+  var t=e.target,tag=t&&t.tagName;
+  if(tag==="INPUT"||tag==="TEXTAREA"||tag==="SELECT"||(t&&t.isContentEditable))return;
+  if(document.querySelector("dialog[open]"))return;
+  e.preventDefault();
+  searchOpen(true);
+  var sf=$("searchF");if(sf)sf.focus();
+});
 $("views").addEventListener("click",function(e){var b=e.target.closest("[data-view]");if(!b)return;STATE.view=b.getAttribute("data-view");[].forEach.call(this.children,function(c){c.classList.toggle("active",c===b);});navPush();render();});
 $("lockBtn").addEventListener("click",function(){if(STATE.unlocked){STATE.unlocked=false;STATE.role=null;STATE.roleName=null;this.innerHTML=I_LOCK;this.title="Unlock to edit";this.classList.remove("on");this.classList.toggle("crown",isOwnerUser());$("ownerBtn").style.display="none";render();if(STATE.openSysId)renderModal();}else requireUnlock(function(){});updateWhoami();});
 $("ownerBtn").addEventListener("click",function(){requireUnlock(openOwner);});
@@ -2658,12 +2777,38 @@ auth.onAuthStateChanged(function(user){
     showLogin('Sign in to view the board. First time? Enter your email and a password and tap Create account.',"");
   }
 });
-function updateWhoami(){
-  var w=$("whoami");if(!w)return;
-  if(!CURRENT_USER){w.textContent="";return;}
-  var role=isOwnerUser()?"owner":canEdit()?"editor":"read-only";
-  w.innerHTML='<span class="wemail">'+esc(CURRENT_USER.email||"")+'</span><span class="wrole '+role.replace(/[^a-z]/g,"")+'">'+role+'</span>';
+/* Initials for the account circle: two letters from the email, digits stripped.
+   A name line only appears when the address actually carries one (first.last@) —
+   guessing a person's capitalisation out of "bdiaz8448" would just get it wrong. */
+function acctInitials(email){
+  var lp=String(email||"").split("@")[0].replace(/[0-9._-]+/g," ").trim();
+  if(!lp)return "?";
+  var parts=lp.split(/\s+/);
+  return (parts.length>1?(parts[0][0]+parts[1][0]):lp.slice(0,2)).toUpperCase();
 }
+function acctName(email){
+  var lp=String(email||"").split("@")[0];
+  if(lp.indexOf(".")<0)return "";
+  return lp.split(".").filter(Boolean).map(function(w){
+    w=w.replace(/[0-9]+$/,"");
+    return w?w.charAt(0).toUpperCase()+w.slice(1):"";
+  }).filter(Boolean).join(" ");
+}
+function updateWhoami(){
+  var ai=$("avIn"),ab=$("avBig"),an=$("acName"),am=$("acMail"),ar=$("acRole"),av=$("avBtn");
+  if(!ai)return;
+  var em=CURRENT_USER?(CURRENT_USER.email||""):"";
+  var ini=em?acctInitials(em):"?";
+  var owner=isOwnerUser(),role=owner?"owner":canEdit()?"editor":"read-only";
+  ai.textContent=ini; if(ab)ab.textContent=ini;
+  if(av){av.classList.toggle("owner",owner);av.title=em?(em+" \u00b7 "+role):"Account";}
+  if(ab)ab.classList.toggle("owner",owner);
+  var nm=acctName(em);
+  if(an){an.textContent=nm;an.style.display=nm?"":"none";}
+  if(am)am.textContent=em;
+  if(ar){ar.textContent=(owner?"\u265B ":"")+role;ar.className="acrole "+role.replace(/[^a-z]/g,"");}
+}
+function acctClose(){var a=$("acct");if(a)a.classList.remove("open");}
 /* Sign out = clean slate: reload the page so every listener drops and the user
    lands back on the sign-in screen (never the "Access not granted" overlay). */
 function signOut(){
@@ -2690,7 +2835,7 @@ function signOut(){
   var na=$("naSignOut");if(na)na.addEventListener("click",signOut);
   var sk=$("introSkip");if(sk)sk.addEventListener("click",function(){endIntro();});
   var lb0=$("lockBtn");if(lb0)lb0.innerHTML=I_LOCK;   /* drawn icons replace the emoji glyphs */
-  var pb0=$("pwBtn");if(pb0)pb0.innerHTML=I_KEY;
+  var pb0=$("pwIco");if(pb0)pb0.innerHTML=I_KEY;
   showLogin("",""); /* show gate until auth resolves, so the board never flashes before login */
   startIntro();
   initPresent();
@@ -3606,7 +3751,7 @@ function setPresent(on){
   if(STATE.view==="burn")render();   /* the chart re-measures at the new size */
 }
 function initPresent(){
-  var pb=$("presentBtn");if(pb)pb.innerHTML=I_TV;
+  var pb=$("tvIco");if(pb)pb.innerHTML=I_TV;
   var ab=$("awakeBtn");
   if(ab&&!wakeSupported()){ab.title="This browser won't let a page keep the screen on — set the device's own sleep timer instead.";}
   /* a wall display has to come back up in present mode after any reload; storage can
