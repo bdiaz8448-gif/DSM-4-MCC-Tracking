@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="theme-color" content="#04060a">
-<title>DSM4 MC Constraint Board</title>
+<title>DSM4 MC Tracker Board</title>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
@@ -379,7 +379,7 @@
   .lexp{display:none;padding:2px 18px 16px;background:var(--expbg)}
   .lc.open .lexp{display:block}
   .mrow{display:flex;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
-  /* a system row on Top Constraints opens that system on the Board */
+  /* a system row on Top Blockers opens that system on the Board */
   .mrow.go{cursor:pointer;border-radius:10px;padding-left:8px;padding-right:8px;transition:background .14s,box-shadow .14s}
   .mrow.go:hover{background:var(--card2);box-shadow:inset 0 0 0 1px var(--line2)}
   .mrow.go::after{content:"›";margin-left:6px;font-size:19px;font-weight:900;color:var(--mut2);opacity:.55}
@@ -462,7 +462,7 @@
   .locked .step,.locked .addc,.locked .sw{opacity:.4;pointer-events:none}
   .dlgpad{padding:20px 22px}
   .dlgpad h3{margin:0 0 6px;font-size:19px} .dlgpad label{display:block;font-size:11px;color:var(--mut);font-weight:900;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 5px}
-  .dlgpad input,.dlgpad select{width:100%}
+  .dlgpad input,.dlgpad select,.dlgpad textarea{width:100%}
   .dlgpad input:not([type=checkbox]),.dlgpad textarea{background:var(--bg);color:var(--txt);border:1.5px solid var(--line2);border-radius:11px;padding:10px 12px;font-size:14px;font-weight:700}
   .dlgpad input:focus,.dlgpad textarea:focus{border-color:var(--acc);outline:none}
   .addc input{background:var(--bg);color:var(--txt);border:1.5px solid var(--line2);border-radius:11px;padding:10px 12px;font-size:13.5px;font-weight:700}
@@ -693,6 +693,97 @@
     body.searchopen .hsearch{display:flex;flex:1 0 100%;order:8}
     body.searchopen #searchBtn{box-shadow:0 0 0 2px var(--acc)}
   }
+
+  /* ================= Daily Constraint Tracker ================= */
+  .dcwrap{border:2px solid transparent;border-radius:18px;overflow:hidden;
+    background:var(--glass) padding-box,var(--edge) border-box;box-shadow:var(--gloss),var(--shadow)}
+  .dchead{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 16px;background:var(--card2);border-bottom:1px solid var(--line)}
+  .dchead h2{margin:0;font-size:14px;font-weight:900;letter-spacing:1.4px;text-transform:uppercase;color:var(--redg)}
+  .dchead .sub{font-size:11px;font-weight:700;color:var(--mut2)}
+  .dckpis{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin:0 0 12px}
+  .dck{border:2px solid transparent;border-radius:16px;padding:12px 14px;cursor:pointer;transition:.15s;text-align:left;
+    background:var(--glass) padding-box,var(--edge) border-box;box-shadow:var(--gloss),0 4px 16px rgba(0,0,0,.18)}
+  .dck:hover{transform:translateY(-2px)}
+  .dck.on{box-shadow:var(--gloss),0 0 0 2px var(--acc)}
+  .dck .n{font-size:27px;font-weight:900;letter-spacing:-1px;line-height:1}
+  .dck .l{font-size:9.5px;font-weight:900;letter-spacing:.8px;text-transform:uppercase;color:var(--mut);margin-top:6px}
+  .dck.d-open .n{color:var(--acc)} .dck.d-prog .n{color:var(--yelg)} .dck.d-ready .n{color:#4338ca}
+  .dck.d-done .n{color:var(--grng)} .dck.d-late .n{color:var(--red)} .dck.d-mcc .n{color:#6d28d9}
+  .dck.d-late{background:var(--redbg) padding-box,linear-gradient(135deg,var(--red),var(--redg)) border-box}
+  .dck.d-mcc{background:#f2ebff padding-box,linear-gradient(135deg,#7c3aed,#4c1d95) border-box}
+  .dcbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+  .dctbl{overflow-x:auto}
+  .dctbl table{border-collapse:collapse;width:100%;min-width:1180px}
+  .dctbl thead th{position:sticky;top:0;z-index:4;background:var(--card2);text-align:left;
+    font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--redg);
+    padding:10px 11px;border-bottom:2px solid var(--line2);white-space:nowrap}
+  .dctbl thead th .h2{display:block;font-weight:700;text-transform:none;letter-spacing:0;color:var(--mut2);font-size:10px}
+  .dctbl tbody td{padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:13px}
+  .dctbl tbody tr{background:var(--card)}
+  .dctbl tbody tr.s-late{background:var(--redbg)}
+  .dctbl tbody tr.s-prog{background:var(--yelbg)}
+  .dctbl tbody tr.s-ready{background:#eef0ff}
+  .dctbl tbody tr.s-done{background:var(--grnbg)}
+  .dctbl tbody tr.void{opacity:.5}
+  .dcn{font-size:11px;font-weight:900;color:var(--mut2);width:30px}
+  .dctbl td.dt,.dctbl td.du{white-space:nowrap;font-weight:800;font-size:12.5px}
+  .dctbl td.dco{font-weight:900;white-space:nowrap}
+  .dctbl td.dd{min-width:290px;font-weight:600;white-space:pre-line}
+  .dcin{width:100%;border:1px solid transparent;border-radius:8px;padding:5px 7px;background:transparent;
+    font:inherit;font-weight:inherit;color:inherit;outline:none}
+  .dcin:hover:not([readonly]){border-color:var(--line2);background:rgba(255,255,255,.6)}
+  .dcin:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(7,104,139,.14)}
+  .dcin[readonly]{cursor:default}
+  .dctbl td.dd .dcin{min-height:32px;resize:vertical;line-height:1.35}
+  .dcroom{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);border-radius:99px;
+    padding:5px 11px;background:#fff;font-size:11.5px;font-weight:900;color:var(--mut);white-space:nowrap;cursor:pointer}
+  .dcroom:hover{border-color:var(--acc);color:var(--acc)}
+  .dcroom .pin{color:var(--acc2)}
+  .dcmcc{display:inline-flex;align-items:center;gap:6px;border-radius:99px;padding:5px 11px;cursor:pointer;
+    font-size:11px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;border:1px solid var(--line2);background:#fff;color:var(--mut2)}
+  .dcmcc.yes{background:#f2ebff;border-color:rgba(109,40,217,.45);color:#6d28d9}
+  .dcmcc:hover{border-color:var(--acc)}
+  .dcmc{display:inline-block;margin-left:6px;font-size:10.5px;font-weight:900;padding:2px 8px;border-radius:99px;
+    background:#0e1620;color:#9fe3ff;cursor:pointer;border:0;white-space:nowrap}
+  .dcdue{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line2);border-radius:10px;
+    padding:5px 10px;background:#fff;cursor:pointer;font:inherit;font-weight:800;font-size:12.5px;color:var(--txt)}
+  .dcdue:hover{border-color:var(--acc);color:var(--acc)}
+  .dcdue .was{color:var(--mut2);text-decoration:line-through;font-weight:700;font-size:11px}
+  .dcrev{display:inline-block;margin-left:5px;font-size:9px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;
+    padding:2px 7px;border-radius:99px;background:var(--orgbg);color:var(--orgg);border:1px solid rgba(194,92,0,.4)}
+  .dclate{display:inline-block;margin-left:5px;font-size:9.5px;font-weight:900;padding:2px 7px;border-radius:99px;
+    background:linear-gradient(135deg,var(--red),var(--redg));color:#fff}
+  .dcst{appearance:none;border:1px solid var(--line2);border-radius:99px;padding:6px 28px 6px 12px;font-size:11px;
+    font-weight:900;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;background:#fff;color:var(--mut);
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234c6076' stroke-width='3' stroke-linecap='round'><path d='M6 9l6 6 6-6'/></svg>");
+    background-repeat:no-repeat;background-position:right 9px center;background-size:11px}
+  .dcst.v-open{background-color:#eaf4f8;color:var(--acc);border-color:rgba(7,104,139,.4)}
+  .dcst.v-prog{background-color:var(--yelbg);color:var(--yelg);border-color:rgba(166,116,0,.45)}
+  .dcst.v-ready{background-color:#eef0ff;color:#4338ca;border-color:rgba(67,56,202,.45)}
+  .dcst.v-done{background-color:var(--grnbg);color:var(--grng);border-color:rgba(10,125,79,.45)}
+  .dcst.v-late{background-color:var(--redbg);color:var(--redg);border-color:rgba(224,11,40,.45)}
+  .dcst[disabled]{cursor:not-allowed;background-image:none;padding-right:12px;opacity:.75}
+  .dclog{border:1px solid var(--line2);background:#fff;border-radius:9px;width:29px;height:29px;cursor:pointer;
+    font-size:11px;font-weight:900;color:var(--mut);display:grid;place-items:center}
+  .dclog:hover{border-color:var(--acc);color:var(--acc)}
+  .dchist td{background:#f7fafc;padding:0;border-bottom:2px solid var(--line)}
+  .dchbox{padding:12px 16px 14px}
+  .dchbox h4{margin:0 0 9px;font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--mut)}
+  .dchl{display:grid;grid-template-columns:150px 200px 1fr;gap:10px;padding:7px 0;border-top:1px dashed var(--line2);font-size:12px}
+  .dchl:first-of-type{border-top:0}
+  .dchl .ts{font-weight:800;color:var(--mut2);font-size:11px;white-space:nowrap}
+  .dchl .who{font-weight:900;font-size:11.5px;word-break:break-all}
+  .dchl .why{display:block;margin-top:2px;color:var(--orgg);font-weight:700;font-size:11.5px}
+  .dckeep{margin-top:11px;font-size:10.5px;font-weight:800;color:var(--mut2);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .dckeep i{font-style:normal;background:var(--card2);border:1px solid var(--line);border-radius:99px;padding:2px 8px}
+  .dcadd{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 16px;background:var(--card2);border-top:1px solid var(--line)}
+  .dcadd input,.dcadd select{padding:9px 11px;font-size:12.5px;border:2px solid transparent;border-radius:12px;
+    background:var(--glass) padding-box,var(--edge) border-box;box-shadow:var(--gloss);font-family:inherit;color:var(--txt);outline:none}
+  .dcadd .grow{flex:1;min-width:200px}
+  .dcempty{padding:26px;text-align:center;color:var(--mut2);font-weight:700}
+  @media(max-width:1300px){.dckpis{grid-template-columns:repeat(4,1fr)}}
+  @media(max-width:1000px){.dckpis{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:700px){.dckpis{grid-template-columns:repeat(2,1fr)}.dchl{grid-template-columns:1fr;gap:2px}}
   /* ---- countdown / goal band ---- */
   .hdate{display:flex;flex-direction:column;line-height:1.15;padding:5px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
   .hdate .hd1{font-size:12.5px;font-weight:900;color:var(--txt);letter-spacing:.2px}
@@ -1098,11 +1189,12 @@
 </div>
 <header>
   <div class="bar">
-    <div class="brand" data-act="home" title="Home — show all systems"><span class="logo">MC</span><span>MC Constraint Board<small><span class="bwho">BDiaz · </span>DSM4 · Project Aura<i class="livein"><span class="dot" id="syncDot"></span><span id="syncTxt">connecting…</span></i></small></span></div>
+    <div class="brand" data-act="home" title="Home — show all systems"><span class="logo">MC</span><span>MC Tracker Board<small><span class="bwho">BDiaz · </span>DSM4 · Project Aura<i class="livein"><span class="dot" id="syncDot"></span><span id="syncTxt">connecting…</span></i></small></span></div>
     <div class="spacer"></div>
     <div class="seg" id="views">
       <button data-view="board" class="active">Board</button>
-      <button data-view="who">Top Constraints</button>
+      <button data-view="daily">Daily Constraints</button>
+      <button data-view="who">Top Blockers</button>
       <button data-view="mcc">MCC Closed</button>
       <button data-view="burn">Punch Tracker</button>
     </div>
@@ -1177,13 +1269,14 @@
 <dialog id="addDlg"><div class="dlgpad" id="addDlgBody"></div></dialog>
 <dialog id="ownerDlg"><div class="dlgpad" id="ownerDlgBody"></div></dialog>
 <dialog id="pwDlg"><div class="dlgpad" id="pwDlgBody"></div></dialog>
+<dialog id="dcDlg"><div class="dlgpad" id="dcBody"></div></dialog>
 <dialog id="impDlg"><div class="dlgpad" id="impDlgBody"></div></dialog>
 <input type="file" id="impFile" accept=".xlsx,.xlsm,.csv" style="display:none">
 
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v13.2-punch-text-verbatim";
+var MC_BUILD="v14.0-daily-constraint-tracker";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1200,6 +1293,7 @@ var OWNER_EMAILS=["bdiaz8448@gmail.com"];
 var db=firebase.firestore();
 try{db.enablePersistence({synchronizeTabs:true}).catch(function(e){console.warn('persist',e.message);});}catch(e){}
 var SYS_COL="mc_systems",META_DOC=db.collection("mc_meta").doc("config"),BURN_COL="mc_burndown";
+var DAILY_COL="mc_daily";
 
 var DEFAULT_CONTRACTORS=[
  {name:"FPI",trade:"Mechanical/Piping"},{name:"GMI",trade:"Drywall/Infills"},
@@ -1465,6 +1559,19 @@ function boot(){
     if(online&&canEdit()){maybeHeal();migrateGates();}
     render(); if(STATE.openSysId)renderModal();
   },function(e){if(accessDenied(e)){showNoAccess();return;}console.warn(e);$("syncDot").className="dot off";$("syncTxt").textContent="offline";});
+  db.collection(DAILY_COL).onSnapshot({includeMetadataChanges:true},function(snap){
+    if(NO_ACCESS)return;
+    var d={};snap.forEach(function(doc){var x=doc.data();x.id=doc.id;d[doc.id]=x;});
+    STATE.daily=d;STATE.dailyLoaded=true;
+    if(STATE.view==="daily")render();
+  },function(e){
+    /* NEVER lock the board out over the tracker. mc_systems is the authority on
+       access; if the daily collection ever refuses, the tracker just stays empty
+       and the rest of the board carries on. */
+    console.warn("daily tracker unavailable:",e&&e.code);
+    STATE.dailyErr=(e&&e.code)||"unavailable";
+    if(STATE.view==="daily")render();
+  });
   db.collection(BURN_COL).onSnapshot({includeMetadataChanges:true},function(snap){
     if(NO_ACCESS)return;
     var a=[];snap.forEach(function(d){if(d.id.charAt(0)==="2")a.push(d.data());});a.sort(function(x,y){return x.date<y.date?-1:1;});STATE.burn=a;
@@ -1680,11 +1787,18 @@ function render(){
   renderGoalBar();
   renderHero();refreshContractorFilter();refreshRoster();refreshThresholdLabels();refreshGroupFilter();refreshCompLabels();
   var v=$("view");
-  var chartView=(STATE.view==="burn"||STATE.view==="mcc");
+  var chartView=(STATE.view==="burn"||STATE.view==="mcc"||STATE.view==="daily");
   $("toolbar").style.display=chartView?"none":"flex";
   $("clearF").style.display=isFiltered()?"":"none";
+  /* the systems KPI strip is about punch items — it has no meaning on the daily tracker */
+  $("hero").style.display=(STATE.view==="daily")?"none":"";
+  var asb=$("addSysBtn");if(asb)asb.style.display=(STATE.view==="daily")?"none":"";
   var wk=$("walks");if(wk){wk.style.display=(STATE.view==="board")?"":"none";if(STATE.view==="board")renderWalks();}
-  if(STATE.view==="board")renderBoard(v);else if(STATE.view==="who")renderWho(v);else if(STATE.view==="mcc")renderMcc(v);else renderBurn(v);
+  if(STATE.view==="board")renderBoard(v);
+  else if(STATE.view==="daily")renderDaily(v);
+  else if(STATE.view==="who")renderWho(v);
+  else if(STATE.view==="mcc")renderMcc(v);
+  else renderBurn(v);
   $("sysCount").textContent=sysList().length+" systems";
 }
 function refreshGroupFilter(){var sel=$("groupF");if(!sel)return;var cur=sel.value;
@@ -1806,10 +1920,318 @@ function renderHero(){
 }
 /* The Top 5 constraints strip was removed in v12.8 — the Top Constraints tab already
    carries the same contractors, ranked ten deep, so the board keeps that space. */
+
+/* =========================================================================
+   DAILY CONSTRAINT TRACKER  (collection: mc_daily)
+   The digital version of the whiteboard in the trailer. One row per
+   constraint: who is stuck, what room, what is blocking them, who owes them
+   the fix, when it is needed. Nothing here is ever deleted — a row can be
+   voided by the owner but it stays in the collection with its whole log.
+   ========================================================================= */
+var DC_STATES=["open","prog","ready","done"];
+var DC_LABEL={open:"Open",prog:"In progress",ready:"Ready to verify",done:"Closed",late:"Past due"};
+var DC_ROOMS=["Production Bioreactor","Seed Cell","Harvest","Media Prep","Buffer Prep","Buffer Hold",
+  "Column Packing","ROEDI Skid Room","Product Hold","Chiller / Mech Room","AHU Mezzanine",
+  "2nd Floor Ceiling","Corridor — Level 1","Corridor — Level 2","Electrical Room","Utility Yard"];
+var DC_OPEN_LOGS={};
+STATE.daily={}; STATE.dailyLoaded=false;
+STATE.df={f:"ALL",room:"ALL",co:"ALL",mcc:"ALL",q:""};
+
+function dcList(){var a=[];for(var k in STATE.daily){var r=STATE.daily[k];if(r&&!r.void)a.push(r);}return a;}
+/* status the row actually reads as: closed wins, then past due, then whatever it is */
+function dcState(r){
+  if(r.st==="done")return "done";
+  if(r.due&&daysBetween(r.due,todayISO())>0)return "late";
+  return (r.st==="ready"||r.st==="prog")?r.st:"open";
+}
+function dcLate(r){if(!r.due||r.st==="done")return 0;var d=daysBetween(r.due,todayISO());return d>0?d:0;}
+/* only Jacobs closes a row. A contractor can take it to Ready to verify and no further. */
+function dcCanClose(){return canEdit();}
+function dcCanEditRow(){return canEdit();}
+function dcRooms(){
+  var seen={};DC_ROOMS.forEach(function(x){seen[x]=1;});
+  dcList().forEach(function(r){if(r.room)seen[r.room]=1;});
+  return Object.keys(seen).sort();
+}
+function dcPass(r){
+  var f=STATE.df,s=dcState(r);
+  if(f.f!=="ALL"&&f.f!==s)return false;
+  if(f.room!=="ALL"&&r.room!==f.room)return false;
+  if(f.co!=="ALL"&&r.co!==f.co)return false;
+  if(f.mcc!=="ALL"&&((r.mcc?"Y":"N")!==f.mcc))return false;
+  if(f.q){var q=f.q.toLowerCase();
+    if(((r.desc||"")+" "+(r.co||"")+" "+(r.ch||"")+" "+(r.room||"")+" "+(r.mc||"")).toLowerCase().indexOf(q)<0)return false;}
+  return true;
+}
+/* most urgent at the top, closed at the bottom */
+function dcSort(a,b){
+  var da=a.st==="done"?1:0, db=b.st==="done"?1:0;
+  if(da!==db)return da-db;
+  var ua=a.due||"9999-99-99", ub=b.due||"9999-99-99";
+  if(ua!==ub)return ua<ub?-1:1;
+  return (a.date||"")<(b.date||"")?-1:1;
+}
+
+/* ---------- writes: every one of them lands in the row's log ---------- */
+function dcWho(){return (CURRENT_USER&&CURRENT_USER.email)||"unknown";}
+function dcNow(){return new Date().toISOString();}
+function dcSave(id,patch,entry){
+  var r=STATE.daily[id];if(!r)return;
+  Object.assign(r,patch);
+  if(entry){
+    r.log=(r.log||[]);
+    r.log.unshift({ts:dcNow(),who:dcWho(),what:entry.what,why:entry.why||""});
+    if(r.log.length>400)r.log=r.log.slice(0,400);
+    patch.log=r.log;
+  }
+  render();
+  db.collection(DAILY_COL).doc(id).set(patch,{merge:true})
+    .catch(function(e){alert("Could not save: "+e.message);});
+}
+function dcAdd(row){
+  var ref=db.collection(DAILY_COL).doc();
+  row.id=ref.id;
+  row.log=[{ts:dcNow(),who:dcWho(),what:"Constraint raised",why:""}];
+  row.at=dcNow(); row.by=dcWho();
+  STATE.daily[ref.id]=row;
+  render();
+  ref.set(row).catch(function(e){alert("Could not save: "+e.message);});
+}
+
+/* ---------- render ---------- */
+function renderDaily(v){
+  var all=dcList(),rows=all.filter(dcPass).sort(dcSort);
+  var n={ALL:all.length,open:0,prog:0,ready:0,done:0,late:0,mcc:0};
+  all.forEach(function(r){n[dcState(r)]++;if(r.mcc&&r.st!=="done")n.mcc++;});
+
+  var explain='<div class="infob"><span class="big2">📋 Daily Constraint Tracker</span>'+
+    'The whiteboard in the trailer, live. One row per constraint: <b>who is stuck</b>, <b>which room</b>, what is blocking them, '+
+    '<b>who owes them the fix</b> and when it is needed. Colour follows the live date on its own — green closed, indigo waiting to be verified, '+
+    'yellow in progress, red past due. A due date only moves with a written reason, and <b>every change is kept</b> with who did it and why.</div>';
+
+  var kp=[["ALL",n.ALL,"All"],["open",n.open,"Open"],["prog",n.prog,"In progress"],
+          ["ready",n.ready,"Ready to verify"],["done",n.done,"Closed"],["late",n.late,"⚠ Past due"]];
+  var kh='<div class="dckpis">'+kp.map(function(x){
+      return '<button class="dck d-'+(x[0]==="ALL"?"all":x[0])+(STATE.df.f===x[0]?" on":"")+'" data-act="dcK" data-k="'+x[0]+'">'+
+        '<div class="n">'+x[1]+'</div><div class="l">'+x[2]+'</div></button>';}).join('')+
+    '<button class="dck d-mcc'+(STATE.df.mcc==="Y"?" on":"")+'" data-act="dcK" data-k="mcc">'+
+      '<div class="n">'+n.mcc+'</div><div class="l">⛔ MCC blockers</div></button></div>';
+
+  var cos={};all.forEach(function(r){if(r.co)cos[r.co]=1;});
+  function sel(id,label,list,cur){
+    return '<select data-act="dcF" data-f="'+id+'"><option value="ALL">'+label+'</option>'+
+      list.map(function(x){return '<option value="'+esc(x)+'"'+(cur===x?" selected":"")+'>'+esc(x)+'</option>';}).join('')+'</select>';
+  }
+  var bar='<div class="dcbar">'+
+    sel("room","All rooms",dcRooms(),STATE.df.room)+
+    sel("co","All companies",Object.keys(cos).sort(),STATE.df.co)+
+    '<select data-act="dcF" data-f="mcc"><option value="ALL">MCC blocker: any</option>'+
+      '<option value="Y"'+(STATE.df.mcc==="Y"?" selected":"")+'>MCC blockers only</option>'+
+      '<option value="N"'+(STATE.df.mcc==="N"?" selected":"")+'>Not MCC blockers</option></select>'+
+    '<input type="search" id="dcQ" placeholder="Search description, room, company…" value="'+esc(STATE.df.q)+'">'+
+    '</div>';
+
+  var ed=dcCanEditRow(),ro=ed?"":" readonly";
+  var body="";
+  rows.forEach(function(r,i){
+    var s=dcState(r),lt=dcLate(r);
+    body+='<tr class="s-'+s+'" data-dc="'+esc(r.id)+'">'+
+      '<td class="dcn">'+(i+1)+'</td>'+
+      '<td class="dt">'+fmtMD(r.date)+'</td>'+
+      '<td class="dco"><input class="dcin" value="'+esc(r.co||"")+'" data-dcf="co" data-dc="'+esc(r.id)+'"'+ro+'></td>'+
+      '<td><button class="dcroom" data-act="dcRoom" data-dc="'+esc(r.id)+'"'+(ed?"":" disabled")+'><span class="pin">◉</span>'+esc(r.room||"— set —")+'</button></td>'+
+      '<td class="dd"><textarea class="dcin" rows="1" data-dcf="desc" data-dc="'+esc(r.id)+'"'+ro+'>'+esc(r.desc||"")+'</textarea></td>'+
+      '<td><button class="dcmcc'+(r.mcc?" yes":"")+'" data-act="dcMcc" data-dc="'+esc(r.id)+'"'+(ed?"":" disabled")+'>'+(r.mcc?"⛔ Yes":"No")+'</button>'+
+        (r.mcc&&r.mc?'<button class="dcmc" data-act="dcGo" data-mc="'+esc(r.mc)+'" title="open that system on the Board">MC '+esc(r.mc)+' ↗</button>':'')+'</td>'+
+      '<td><input class="dcin" value="'+esc(r.ch||"")+'" data-dcf="ch" data-dc="'+esc(r.id)+'" style="min-width:100px"'+ro+'></td>'+
+      '<td class="du"><button class="dcdue" data-act="dcDue" data-dc="'+esc(r.id)+'"'+(ed?"":" disabled")+'>'+
+        (r.origDue?'<span class="was">'+fmtMD(r.origDue)+'</span>':'')+'<span>'+(r.due?fmtMD(r.due):"— set —")+'</span></button>'+
+        (r.revs?'<span class="dcrev">moved '+r.revs+'×</span>':'')+
+        (lt?'<span class="dclate">+'+lt+'d</span>':'')+'</td>'+
+      '<td><select class="dcst v-'+s+'" data-act="dcSt" data-dc="'+esc(r.id)+'"'+(ed?"":" disabled")+'>'+
+        DC_STATES.map(function(x){
+          var dis=(x==="done"&&!dcCanClose())?" disabled":"";
+          return '<option value="'+x+'"'+(r.st===x?" selected":"")+dis+'>'+DC_LABEL[x]+'</option>';}).join('')+
+        '</select></td>'+
+      '<td><button class="dclog" data-act="dcLog" data-dc="'+esc(r.id)+'">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button></td>'+
+      '</tr>';
+    if(DC_OPEN_LOGS[r.id]){
+      var lg=(r.log||[]);
+      body+='<tr class="dchist"><td colspan="10"><div class="dchbox"><h4>History — every change on this row</h4>'+
+        (lg.length?lg.map(function(h){
+          return '<div class="dchl"><span class="ts">'+esc(String(h.ts||"").replace("T"," ").slice(0,16))+'</span>'+
+            '<span class="who">'+esc(h.who||"")+'</span><span class="what">'+h.what+
+            (h.why?'<span class="why">Reason: '+esc(h.why)+'</span>':'')+'</span></div>';}).join('')
+          :'<div class="dchl"><span class="ts">—</span><span class="who">—</span><span class="what">Nothing changed on this row yet.</span></div>')+
+        '<div class="dckeep"><i>kept</i> nothing on this tracker is ever overwritten or deleted — the full history stays for the life of the job</div>'+
+        '</div></td></tr>';
+    }
+  });
+
+  var add=ed?('<div class="dcadd">'+
+      '<input type="date" id="dcNDate" value="'+todayISO()+'">'+
+      '<input type="text" id="dcNCo" placeholder="Company" style="width:120px">'+
+      '<select id="dcNRoom">'+dcRooms().map(function(x){return '<option>'+esc(x)+'</option>';}).join('')+'</select>'+
+      '<input type="text" id="dcNDesc" class="grow" placeholder="Description of constraint…">'+
+      '<input type="text" id="dcNCh" placeholder="Champion" style="width:120px">'+
+      '<input type="date" id="dcNDue" value="'+todayISO()+'">'+
+      '<button class="btn pri" data-act="dcAdd">+ Raise constraint</button></div>'):'';
+
+  var warn=STATE.dailyErr?('<div class="infob" style="border-color:rgba(224,11,40,.45)"><span class="big2">⚠ Tracker offline</span>'+
+    'The board is fine — only this tracker could not be reached ('+esc(STATE.dailyErr)+'). Nothing has been lost; reload in a moment.</div>'):'';
+  v.innerHTML=explain+warn+kh+bar+
+    '<div class="dcwrap"><div class="dchead"><h2>Daily Constraint Tracker</h2>'+
+      '<span class="sub">'+rows.length+' of '+all.length+' shown</span><span style="flex:1"></span>'+
+      '<span class="sub">green closed · indigo ready to verify · yellow in progress · red past due</span></div>'+
+    '<div class="dctbl"><table><thead><tr>'+
+      '<th class="dcn">#</th><th>Date<span class="h2">raised</span></th>'+
+      '<th>Company<span class="h2">who is stuck</span></th><th>Room<span class="h2">DSM4</span></th>'+
+      '<th>Description of constraint</th><th>MCC<br>blocker?<span class="h2">links a system</span></th>'+
+      '<th>Champion<span class="h2">who clears it</span></th><th>Due date</th><th>Status</th><th style="width:40px">Log</th>'+
+    '</tr></thead><tbody>'+(body||'<tr><td colspan="10" class="dcempty">'+
+      (all.length?'Nothing matches that filter.':'No constraints on the tracker yet — raise the first one below.')+'</td></tr>')+
+    '</tbody></table></div>'+add+'</div>';
+
+  v.querySelectorAll('.dd textarea').forEach(function(t){t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";});
+  var q=$("dcQ");
+  if(q)q.addEventListener("input",function(){STATE.df.q=this.value;var p=this.selectionStart;renderDaily($("view"));
+    var q2=$("dcQ");if(q2){q2.focus();try{q2.setSelectionRange(p,p);}catch(e){}}});
+}
+
+/* ---------- the dialogs ---------- */
+function dcDlg(html){
+  var d=$("dcDlg");if(!d)return;
+  $("dcBody").innerHTML=html;
+  if(!d.open)d.showModal();
+}
+function dcDueDlg(id){
+  var r=STATE.daily[id];if(!r||!dcCanEditRow())return;
+  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">Move a due date</h3>'+
+    '<p style="margin:0 0 14px;font-size:12.5px;font-weight:700;color:var(--mut)">'+esc(r.co||"")+' · '+esc(r.room||"")+' · '+esc((r.desc||"").slice(0,70))+'</p>'+
+    '<div class="hint" style="background:var(--orgbg);border:1px solid rgba(194,92,0,.4);border-radius:12px;padding:10px 13px;color:var(--orgg);margin-bottom:14px">'+
+      'A due date only moves with a reason. The old date, the new one, who moved it and why all stay in the log.</div>'+
+    '<label>Current due date</label><input type="text" value="'+(r.due?fmtLong(r.due):"not set")+'" readonly>'+
+    '<label>New due date</label><input type="date" id="dcNew" value="'+esc(r.due||todayISO())+'">'+
+    '<label>Reason for the change</label><textarea id="dcWhy" rows="3" placeholder="e.g. Ameco scaffold crew pulled to Column Packing — cannot start until Monday"></textarea>'+
+    '<div id="dcErr" style="display:none;color:var(--redg);font-size:11.5px;font-weight:800;margin-top:5px">A new date and a reason are both required.</div>'+
+    '<div class="dlgrow" style="margin-top:12px"><button class="btn" data-act="dcClose">Cancel</button>'+
+    '<button class="btn pri" data-act="dcDueSave" data-dc="'+esc(id)+'">Save change</button></div>');
+}
+function dcRoomDlg(id){
+  var r=STATE.daily[id];if(!r||!dcCanEditRow())return;
+  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">Room</h3>'+
+    '<p style="margin:0 0 14px;font-size:12.5px;font-weight:700;color:var(--mut)">'+esc(r.co||"")+' · '+esc((r.desc||"").slice(0,70))+'</p>'+
+    '<label>DSM4 room</label><select id="dcRoomSel"><option value=""></option>'+
+      dcRooms().map(function(x){return '<option'+(x===r.room?" selected":"")+'>'+esc(x)+'</option>';}).join('')+'</select>'+
+    '<label>Or type it — anything not on the list yet</label><input type="text" id="dcRoomFree" placeholder="e.g. AHU Mezzanine — east">'+
+    '<div class="dlgrow" style="margin-top:12px"><button class="btn" data-act="dcClose">Cancel</button>'+
+    '<button class="btn pri" data-act="dcRoomSave" data-dc="'+esc(id)+'">Save</button></div>');
+}
+function dcMccDlg(id){
+  var r=STATE.daily[id];if(!r||!dcCanEditRow())return;
+  var opts=sysList().slice().sort(function(a,b){return (a.mc||"")<(b.mc||"")?-1:1;})
+    .map(function(s){return '<option value="'+esc(s.mc)+'">'+esc(s.mc)+' · '+esc(s.desc||"")+'</option>';}).join('');
+  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">Does this block a Mechanical Completion?</h3>'+
+    '<p style="margin:0 0 14px;font-size:12.5px;font-weight:700;color:var(--mut)">'+esc(r.co||"")+' · '+esc((r.desc||"").slice(0,70))+'</p>'+
+    '<label>Blocks an MCC</label><select id="dcYN"><option value="N"'+(!r.mcc?" selected":"")+'>No — site work only</option>'+
+      '<option value="Y"'+(r.mcc?" selected":"")+'>Yes — this holds up a system</option></select>'+
+    '<label>Which system? — MC number, so the two boards tie together</label>'+
+    '<input type="text" id="dcMcNo" value="'+esc(r.mc||"")+'" placeholder="e.g. 1427" list="dcMcList">'+
+    '<datalist id="dcMcList">'+opts+'</datalist>'+
+    '<div class="dlgrow" style="margin-top:12px"><button class="btn" data-act="dcClose">Cancel</button>'+
+    '<button class="btn pri" data-act="dcMccSave" data-dc="'+esc(id)+'">Save</button></div>');
+}
+
+/* ---------- one click handler for the whole tracker ---------- */
+document.addEventListener("click",function(e){
+  var t=e.target.closest("[data-act]");if(!t)return;
+  var act=t.getAttribute("data-act"),id=t.getAttribute("data-dc");
+  if(act==="dcK"){
+    var k=t.getAttribute("data-k");
+    if(k==="mcc")STATE.df.mcc=(STATE.df.mcc==="Y")?"ALL":"Y";
+    else STATE.df.f=(STATE.df.f===k)?"ALL":k;
+    render();return;
+  }
+  if(act==="dcLog"){DC_OPEN_LOGS[id]=!DC_OPEN_LOGS[id];render();return;}
+  if(act==="dcGo"){
+    var mc=t.getAttribute("data-mc");
+    var hit=sysList().filter(function(s){return String(s.mc)===String(mc);})[0];
+    if(hit){STATE.view="board";syncUI();render();openSys(hit.id);}
+    else alert("No system with MC "+mc+" on the Board.");
+    return;
+  }
+  if(act==="dcRoom"){dcRoomDlg(id);return;}
+  if(act==="dcMcc"){dcMccDlg(id);return;}
+  if(act==="dcDue"){dcDueDlg(id);return;}
+  if(act==="dcClose"){var d=$("dcDlg");if(d&&d.open)d.close();return;}
+  if(act==="dcDueSave"){
+    var r=STATE.daily[id];if(!r)return;
+    var nd=$("dcNew").value,why=($("dcWhy").value||"").trim();
+    if(!nd||why.length<8||nd===r.due){$("dcErr").style.display="block";return;}
+    var old=r.due||"";
+    var patch={due:nd,revs:(r.revs||0)+1};
+    if(!r.origDue&&old)patch.origDue=old;
+    dcSave(id,patch,{what:"Due date moved from <b>"+(old?fmtMD(old):"not set")+"</b> to <b>"+fmtMD(nd)+"</b>"+
+      (old?" ("+(daysBetween(old,nd)>0?"+":"")+daysBetween(old,nd)+" days)":""),why:why});
+    $("dcDlg").close();return;
+  }
+  if(act==="dcRoomSave"){
+    var r2=STATE.daily[id];if(!r2)return;
+    var v2=(($("dcRoomFree").value||"").trim())||$("dcRoomSel").value;
+    if(v2&&v2!==r2.room)dcSave(id,{room:v2},{what:"Room changed <b>"+esc(r2.room||"—")+"</b> → <b>"+esc(v2)+"</b>"});
+    $("dcDlg").close();return;
+  }
+  if(act==="dcMccSave"){
+    var r3=STATE.daily[id];if(!r3)return;
+    var yes=$("dcYN").value==="Y",mcno=yes?($("dcMcNo").value||"").trim():"";
+    if(yes!==!!r3.mcc||mcno!==(r3.mc||""))
+      dcSave(id,{mcc:yes,mc:mcno},{what:"MCC blocker set to <b>"+(yes?("Yes"+(mcno?" — MC "+esc(mcno):"")):"No")+"</b>"});
+    $("dcDlg").close();return;
+  }
+  if(act==="dcAdd"){
+    var co=($("dcNCo").value||"").trim(),ds=($("dcNDesc").value||"").trim();
+    if(!co||!ds){$("dcNDesc").focus();return;}
+    dcAdd({date:$("dcNDate").value||todayISO(),co:co,room:$("dcNRoom").value||"",desc:ds,
+      mcc:false,mc:"",ch:($("dcNCh").value||"").trim()||"—",due:$("dcNDue").value||todayISO(),st:"open",void:false});
+    return;
+  }
+});
+/* inline cells + status + filter selects */
+document.addEventListener("focusin",function(e){
+  if(e.target.classList&&e.target.classList.contains("dcin"))e.target.setAttribute("data-was",e.target.value);
+});
+document.addEventListener("change",function(e){
+  var el=e.target;
+  if(el.classList&&el.classList.contains("dcin")){
+    var id=el.getAttribute("data-dc"),f=el.getAttribute("data-dcf"),r=STATE.daily[id];
+    if(!r||!dcCanEditRow())return;
+    var was=el.getAttribute("data-was")||"",now=el.value;
+    if(was===now)return;
+    var nm=f==="co"?"Company":f==="ch"?"Champion":"Description";
+    var pa={};pa[f]=now;
+    dcSave(id,pa,{what:nm+" changed<br><b>"+esc(was)+"</b> → <b>"+esc(now)+"</b>"});
+    return;
+  }
+  if(el.getAttribute&&el.getAttribute("data-act")==="dcSt"){
+    var sid=el.getAttribute("data-dc"),row=STATE.daily[sid];
+    if(!row||!dcCanEditRow())return;
+    var to=el.value;
+    if(to==="done"&&!dcCanClose()){alert("Only Jacobs can close a constraint. Set it to Ready to verify instead.");render();return;}
+    var from=row.st;
+    if(from===to)return;
+    var extra=(to==="done")?{doneAt:todayISO()}:{};
+    dcSave(sid,Object.assign({st:to},extra),{what:"Status changed <b>"+DC_LABEL[from]+" → "+DC_LABEL[to]+"</b>"});
+    return;
+  }
+  if(el.getAttribute&&el.getAttribute("data-act")==="dcF"){
+    STATE.df[el.getAttribute("data-f")]=el.value;render();return;
+  }
+});
+
 /* ---------- back / forward ----------
    Every view change and every opened system becomes a real history entry, so the browser
    back button, the phone back gesture and the trackpad swipe all work the way people expect. */
-var NAV_LOCK=false, NAV_VIEWS=["board","who","mcc","burn"];
+var NAV_LOCK=false, NAV_VIEWS=["board","daily","who","mcc","burn"];
 function navHash(){return STATE.openSysId?("#sys/"+encodeURIComponent(STATE.openSysId)):("#"+(STATE.view||"board"));}
 function navPush(){
   if(NAV_LOCK)return;
@@ -1954,7 +2376,7 @@ function renderWho(v){
   }
   if(!arr.length){v.innerHTML='<div class="empty">No open punch items logged yet.<br>Go to <b>Board</b>, open a system, and add counts — this leaderboard ranks who\'s blocking the most and which MCs they\'re putting at risk.</div>';return;}
   var max=arr[0].total||1;
-  var h='<div class="infob"><span class="big2">🎯 Top Constraints — the ten holding the most</span>This flips the board around: instead of "MC-104 has 20 open," it stacks the <b>top 10 contractors by open punch items across all systems</b>. #1 at the top is your biggest blocker on the whole job. Tap any name to expand the exact MCs they\'re holding and how many on each. Walk in, point at #1, say "you\'re the constraint today."</div><div class="lead">';
+  var h='<div class="infob"><span class="big2">🎯 Top Blockers — the ten holding the most</span>This flips the board around: instead of "MC-104 has 20 open," it stacks the <b>top 10 contractors by open punch items across all systems</b>. #1 at the top is your biggest blocker on the whole job. Tap any name to expand the exact MCs they\'re holding and how many on each. Walk in, point at #1, say "you\'re the constraint today."</div><div class="lead">';
   arr.forEach(function(c,i){
     c.systems.sort(function(a,b){return b.open-a.open;});
     var atRisk=c.systems.filter(function(x){return x.status==="red"||x.status==="org"||x.status==="yel";}).length;
