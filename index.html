@@ -516,8 +516,12 @@
   .wsum .wcar{font-size:13px;font-weight:900;color:var(--mut2);transition:transform .18s;display:inline-block}
   .walkwrap.open .wsum .wcar{transform:rotate(90deg)}
   .wsum .wttl{font-size:12px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;color:var(--mut)}
-  .wsum .wq{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:900;color:var(--mut)}
-  .wsum .wq b{font-size:13px;padding:1px 8px;border-radius:99px}
+  /* each walk and its index read as ONE pill, and the four pills spread across the line */
+  .wqs{flex:1;display:flex;align-items:center;justify-content:space-evenly;gap:14px;flex-wrap:wrap;min-width:0}
+  .wsum .wq{display:inline-flex;align-items:center;gap:8px;padding:3px 5px 3px 12px;
+    border:1px solid var(--line);border-radius:99px;background:var(--card2)}
+  .wsum .wq .wqk{font-size:11.5px;font-weight:900;letter-spacing:.6px;color:var(--mut)}
+  .wsum .wq b{font-size:13px;padding:2px 10px;border-radius:99px}
   .pace-bad{background:var(--redbg);color:var(--redg)} .pace-warn{background:var(--orgbg);color:var(--org)} .pace-ok{background:var(--grnbg);color:var(--grng)}
   .wsum .asof{margin-left:auto;font-size:10.5px;font-weight:800;color:var(--mut2)}
   .walkgrid{display:none;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:10px}
@@ -533,6 +537,7 @@
   .wpace{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:800;color:var(--mut)}
   .wpace b{font-size:16px;font-weight:900;padding:1px 9px;border-radius:99px}
   @media(max-width:900px){.walkgrid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:700px){.wqs{flex:1 0 100%;justify-content:space-between;gap:8px}}
   @media(max-width:560px){.walkgrid{grid-template-columns:1fr}.wsum .asof{margin-left:0;flex:1 0 100%}}
   /* ---- Cat 1 marker: rides the existing punch line, adds no new row ---- */
   .catpill{font-size:10.5px;font-weight:900;padding:2px 9px;border-radius:99px;border:1px solid rgba(224,11,40,.45);
@@ -643,10 +648,13 @@
   .gsum .wcar{font-size:13px;font-weight:900;color:var(--mut2);transition:transform .18s;display:inline-block}
   .goalwrap.open .gsum .wcar{transform:rotate(90deg)}
   .gsum .wttl{font-size:12px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;color:var(--mut)}
-  .gsq{margin-left:auto;font-size:12px;font-weight:800;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .gsq b{color:var(--txt);font-weight:900}
+  /* the four facts spread across the whole line instead of bunching on the right */
+  .gsq{flex:1;display:flex;align-items:center;justify-content:space-evenly;gap:14px;min-width:0;
+    font-size:12px;font-weight:800;color:var(--mut)}
+  .gsi{white-space:nowrap;display:inline-flex;align-items:baseline;gap:5px}
+  .gsq b{color:var(--txt);font-weight:900;font-size:13.5px}
   .gsq .gold{background:linear-gradient(180deg,var(--goldg),var(--gold));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
-  @media(max-width:560px){.gsq{margin-left:0;flex:1 0 100%;white-space:normal}}
+  @media(max-width:700px){.gsq{flex:1 0 100%;justify-content:space-between;gap:8px;flex-wrap:wrap}}
   .gbstats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line)}
   .gbcell{background:var(--glass);padding:13px 18px;display:flex;flex-direction:column;gap:2px;min-width:0}
   .gbk{font-size:10px;font-weight:900;letter-spacing:1.1px;text-transform:uppercase;color:var(--mut2)}
@@ -905,6 +913,17 @@
   /* the goal band is capped at 1580px for the normal layout; present mode is wider,
      so let it run the full content width — its edges must line up with the KPI row */
   body.present .goalbar{max-width:none;margin-left:0;margin-right:0}
+  /* TV mode: the countdown line has to run the full screen width like everything else */
+  body.present .goalwrap{max-width:none;margin-left:0;margin-right:0}
+  body.present .gsum{padding:14px 24px}
+  body.present .gsum .wttl{font-size:16px}
+  body.present .gsq{font-size:17px;gap:20px}
+  body.present .gsq b{font-size:20px}
+  body.present .wsum{padding:14px 22px}
+  body.present .wsum .wttl{font-size:16px}
+  body.present .wsum .wq .wqk{font-size:15px}
+  body.present .wsum .wq b{font-size:19px;padding:3px 14px}
+  body.present .wsum .asof{font-size:13px}
   body.present .gbcell{padding:20px 26px}
   body.present .gbk{font-size:13px;letter-spacing:1.4px}
   body.present .gbv{font-size:38px}
@@ -1087,7 +1106,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v12.8-space-and-names";
+var MC_BUILD="v12.9-strip-spacing";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1610,7 +1629,10 @@ function renderGoalBar(){
     if(tr)tr.innerHTML=esc(msg)+'<span class="sep">◆</span>'+esc(msg)+'<span class="sep">◆</span>';}
   /* the summary line has to carry the same four numbers, or collapsing loses them */
   var q=$("gs_q");
-  if(q)q.innerHTML=fmtLong(t)+' &nbsp;·&nbsp; <b>'+w+'</b> weeks left &nbsp;·&nbsp; turnover <b>'+fmtLong(goalEnd())+'</b> &nbsp;·&nbsp; <b class="gold">'+weeklyTarget()+'</b>/wk';
+  if(q)q.innerHTML='<span class="gsi"><b>'+fmtLong(t)+'</b></span>'+
+    '<span class="gsi"><b>'+w+'</b> weeks left</span>'+
+    '<span class="gsi">turnover <b>'+fmtLong(goalEnd())+'</b></span>'+
+    '<span class="gsi"><b class="gold">'+weeklyTarget()+'</b>/wk</span>';
 }
 /* ---------- walk progress & pace ----------
    pace = walks signed off ÷ walks whose OWN target date has already passed.
@@ -1651,9 +1673,11 @@ function renderWalks(){
   var li=lastImportInfo(),asof=(li&&li.at)?fmtMD(String(li.at).slice(0,10)):null;
   var h='<div class="walkwrap'+(open?" open":"")+'" id="walkwrap">';
   h+='<div class="wsum" data-act="toggleWalks"><span class="wcar">▸</span><span class="wttl">Walk progress &amp; pace</span>';
+  h+='<span class="wqs">';
   ws.forEach(function(w){
-    h+='<span class="wq">'+w.k+' <b class="'+paceCls(w.pace)+'">'+(w.pace===null?"—":w.pace.toFixed(2))+'</b></span>';
+    h+='<span class="wq" title="'+w.k+' — '+w.done+' signed off vs '+w.due+' due by today"><span class="wqk">'+w.k+'</span><b class="'+paceCls(w.pace)+'">'+(w.pace===null?"—":w.pace.toFixed(2))+'</b></span>';
   });
+  h+='</span>';
   h+='<span class="asof">Gate dates and sign-offs are live'+(asof?' · punch list as of '+asof:'')+'</span></div>';
   h+='<div class="walkgrid">';
   ws.forEach(function(w){
