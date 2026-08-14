@@ -727,7 +727,7 @@
   .dctbl tbody tr.void{opacity:.5}
   .dcn{font-size:11px;font-weight:900;color:var(--mut2);width:30px}
   .dctbl td.dt,.dctbl td.du{white-space:nowrap;font-weight:800;font-size:12.5px}
-  .dctbl td.dco{font-weight:900;white-space:nowrap}
+  .dctbl td.dco{font-weight:900;white-space:nowrap;min-width:132px}
   .dctbl td.dd{min-width:290px;font-weight:600;white-space:pre-line}
   .dcin,.dvin{width:100%;border:1px solid transparent;border-radius:8px;padding:5px 7px;background:transparent;
     font:inherit;font-weight:inherit;color:inherit;outline:none}
@@ -799,8 +799,8 @@
   .dcwk .grow{flex:1}
   .btn.sm{padding:6px 11px;font-size:12px}
   .dctbl table.narrow{min-width:640px}
-  .dctbl td.drm{min-width:256px}
-  .dctbl table{min-width:1320px}
+  .dctbl td.drm{min-width:250px}
+  .dctbl table{min-width:1480px}
   /* ---- weekly goals ---- */
   .glbox{padding:8px 4px 12px}
   .glr{display:flex;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid var(--line)}
@@ -841,7 +841,38 @@
   .acpill{background:var(--card);border:1px solid var(--line2);border-radius:99px;padding:3px 10px;font-size:11.5px;font-weight:800;color:var(--txt)}
   .acpill.perm{border-color:var(--acc);color:var(--acc)}
   .acnote{margin:6px 0 0;font-size:11.5px;font-weight:700;color:var(--mut2)}
+  body.crewonly #lockBtn,body.crewonly #searchBtn,body.crewonly #ownerBtn,
+  body.crewonly #addSysBtn,body.crewonly #goalwrap,body.crewonly .hsearch{display:none!important}
   .acfoot{padding:12px 16px 14px;font-size:11.8px;font-weight:700;color:var(--mut2);line-height:1.6;border-top:1px solid var(--line)}
+  /* ---- constraints: level column, paging, owner delete ---- */
+  .dctbl td.dlv{min-width:158px}
+  .dctbl td.dch{min-width:160px;font-weight:800}
+  .dctbl td.dd textarea.dcin{resize:none;overflow:hidden}
+  .dctbl th.dact,.dctbl td.dact{width:96px;white-space:nowrap;text-align:right}
+  .dcdel{margin-left:5px;border:1px solid var(--line2);background:var(--card);border-radius:9px;
+    width:28px;height:28px;font-size:12px;cursor:pointer;color:var(--mut2);vertical-align:middle}
+  .dcdel:hover{border-color:var(--red);color:var(--red);background:var(--redbg)}
+  .dcpg{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:11px 16px;
+    background:var(--card2);border-top:1px solid var(--line)}
+  .dcpg .pgl{font-size:12.5px;font-weight:800;color:var(--mut)}
+  .dcpg .pgl b{color:var(--txt)}
+  .dcpg .pgn{margin-left:auto;font-size:11px;font-weight:800;color:var(--mut2)}
+  /* ---- crew accounts ---- */
+  .crewl{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+  .crewr{display:flex;align-items:center;gap:10px;padding:7px 11px;background:var(--card);
+    border:1px solid var(--line2);border-radius:11px;font-size:12.5px;font-weight:800}
+  .crewr .cem{flex:1;color:var(--txt)}
+  .crewr .cco{color:var(--acc);font-weight:900}
+  .crewr i{color:var(--mut2);font-weight:700}
+  /* ---- manpower: room to breathe, and a rule between each block ---- */
+  .mntbl{min-width:1120px}
+  .mntbl th.gsep,.mntbl td.gsep{border-left:2px solid var(--line2)}
+  .mntbl thead th .wd{display:block;font-weight:800;font-size:9.5px;color:var(--mut2);letter-spacing:0;text-transform:none}
+  .mntbl td.mnc{width:72px;padding:7px 8px!important}
+  .mntbl td.mnt,.mntbl th.mnt{width:84px}
+  .mntbl th{padding:9px 8px!important}
+  .mnin{width:64px;padding:7px 4px;font-size:13.5px}
+  .mntbl td.mnco,.mntbl th.mnco{min-width:200px;padding-right:16px!important}
   @media(max-width:1300px){.dckpis{grid-template-columns:repeat(4,1fr)}}
   @media(max-width:1000px){.dckpis{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:700px){.dckpis{grid-template-columns:repeat(2,1fr)}.dchl{grid-template-columns:1fr;gap:2px}}
@@ -1316,7 +1347,7 @@
     <button class="clearf" id="clearF" style="display:none">✕ Clear filters</button>
   </div>
   <div id="view"></div>
-  <div class="foot">Build <b id="buildStamp"></b> · live Firestore sync · <span id="sysCount"></span></div>
+  <div class="foot">Build <b id="buildStamp"></b> · live Firestore sync<span id="sysCount"></span></div>
 </div>
 
 <div id="presentDock">
@@ -1337,7 +1368,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v15.0-daily-board";
+var MC_BUILD="v16.0-levels-paging-crew";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1354,7 +1385,7 @@ var OWNER_EMAILS=["bdiaz8448@gmail.com"];
 var db=firebase.firestore();
 try{db.enablePersistence({synchronizeTabs:true}).catch(function(e){console.warn('persist',e.message);});}catch(e){}
 var SYS_COL="mc_systems",META_DOC=db.collection("mc_meta").doc("config"),BURN_COL="mc_burndown";
-var DAILY_COL="mc_daily",GOALS_COL="mc_goals",DELIV_COL="mc_deliv",MAN_COL="mc_man",META_COL="mc_meta";
+var DAILY_COL="mc_daily",GOALS_COL="mc_goals",DELIV_COL="mc_deliv",MAN_COL="mc_man",META_COL="mc_meta",CREW_COL="mc_crew";
 
 var DEFAULT_CONTRACTORS=[
  {name:"FPI",trade:"Mechanical/Piping"},{name:"GMI",trade:"Drywall/Infills"},
@@ -1606,9 +1637,48 @@ function toggleTheme(){var next=(STATE.theme==="light")?"dark":"light";storeThem
 function cssVar(n,fb){try{var v=getComputedStyle(document.body).getPropertyValue(n).trim();return v||fb;}catch(e){return fb;}}
 
 function accessDenied(e){return e&&e.code==="permission-denied";}
+/* A contractor crew account reaches the daily tracker and nothing else, so the
+   very first thing boot() does is find out which kind of account this is. A
+   permanent owner is never treated as crew, whatever mc_crew says. */
 function boot(){
   $("buildStamp").textContent=MC_BUILD;
   initTheme();
+  var _em=String((CURRENT_USER&&CURRENT_USER.email)||"").toLowerCase();
+  db.collection(CREW_COL).doc(_em).get().then(function(d){
+    STATE.crew=(d.exists&&!isOwnerEmail(_em))?Object.assign({email:_em},d.data()||{}):null;
+  }).catch(function(){STATE.crew=null;}).then(function(){
+    if(isCrewUser())bootCrew();else bootFull();
+  });
+}
+/* crew: three collections, one tab, nothing else is even subscribed to */
+function bootCrew(){
+  STATE.view="daily";
+  document.body.classList.add("crewonly");
+  $("syncDot").className="dot on";$("syncTxt").textContent="live";
+  function crewCol(col,onSnap){
+    db.collection(col).onSnapshot({includeMetadataChanges:true},function(snap){
+      onSnap(snap);render();
+    },function(e){console.warn(col+" unavailable:",e&&e.code);
+      if(col===DAILY_COL){STATE.dailyErr=(e&&e.code)||"unavailable";render();}});
+  }
+  crewCol(DAILY_COL,function(snap){
+    var d={};snap.forEach(function(doc){var x=doc.data();x.id=doc.id;d[doc.id]=x;});
+    STATE.daily=d;STATE.dailyLoaded=true;
+  });
+  crewCol(GOALS_COL,function(snap){
+    var d={};snap.forEach(function(doc){var x=doc.data();x.week=x.week||doc.id;d[doc.id]=x;});
+    STATE.goals=d;STATE.goalsLoaded=true;
+  });
+  crewCol(DELIV_COL,function(snap){
+    var d={};snap.forEach(function(doc){var x=doc.data();x.id=doc.id;d[doc.id]=x;});
+    STATE.deliv=d;STATE.delivLoaded=true;
+  });
+  db.collection(META_COL).doc("lists").onSnapshot({includeMetadataChanges:true},function(doc){
+    STATE.lists=(doc.exists?doc.data():{})||{};render();
+  },function(e){console.warn("lists unavailable:",e&&e.code);});
+  syncUI();render();
+}
+function bootFull(){
   META_DOC.get().then(function(doc){if(!doc.exists){if(isOwnerUser())seedAll();}else{STATE.meta=doc.data();enforceAccess();}}).catch(function(e){if(accessDenied(e))showNoAccess();else console.warn(e);});
   META_DOC.onSnapshot({includeMetadataChanges:true},function(d){if(d.exists){STATE.meta=d.data();if(!enforceAccess())return;refreshContractorFilter();render();}},function(e){if(accessDenied(e))showNoAccess();else console.warn(e);});
   db.collection(SYS_COL).onSnapshot({includeMetadataChanges:true},function(snap){
@@ -1623,7 +1693,7 @@ function boot(){
   db.collection(DAILY_COL).onSnapshot({includeMetadataChanges:true},function(snap){
     if(NO_ACCESS)return;
     var d={};snap.forEach(function(doc){var x=doc.data();x.id=doc.id;d[doc.id]=x;});
-    STATE.daily=d;STATE.dailyLoaded=true;dcSeedBoard();
+    STATE.daily=d;STATE.dailyLoaded=true;dcSeedBoard();dcMigrateLevels();
     if(STATE.view==="daily")render();
   },function(e){
     /* NEVER lock the board out over the tracker. mc_systems is the authority on
@@ -1664,6 +1734,12 @@ function boot(){
     var a=[];snap.forEach(function(d){if(d.id.charAt(0)==="2")a.push(d.data());});a.sort(function(x,y){return x.date<y.date?-1:1;});STATE.burn=a;
     if(STATE.view==="burn")render();
   },function(e){if(accessDenied(e))showNoAccess();else console.warn(e);});
+  /* the owner's view of who holds a crew account */
+  db.collection(CREW_COL).onSnapshot({includeMetadataChanges:true},function(snap){
+    var c={};snap.forEach(function(doc){c[doc.id]=doc.data()||{};});
+    STATE.crewList=c;
+    if(STATE.view==="daily")render();
+  },function(e){console.warn("crew list unavailable:",e&&e.code);});
 }
 var DATA_VERSION="v5-mcc-excel";
 /* Firestore batches cap at 500 ops — write the 507-system seed in chunks */
@@ -1869,6 +1945,7 @@ function updateChrome(){
   updateWhoami();
 }
 function render(){
+  if(isCrewUser())STATE.view="daily";
   document.body.classList.toggle("locked",!STATE.unlocked);
   updateChrome();
   renderGoalBar();
@@ -1886,7 +1963,7 @@ function render(){
   else if(STATE.view==="who")renderWho(v);
   else if(STATE.view==="mcc")renderMcc(v);
   else renderBurn(v);
-  $("sysCount").textContent=sysList().length+" systems";
+  $("sysCount").textContent=isCrewUser()?"":(" · "+sysList().length+" systems");
 }
 function refreshGroupFilter(){var sel=$("groupF");if(!sel)return;var cur=sel.value;
   var gs={};sysList().forEach(function(s){if(s.board)gs[s.board]=1;});
@@ -2017,19 +2094,16 @@ function renderHero(){
    ========================================================================= */
 var DC_STATES=["open","prog","ready","done"];
 var DC_LABEL={open:"Open",prog:"In progress",ready:"Ready to verify",done:"Closed",late:"Past due"};
+/* which walk a constraint holds up — same order as the board's own gates */
+var DC_GATES=["W0","W1","MC","MCC"];
+var DC_PAGE=20;                       /* rows per page; everything stays saved */
 
 /* ---------------------------------------------------------------------------
    DSM4 ROOMS — taken straight off the issued-for-construction floor plans
    (A537-A1105100 / A1115100 / A1125100 and the two interstitial walk-on
    ceiling sheets, Building 537 - DSM4, rev 0, 27NOV24). Name and room number
    exactly as drawn. This list is DSM4 only — nothing from DSM3 or 546.
-   A room typed by hand that is not on this list is kept and added to the list
-   for everyone, so the plans stay the starting point and the field has the
-   last word.
    ------------------------------------------------------------------------- */
-var DC_LEVELS=["Ground Floor (overall)","Level 1 (overall)","Level 2 (overall)",
-  "Ground Floor Interstitial (overall)","Level 1 Interstitial (overall)","Level 2 Interstitial (overall)",
-  "Roof","Exterior / Utility Yard","Whole building"];
 var DSM4_ROOMS=[
 ["Ground Floor",[
 ["537-01001","Stair 1"],["537-01002","Stair 2"],["537-01040","Process Corridor"],
@@ -2083,26 +2157,71 @@ var DSM4_ROOMS=[
 ["537-25960","Second Floor Interstitial Walk-On Ceiling"]
 ] ]
 ];
+/* Level / floor comes first on a row; the room list then narrows to that floor
+   so nobody scrolls 124 rooms to find one. null = every room. */
+var DC_LEVELS=[
+  ["Ground Floor",["Ground Floor"]],
+  ["Ground Floor Interstitial",["Ground Floor Interstitial","Ground Floor"]],
+  ["Level 1",["First Floor"]],
+  ["Level 1 Interstitial",["First Floor"]],
+  ["Level 2",["Second Floor"]],
+  ["Level 2 Interstitial",["Second Floor Interstitial","Second Floor"]],
+  ["Roof",[]],
+  ["Exterior / Utility Yard",[]],
+  ["Whole building",null]
+];
+function dcLevelNames(){return DC_LEVELS.map(function(x){return x[0];});}
+function dcLevelIdx(v){var n=dcLevelNames(),i=n.indexOf(String(v||""));return i;}
 function dcRoomLabel(n,t){return t+" — "+n;}
-/* every room on the plans, as one flat list of display strings */
 function dsm4RoomList(){
   var out=[];
   DSM4_ROOMS.forEach(function(g){g[1].forEach(function(r){out.push(dcRoomLabel(r[0],r[1]));});});
   return out;
 }
-/* which floor group a display string belongs to — shown next to it in the picker */
+/* which floor group a room display string belongs to */
 function dcRoomGroup(v){
   for(var i=0;i<DSM4_ROOMS.length;i++){
     for(var j=0;j<DSM4_ROOMS[i][1].length;j++){
       if(dcRoomLabel(DSM4_ROOMS[i][1][j][0],DSM4_ROOMS[i][1][j][1])===v)return DSM4_ROOMS[i][0];
     }
   }
-  return DC_LEVELS.indexOf(v)>=0?"Level / area":"Added on site";
+  return "Added on site";
+}
+/* the floor group a room sits on, mapped back to a Level name */
+function dcLevelForRoom(v){
+  var g=dcRoomGroup(v);
+  for(var i=0;i<DC_LEVELS.length;i++){
+    var gs=DC_LEVELS[i][1];
+    if(gs&&gs.length&&gs[0]===g)return DC_LEVELS[i][0];
+  }
+  return "";
+}
+/* rooms on one level, plus anything typed by hand that was filed under it */
+function dcRoomsFor(level){
+  var i=dcLevelIdx(level);
+  if(i<0)return dcAllRooms();                       /* unknown / blank → everything */
+  var groups=DC_LEVELS[i][1];
+  if(groups===null)return dcAllRooms();
+  var seen={},out=[];
+  DSM4_ROOMS.forEach(function(g){
+    if(groups.indexOf(g[0])<0)return;
+    g[1].forEach(function(r){var s=dcRoomLabel(r[0],r[1]);if(!seen[s]){seen[s]=1;out.push(s);}});
+  });
+  savedList("rooms").forEach(function(x){if(!seen[x]){seen[x]=1;out.push(x);}});
+  return out;
+}
+function dcAllRooms(){
+  var seen={},out=[];
+  function push(x){if(x&&!seen[x]){seen[x]=1;out.push(x);}}
+  dsm4RoomList().forEach(push);
+  savedList("rooms").forEach(push);
+  dcList().forEach(function(r){push(r.room);});
+  return out;
 }
 
 /* ---------------------------------------------------------------------------
-   COMPANIES — the manpower board roster. Same rule as rooms: pick one or type
-   a new one, and a new one is saved for everybody from then on.
+   COMPANIES — the manpower board roster. Pick one or type a new one, and a new
+   one is saved for everybody from then on.
    ------------------------------------------------------------------------- */
 var DC_COMPANIES=["ATEC","Ameco","Astro Pak","BMWC","BMWC (Reassembly)","Blair","Brock","Delaware",
   "FPI","FST","GMI","Hales & Assoc.","Hales (GMI)","ISI","InServ","InServ (Plumbing)",
@@ -2113,17 +2232,27 @@ var MAN_ROWS=["ATEC","BMWC","Blair","Ameco","InServ (Reassembly)","InServ (Plumb
   "SIC (C+R)","Merit","Wolverine","SRE","InServ (Temp Power)","BMWC (Reassembly)","LeChase",
   "Hales (GMI)","Hales & Assoc.","Brock","ISI","LAAWORKS","SIC (Building Screens)","Pure Clean",
   "Rain for Rent","Pierson","Astro Pak","Delaware"];
-var MAN_COLS=[["gs","GRND","S"],["gp","GRND","P"],["l1s","LVL 1","S"],["l1p","LVL 1","P"],
-  ["l2s","LVL 2","S"],["l2p","LVL 2","P"]];
+/* g = which block the column belongs to, so the grid can rule a line between blocks */
+var MAN_COLS=[["gs","GRND","S","g"],["gp","GRND","P","g"],["l1s","LVL 1","S","1"],["l1p","LVL 1","P","1"],
+  ["l2s","LVL 2","S","2"],["l2p","LVL 2","P","2"]];
+var MAN_WK=[["fri","Fri",4],["sat","Sat",5],["sun","Sun",6]];
 
 var DC_OPEN_LOGS={};
 /* which sections are open. Constraints stays open; the rest start folded away
    so the page is never crowded. */
 var DC_SEC={con:true,goals:false,deliv:false,man:false,acc:false};
 STATE.daily={}; STATE.dailyLoaded=false;
-STATE.goals={}; STATE.deliv={}; STATE.man={}; STATE.lists={};
-STATE.df={f:"ALL",room:"ALL",co:"ALL",mcc:"ALL",q:""};
+STATE.goals={}; STATE.deliv={}; STATE.man={}; STATE.lists={}; STATE.crewList={};
+STATE.crew=null;                       /* set when the signed-in email is a crew account */
+STATE.df={f:"ALL",lvl:"ALL",room:"ALL",co:"ALL",mcc:"ALL",q:""};
+STATE.dcPage=0;
 STATE.manDate=""; STATE.goalWeek="";
+
+/* ---- crew (contractor) accounts ---- */
+function isCrewUser(){return !!STATE.crew;}
+function crewCo(){return (STATE.crew&&STATE.crew.co)||"";}
+/* everything a crew account may reach: this tracker and nothing else */
+function canSee(){return canView()||isCrewUser();}
 
 /* ---- the saved add-your-own lists (mc_meta/lists) ---- */
 function savedList(k){var l=STATE.lists&&STATE.lists[k];return (l||[]).map(function(x){return String(x);});}
@@ -2131,23 +2260,14 @@ function listAdd(k,v){
   v=String(v||"").trim();
   if(!v)return;
   if(k==="companies"&&DC_COMPANIES.indexOf(v)>=0)return;
-  if(k==="rooms"&&(dsm4RoomList().indexOf(v)>=0||DC_LEVELS.indexOf(v)>=0))return;
+  if(k==="rooms"&&dsm4RoomList().indexOf(v)>=0)return;
   if(savedList(k).indexOf(v)>=0)return;
   var cur=savedList(k).slice();cur.push(v);cur.sort();
   STATE.lists[k]=cur;
-  if(!canEdit())return;               /* viewers never write */
+  if(!canEdit())return;               /* viewers and crew never write the shared lists */
   var p={};p[k]=cur;
   db.collection(META_COL).doc("lists").set(p,{merge:true})
     .catch(function(e){console.warn("list save",e&&e.code);});
-}
-function dcRooms(){
-  var seen={},out=[];
-  function push(x){if(x&&!seen[x]){seen[x]=1;out.push(x);}}
-  DC_LEVELS.forEach(push);
-  dsm4RoomList().forEach(push);
-  savedList("rooms").forEach(push);
-  dcList().forEach(function(r){push(r.room);});
-  return out;
 }
 function dcCompanies(){
   var seen={},out=[];
@@ -2159,14 +2279,22 @@ function dcCompanies(){
   out.sort(function(a,b){return a.toLowerCase()<b.toLowerCase()?-1:1;});
   return out;
 }
-/* one <datalist> the whole page shares, so a room or company can be picked
-   from the list OR just typed */
+/* one datalist per level so the room picker only offers that floor, plus a
+   catch-all for rows with no level set yet */
 function dcDatalists(){
-  return '<datalist id="dcRoomList">'+dcRooms().map(function(x){
-      return '<option value="'+esc(x)+'" label="'+esc(dcRoomGroup(x))+'">';}).join('')+'</datalist>'+
-    '<datalist id="dcCoList">'+dcCompanies().map(function(x){
+  var h='<datalist id="dcCoList">'+dcCompanies().map(function(x){
+      return '<option value="'+esc(x)+'">';}).join('')+'</datalist>'+
+    '<datalist id="dcLvlList">'+dcLevelNames().map(function(x){
+      return '<option value="'+esc(x)+'">';}).join('')+'</datalist>'+
+    '<datalist id="dcRoomAll">'+dcAllRooms().map(function(x){
+      return '<option value="'+esc(x)+'" label="'+esc(dcRoomGroup(x))+'">';}).join('')+'</datalist>';
+  DC_LEVELS.forEach(function(L,i){
+    h+='<datalist id="dcRoom'+i+'">'+dcRoomsFor(L[0]).map(function(x){
       return '<option value="'+esc(x)+'">';}).join('')+'</datalist>';
+  });
+  return h;
 }
+function dcRoomListId(level){var i=dcLevelIdx(level);return i<0?"dcRoomAll":("dcRoom"+i);}
 
 function dcList(){var a=[];for(var k in STATE.daily){var r=STATE.daily[k];if(r&&!r.void)a.push(r);}return a;}
 /* status the row actually reads as: closed wins, then past due, then whatever it is */
@@ -2176,32 +2304,42 @@ function dcState(r){
   return (r.st==="ready"||r.st==="prog")?r.st:"open";
 }
 function dcLate(r){if(!r.due||r.st==="done")return 0;var d=daysBetween(r.due,todayISO());return d>0?d:0;}
-/* only Jacobs closes a row. A contractor can take it to Ready to verify and no further. */
+/* only Jacobs closes a row. A contractor takes it to Ready to verify, no further. */
 function dcCanClose(){return canEdit();}
-function dcCanEditRow(){return canEdit();}
+/* a crew account may only touch a row its own company owns or champions */
+function dcCanEditRow(r){
+  if(canEdit())return true;
+  if(!isCrewUser()||!r)return false;
+  var me=crewCo();
+  return !!me&&(r.co===me||r.ch===me);
+}
+function dcCanAdd(){return canEdit()||isCrewUser();}
+function dcCanDelete(){return isOwnerUser();}   /* owner only, and it is permanent */
+
 function dcPass(r){
   var f=STATE.df,s=dcState(r);
   if(f.f!=="ALL"&&f.f!==s)return false;
+  if(f.lvl!=="ALL"&&(r.lvl||"")!==f.lvl)return false;
   if(f.room!=="ALL"&&r.room!==f.room)return false;
   if(f.co!=="ALL"&&r.co!==f.co)return false;
   if(f.mcc!=="ALL"&&((r.mcc?"Y":"N")!==f.mcc))return false;
   if(f.q){var q=f.q.toLowerCase();
-    if(((r.desc||"")+" "+(r.co||"")+" "+(r.ch||"")+" "+(r.room||"")+" "+(r.mc||"")).toLowerCase().indexOf(q)<0)return false;}
+    if(((r.desc||"")+" "+(r.co||"")+" "+(r.ch||"")+" "+(r.lvl||"")+" "+(r.room||"")+" "+(r.mc||"")).toLowerCase().indexOf(q)<0)return false;}
   return true;
 }
-/* most urgent at the top, closed at the bottom */
+/* newest date raised at the top, then company A → Z inside the same day */
 function dcSort(a,b){
-  var da=a.st==="done"?1:0, db=b.st==="done"?1:0;
-  if(da!==db)return da-db;
-  var ua=a.due||"9999-99-99", ub=b.due||"9999-99-99";
-  if(ua!==ub)return ua<ub?-1:1;
-  return (a.date||"")<(b.date||"")?-1:1;
+  var da=a.date||"",db2=b.date||"";
+  if(da!==db2)return da<db2?1:-1;
+  var ca=(a.co||"").toLowerCase(),cb=(b.co||"").toLowerCase();
+  if(ca!==cb)return ca<cb?-1:1;
+  return (a.due||"")<(b.due||"")?-1:1;
 }
 
 /* ---------- writes: every one of them lands in the row's log ---------- */
 function dcWho(){return (CURRENT_USER&&CURRENT_USER.email)||"unknown";}
 function dcNow(){return new Date().toISOString();}
-/* one save path for all four sections: patch the doc, push a log line, never delete */
+/* one save path for all four sections: patch the doc, push a log line */
 function logSave(col,id,store,patch,entry){
   var r=store[id];if(!r)return;
   Object.assign(r,patch);
@@ -2224,6 +2362,14 @@ function dcAdd(row){
   STATE.daily[ref.id]=row;
   render();
   ref.set(row).catch(function(e){alert("Could not save: "+e.message);});
+}
+/* owner-only, and it really is gone — used for clearing test rows */
+function hardDelete(col,id,store){
+  if(!isOwnerUser())return;
+  delete store[id];
+  render();
+  db.collection(col).doc(id).delete()
+    .catch(function(e){alert("Could not delete: "+e.message);});
 }
 
 /* ---------- render: the DSM4 board, section by section ---------- */
@@ -2250,10 +2396,22 @@ function addDaysISO(iso,n){
   var d=new Date(iso+"T00:00:00");d.setDate(d.getDate()+n);
   return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
 }
+/* grow every description box to fit its text — nobody should have to drag a corner */
+function dcAutoGrow(scope){
+  (scope||document).querySelectorAll("textarea.dcin").forEach(function(t){
+    t.style.height="auto";
+    t.style.height=(t.scrollHeight+2)+"px";
+  });
+}
 
 /* ===================== 1. CONSTRAINTS ===================== */
 function dcConstraints(){
-  var all=dcList(),rows=all.filter(dcPass).sort(dcSort);
+  var all=dcList(),hits=all.filter(dcPass).sort(dcSort);
+  var pages=Math.max(1,Math.ceil(hits.length/DC_PAGE));
+  if(STATE.dcPage>=pages)STATE.dcPage=pages-1;
+  if(STATE.dcPage<0)STATE.dcPage=0;
+  var from=STATE.dcPage*DC_PAGE, rows=hits.slice(from,from+DC_PAGE);
+
   var n={ALL:all.length,open:0,prog:0,ready:0,done:0,late:0,mcc:0};
   all.forEach(function(r){n[dcState(r)]++;if(r.mcc&&r.st!=="done")n.mcc++;});
 
@@ -2263,54 +2421,68 @@ function dcConstraints(){
       return '<button class="dck d-'+(x[0]==="ALL"?"all":x[0])+(STATE.df.f===x[0]?" on":"")+'" data-act="dcK" data-k="'+x[0]+'">'+
         '<div class="n">'+x[1]+'</div><div class="l">'+x[2]+'</div></button>';}).join('')+
     '<button class="dck d-mcc'+(STATE.df.mcc==="Y"?" on":"")+'" data-act="dcK" data-k="mcc">'+
-      '<div class="n">'+n.mcc+'</div><div class="l">⛔ MCC blockers</div></button></div>';
+      '<div class="n">'+n.mcc+'</div><div class="l">⛔ Impacts a walk</div></button></div>';
 
   function sel(id,label,list,cur){
     return '<select data-act="dcF" data-f="'+id+'"><option value="ALL">'+label+'</option>'+
       list.map(function(x){return '<option value="'+esc(x)+'"'+(cur===x?" selected":"")+'>'+esc(x)+'</option>';}).join('')+'</select>';
   }
-  var usedRooms={},usedCos={};
-  all.forEach(function(r){if(r.room)usedRooms[r.room]=1;if(r.co)usedCos[r.co]=1;});
+  var usedL={},usedRooms={},usedCos={};
+  all.forEach(function(r){if(r.lvl)usedL[r.lvl]=1;if(r.room)usedRooms[r.room]=1;if(r.co)usedCos[r.co]=1;});
   var bar='<div class="dcbar">'+
+    sel("lvl","All levels",Object.keys(usedL).sort(),STATE.df.lvl)+
     sel("room","All rooms",Object.keys(usedRooms).sort(),STATE.df.room)+
     sel("co","All companies",Object.keys(usedCos).sort(),STATE.df.co)+
-    '<select data-act="dcF" data-f="mcc"><option value="ALL">MCC blocker: any</option>'+
-      '<option value="Y"'+(STATE.df.mcc==="Y"?" selected":"")+'>MCC blockers only</option>'+
-      '<option value="N"'+(STATE.df.mcc==="N"?" selected":"")+'>Not MCC blockers</option></select>'+
+    '<select data-act="dcF" data-f="mcc"><option value="ALL">Walk impact: any</option>'+
+      '<option value="Y"'+(STATE.df.mcc==="Y"?" selected":"")+'>Impacts a walk</option>'+
+      '<option value="N"'+(STATE.df.mcc==="N"?" selected":"")+'>No walk impact</option></select>'+
     '<input type="search" id="dcQ" placeholder="Search description, room, company…" value="'+esc(STATE.df.q)+'">'+
     '</div>';
 
-  var ed=dcCanEditRow(),ro=ed?"":" readonly";
-  var body="";
+  var body="",del=dcCanDelete();
   rows.forEach(function(r,i){
-    var s=dcState(r),lt=dcLate(r);
+    var s=dcState(r),lt=dcLate(r),ed=dcCanEditRow(r),ro=ed?"":" readonly",dis=ed?"":" disabled";
     body+='<tr class="s-'+s+'" data-dc="'+esc(r.id)+'">'+
-      '<td class="dcn">'+(i+1)+'</td>'+
+      '<td class="dcn">'+(from+i+1)+'</td>'+
       '<td class="dt">'+fmtMD(r.date)+'</td>'+
       '<td class="dco"><input class="dcin" list="dcCoList" value="'+esc(r.co||"")+'" data-dcf="co" data-dc="'+esc(r.id)+'"'+ro+'></td>'+
-      '<td class="drm"><input class="dcin" list="dcRoomList" value="'+esc(r.room||"")+'" data-dcf="room" data-dc="'+esc(r.id)+'" placeholder="pick or type a room"'+ro+'></td>'+
+      '<td class="dlv"><input class="dcin" list="dcLvlList" value="'+esc(r.lvl||"")+'" data-dcf="lvl" data-dc="'+esc(r.id)+'" placeholder="floor"'+ro+'></td>'+
+      '<td class="drm"><input class="dcin" list="'+dcRoomListId(r.lvl)+'" value="'+esc(r.room||"")+'" data-dcf="room" data-dc="'+esc(r.id)+'" placeholder="'+(r.lvl?"room on that floor":"pick a level first")+'"'+ro+'></td>'+
       '<td class="dd"><textarea class="dcin" rows="1" data-dcf="desc" data-dc="'+esc(r.id)+'"'+ro+'>'+esc(r.desc||"")+'</textarea></td>'+
-      '<td><button class="dcmcc'+(r.mcc?" yes":"")+'" data-act="dcMcc" data-dc="'+esc(r.id)+'"'+(ed?"":" disabled")+'>'+(r.mcc?"⛔ Yes":"No")+'</button>'+
+      '<td class="dwk"><button class="dcmcc'+(r.mcc?" yes":"")+'" data-act="dcMcc" data-dc="'+esc(r.id)+'"'+dis+'>'+(r.mcc?("⛔ "+esc(r.gate||"MCC")):"No")+'</button>'+
         (r.mcc&&r.mc?'<button class="dcmc" data-act="dcGo" data-mc="'+esc(r.mc)+'" title="open that system on the Board">MC '+esc(r.mc)+' ↗</button>':'')+'</td>'+
-      '<td><input class="dcin" list="dcCoList" value="'+esc(r.ch||"")+'" data-dcf="ch" data-dc="'+esc(r.id)+'" style="min-width:110px"'+ro+'></td>'+
-      '<td class="du"><button class="dcdue" data-act="dcDue" data-dc="'+esc(r.id)+'"'+(ed?"":" disabled")+'>'+
+      '<td class="dch"><input class="dcin" list="dcCoList" value="'+esc(r.ch||"")+'" data-dcf="ch" data-dc="'+esc(r.id)+'"'+ro+'></td>'+
+      '<td class="du"><button class="dcdue" data-act="dcDue" data-dc="'+esc(r.id)+'"'+dis+'>'+
         (r.origDue?'<span class="was">'+fmtMD(r.origDue)+'</span>':'')+'<span>'+(r.due?fmtMD(r.due):"— set —")+'</span></button>'+
         (r.revs?'<span class="dcrev">moved '+r.revs+'×</span>':'')+
         (lt?'<span class="dclate">+'+lt+'d</span>':'')+'</td>'+
-      '<td><select class="dcst v-'+s+'" data-act="dcSt" data-dc="'+esc(r.id)+'"'+(ed?"":" disabled")+'>'+
+      '<td><select class="dcst v-'+s+'" data-act="dcSt" data-dc="'+esc(r.id)+'"'+dis+'>'+
         DC_STATES.map(function(x){
-          var dis=(x==="done"&&!dcCanClose())?" disabled":"";
-          return '<option value="'+x+'"'+(r.st===x?" selected":"")+dis+'>'+DC_LABEL[x]+'</option>';}).join('')+
+          var d2=(x==="done"&&!dcCanClose())?" disabled":"";
+          return '<option value="'+x+'"'+(r.st===x?" selected":"")+d2+'>'+DC_LABEL[x]+'</option>';}).join('')+
         '</select></td>'+
-      '<td><button class="dclog" data-act="dcLog" data-dc="'+esc(r.id)+'">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button></td>'+
+      '<td class="dact"><button class="dclog" data-act="dcLog" data-dc="'+esc(r.id)+'" title="history">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button>'+
+        (del?'<button class="dcdel" data-act="dcDel" data-dc="'+esc(r.id)+'" title="delete this row — owner only, permanent">🗑</button>':'')+'</td>'+
       '</tr>';
-    if(DC_OPEN_LOGS[r.id])body+=dcHistRow(r,10);
+    if(DC_OPEN_LOGS[r.id])body+=dcHistRow(r,11);
   });
 
-  var add=ed?('<div class="dcadd">'+
+  var cols=11;
+  var pager=(pages>1)?('<div class="dcpg">'+
+      '<button class="btn sm" data-act="dcPg" data-p="first"'+(STATE.dcPage?"":" disabled")+'>« first</button>'+
+      '<button class="btn sm" data-act="dcPg" data-p="prev"'+(STATE.dcPage?"":" disabled")+'>‹ back</button>'+
+      '<span class="pgl">page <b>'+(STATE.dcPage+1)+'</b> of <b>'+pages+'</b> · showing '+(from+1)+'–'+(from+rows.length)+' of '+hits.length+'</span>'+
+      '<button class="btn sm" data-act="dcPg" data-p="next"'+(STATE.dcPage<pages-1?"":" disabled")+'>next ›</button>'+
+      '<button class="btn sm" data-act="dcPg" data-p="last"'+(STATE.dcPage<pages-1?"":" disabled")+'>last »</button>'+
+      '<span class="pgn">every page is saved — nothing rolls off</span></div>'):'';
+
+  var add=dcCanAdd()?('<div class="dcadd">'+
       '<input type="date" id="dcNDate" value="'+todayISO()+'">'+
-      '<input type="text" id="dcNCo" list="dcCoList" placeholder="Company" style="width:130px">'+
-      '<input type="text" id="dcNRoom" list="dcRoomList" placeholder="Room — pick or type" style="width:200px">'+
+      (isCrewUser()
+        ? '<input type="text" id="dcNCo" value="'+esc(crewCo())+'" readonly title="your company" style="width:150px">'
+        : '<input type="text" id="dcNCo" list="dcCoList" placeholder="Company" style="width:140px">')+
+      '<input type="text" id="dcNLvl" list="dcLvlList" placeholder="Level / floor" style="width:150px">'+
+      '<input type="text" id="dcNRoom" list="dcRoomAll" placeholder="Room" style="width:190px">'+
       '<input type="text" id="dcNDesc" class="grow" placeholder="Description of constraint…">'+
       '<input type="text" id="dcNCh" list="dcCoList" placeholder="Champion" style="width:130px">'+
       '<input type="date" id="dcNDue" value="'+todayISO()+'">'+
@@ -2318,16 +2490,20 @@ function dcConstraints(){
 
   return kh+bar+
     '<div class="dcwrap"><div class="dchead"><h2>Constraints</h2>'+
-      '<span class="sub">'+rows.length+' of '+all.length+' shown</span><span style="flex:1"></span>'+
-      '<span class="sub">green closed · indigo ready to verify · yellow in progress · red past due</span></div>'+
+      '<span class="sub">'+hits.length+' of '+all.length+' shown</span><span style="flex:1"></span>'+
+      '<span class="sub">newest first · green closed · indigo ready to verify · yellow in progress · red past due</span></div>'+
     '<div class="dctbl"><table><thead><tr>'+
       '<th class="dcn">#</th><th>Date<span class="h2">raised</span></th>'+
-      '<th>Company<span class="h2">who is stuck</span></th><th>Room<span class="h2">DSM4 — pick or type</span></th>'+
-      '<th>Description of constraint</th><th>MCC<br>blocker?<span class="h2">links a system</span></th>'+
-      '<th>Champion<span class="h2">who clears it</span></th><th>Due date</th><th>Status</th><th style="width:40px">Log</th>'+
-    '</tr></thead><tbody>'+(body||'<tr><td colspan="10" class="dcempty">'+
+      '<th>Company<span class="h2">who is stuck</span></th>'+
+      '<th>Level<span class="h2">floor</span></th>'+
+      '<th>Room<span class="h2">on that floor</span></th>'+
+      '<th>Description of constraint</th>'+
+      '<th>Impacts<br>a walk?<span class="h2">W0 · W1 · MC · MCC</span></th>'+
+      '<th>Champion<span class="h2">who clears it</span></th><th>Due date</th><th>Status</th>'+
+      '<th class="dact">Log</th>'+
+    '</tr></thead><tbody>'+(body||'<tr><td colspan="'+cols+'" class="dcempty">'+
       (all.length?'Nothing matches that filter.':'No constraints on the tracker yet — raise the first one below.')+'</td></tr>')+
-    '</tbody></table></div>'+add+'</div>';
+    '</tbody></table></div>'+pager+add+'</div>';
 }
 function dcHistRow(r,span){
   var lg=(r.log||[]);
@@ -2337,7 +2513,7 @@ function dcHistRow(r,span){
         '<span class="who">'+esc(h.who||"")+'</span><span class="what">'+h.what+
         (h.why?'<span class="why">Reason: '+esc(h.why)+'</span>':'')+'</span></div>';}).join('')
       :'<div class="dchl"><span class="ts">—</span><span class="who">—</span><span class="what">Nothing changed on this row yet.</span></div>')+
-    '<div class="dckeep"><i>kept</i> nothing on this tracker is ever overwritten or deleted — the full history stays for the life of the job</div>'+
+    '<div class="dckeep"><i>kept</i> every change stays on the row for the life of the job — only the owner can remove a row outright</div>'+
     '</div></td></tr>';
 }
 
@@ -2349,8 +2525,8 @@ function goalDoc(){
 }
 function dcGoals(){
   var w=goalWeek(),g=goalDoc(),ed=canEdit(),it=g.items||[];
-  var done=0;it.forEach(function(x){if(x&&x.t&&x.done)done++;});
-  var filled=0;it.forEach(function(x){if(x&&x.t)filled++;});
+  var done=0,filled=0;
+  it.forEach(function(x){if(x&&x.t){filled++;if(x.done)done++;}});
   var rows="";
   for(var i=0;i<8;i++){
     var x=it[i]||{t:"",done:false};
@@ -2381,17 +2557,19 @@ function dcGoals(){
 
 /* ===================== 3. DELIVERIES ===================== */
 function dcDeliv(){
-  var ed=canEdit(),ro=ed?"":" readonly";
+  var ed=canEdit(),del=dcCanDelete();
   var all=[];for(var k in STATE.deliv){var d=STATE.deliv[k];if(d&&!d.void)all.push(d);}
   all.sort(function(a,b){return (a.date||"")>(b.date||"")?-1:1;});
   var body="";
   all.forEach(function(r,i){
+    var ro=ed?"":" readonly";
     body+='<tr data-dv="'+esc(r.id)+'">'+
       '<td class="dcn">'+(i+1)+'</td>'+
       '<td class="dt"><input class="dvin" type="date" value="'+esc(r.date||"")+'" data-dvf="date" data-dv="'+esc(r.id)+'"'+(ed?"":" disabled")+'></td>'+
       '<td class="dco"><input class="dvin" list="dcCoList" value="'+esc(r.co||"")+'" data-dvf="co" data-dv="'+esc(r.id)+'"'+ro+'></td>'+
       '<td class="dd"><input class="dvin" value="'+esc(r.desc||"")+'" data-dvf="desc" data-dv="'+esc(r.id)+'" placeholder="what is arriving, and which floor"'+ro+'></td>'+
-      '<td><button class="dclog" data-act="dcDvLog" data-dv="'+esc(r.id)+'">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button></td></tr>';
+      '<td class="dact"><button class="dclog" data-act="dcDvLog" data-dv="'+esc(r.id)+'">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button>'+
+        (del?'<button class="dcdel" data-act="dvDel" data-dv="'+esc(r.id)+'" title="delete — owner only, permanent">🗑</button>':'')+'</td></tr>';
     if(DC_OPEN_LOGS["_dv_"+r.id])body+=dcHistRow(r,5);
   });
   var add=ed?('<div class="dcadd">'+
@@ -2402,7 +2580,7 @@ function dcDeliv(){
   return '<div class="dcwrap"><div class="dchead"><h2>Deliveries</h2>'+
       '<span class="sub">'+all.length+' logged</span></div>'+
     '<div class="dctbl"><table class="narrow"><thead><tr><th class="dcn">#</th><th>Date</th>'+
-      '<th>Company</th><th>Description / Floor</th><th style="width:40px">Log</th></tr></thead><tbody>'+
+      '<th>Company</th><th>Description / Floor</th><th class="dact">Log</th></tr></thead><tbody>'+
       (body||'<tr><td colspan="5" class="dcempty">Nothing logged yet.</td></tr>')+
     '</tbody></table></div>'+add+'</div>';
 }
@@ -2410,9 +2588,7 @@ function dcDeliv(){
 /* ===================== 4. MANPOWER ===================== */
 function manDate(){return STATE.manDate||todayISO();}
 function manDoc(){var d=manDate();return STATE.man[d]||{date:d,r:{},log:[]};}
-function manRowTotal(o){
-  var t=0;MAN_COLS.forEach(function(c){t+=(+(o&&o[c[0]])||0);});return t;
-}
+function manRowTotal(o){var t=0;MAN_COLS.forEach(function(c){t+=(+(o&&o[c[0]])||0);});return t;}
 function manRows(){
   var doc=manDoc(),seen={},out=[];
   MAN_ROWS.forEach(function(c){seen[c]=1;out.push(c);});
@@ -2421,47 +2597,51 @@ function manRows(){
 }
 function dcMan(){
   var ed=canEdit(),d=manDate(),doc=manDoc(),cos=manRows();
-  var tot={},grand=0,gfri=0,gsat=0;
+  var tot={},grand=0,wk={fri:0,sat:0,sun:0};
   MAN_COLS.forEach(function(c){tot[c[0]]=0;});
   cos.forEach(function(c){
     var o=doc.r[c]||{};
     MAN_COLS.forEach(function(k){tot[k[0]]+=(+o[k[0]]||0);});
-    grand+=manRowTotal(o);gfri+=(+o.fri||0);gsat+=(+o.sat||0);
+    MAN_WK.forEach(function(k){wk[k[0]]+=(+o[k[0]]||0);});
+    grand+=manRowTotal(o);
   });
-  function cell(c,f,v){
-    return '<td class="mnc"><input class="mnin" inputmode="numeric" data-mnc="'+esc(c)+'" data-mnf="'+f+'" value="'+
+  function cell(c,f,v,cls){
+    return '<td class="mnc'+(cls?" "+cls:"")+'"><input class="mnin" inputmode="numeric" data-mnc="'+esc(c)+'" data-mnf="'+f+'" value="'+
       (v===0||v?esc(String(v)):"")+'"'+(ed?"":" readonly")+'></td>';
   }
   var body="";
   cos.forEach(function(c){
-    var o=doc.r[c]||{},rt=manRowTotal(o);
-    body+='<tr'+(rt||o.fri||o.sat?'':' class="empty"')+'><td class="mnco">'+esc(c)+'</td>'+
-      MAN_COLS.map(function(k){return cell(c,k[0],o[k[0]]);}).join('')+
-      cell(c,"fri",o.fri)+cell(c,"sat",o.sat)+
-      '<td class="mnt">'+(rt||"")+'</td></tr>';
+    var o=doc.r[c]||{},rt=manRowTotal(o),wkAny=MAN_WK.some(function(k){return o[k[0]];});
+    body+='<tr'+(rt||wkAny?'':' class="empty"')+'><td class="mnco">'+esc(c)+'</td>'+
+      MAN_COLS.map(function(k,i){return cell(c,k[0],o[k[0]],(i%2===0)?"gsep":"");}).join('')+
+      MAN_WK.map(function(k){return cell(c,k[0],o[k[0]],"gsep");}).join('')+
+      '<td class="mnt gsep">'+(rt||"")+'</td></tr>';
   });
   var foot='<tr class="mntot"><td class="mnco">Total</td>'+
-    MAN_COLS.map(function(k){return '<td class="mnc">'+(tot[k[0]]||"")+'</td>';}).join('')+
-    '<td class="mnc">'+(gfri||"")+'</td><td class="mnc">'+(gsat||"")+'</td>'+
-    '<td class="mnt">'+(grand||"")+'</td></tr>';
+    MAN_COLS.map(function(k,i){return '<td class="mnc'+((i%2===0)?" gsep":"")+'">'+(tot[k[0]]||"")+'</td>';}).join('')+
+    MAN_WK.map(function(k){return '<td class="mnc gsep">'+(wk[k[0]]||"")+'</td>';}).join('')+
+    '<td class="mnt gsep">'+(grand||"")+'</td></tr>';
+  var mon=mondayOf(d);
   var nav='<div class="dcwk">'+
     '<button class="btn sm" data-act="dcMd" data-d="-1">← previous day</button>'+
     '<input type="date" id="dcMdIn" value="'+d+'">'+
     '<span class="wl">'+fmtLong(d)+'</span>'+
     '<button class="btn sm" data-act="dcMd" data-d="1">next day →</button>'+
     '<button class="btn sm" data-act="dcMd" data-d="0">today</button>'+
-    (ed?'<span class="grow"></span><input type="text" id="mnNew" list="dcCoList" placeholder="add a company to the grid" style="width:200px">'+
+    (ed?'<span class="grow"></span><input type="text" id="mnNew" list="dcCoList" placeholder="add a company to the grid" style="width:210px">'+
       '<button class="btn sm" data-act="mnAdd">+ add</button>':'')+'</div>';
   return nav+'<div class="dcwrap"><div class="dchead"><h2>Manpower</h2>'+
       '<span class="sub">'+grand+' on site '+fmtMD(d)+'</span><span style="flex:1"></span>'+
       '<span class="sub">S and P as written on the board · daily total adds itself</span>'+
       '<button class="dclog" data-act="dcMnLog">'+((doc.log&&doc.log.length)?doc.log.length:'☰')+'</button></div>'+
     '<div class="dctbl"><table class="mntbl"><thead>'+
-      '<tr><th rowspan="2" class="mnco">Company</th><th colspan="2">GRND</th><th colspan="2">LVL 1</th>'+
-        '<th colspan="2">LVL 2</th><th colspan="2">Weekend</th><th rowspan="2" class="mnt">Daily<br>total</th></tr>'+
-      '<tr><th>S</th><th>P</th><th>S</th><th>P</th><th>S</th><th>P</th>'+
-        '<th>Fri '+fmtMD(addDaysISO(mondayOf(d),4))+'</th><th>Sat '+fmtMD(addDaysISO(mondayOf(d),5))+'</th></tr>'+
-      '</thead><tbody>'+body+foot+'</tbody></table></div>'+
+      '<tr><th rowspan="2" class="mnco">Company</th>'+
+        '<th colspan="2" class="gsep">GRND</th><th colspan="2" class="gsep">LVL 1</th>'+
+        '<th colspan="2" class="gsep">LVL 2</th><th colspan="3" class="gsep">Weekend</th>'+
+        '<th rowspan="2" class="mnt gsep">Daily<br>total</th></tr>'+
+      '<tr><th class="gsep">S</th><th>P</th><th class="gsep">S</th><th>P</th><th class="gsep">S</th><th>P</th>'+
+        MAN_WK.map(function(k){return '<th class="gsep">'+k[1]+'<span class="wd">'+fmtMD(addDaysISO(mon,k[2]))+'</span></th>';}).join('')+
+      '</tr></thead><tbody>'+body+foot+'</tbody></table></div>'+
     (DC_OPEN_LOGS["_mn_"+d]?'<div class="dchbox"><h4>History — every change to this day’s manpower</h4>'+
       ((doc.log||[]).length?(doc.log||[]).map(function(h){
         return '<div class="dchl"><span class="ts">'+esc(String(h.ts||"").replace("T"," ").slice(0,16))+'</span>'+
@@ -2472,14 +2652,18 @@ function dcMan(){
 }
 
 /* ===================== 5. WHO CAN DO WHAT ===================== */
+function myRoleName(){
+  return isOwnerUser()?"Owner":canEdit()?"Editor (Jacobs)":
+    isCrewUser()?("Contractor crew — "+(crewCo()||"no company set")):
+    canView()?"Viewer":"No access";
+}
 function dcAccess(){
   var em=(CURRENT_USER&&CURRENT_USER.email)||"—";
-  var role=isOwnerUser()?"Owner":canEdit()?"Editor (Jacobs)":canView()?"Viewer":"No access";
   var rows=[
-    ["Owner","Everything an editor can do, plus: add and remove people, change anyone's role, reset or re-import the tracker. bdiaz8448@gmail.com is written into the server rules as a permanent owner, so ownership can never be locked out."],
-    ["Editor — Jacobs","Read and write the whole board: sign off gates, edit systems and punch, raise and edit constraints, set goals, deliveries and manpower. <b>Only an editor can close a constraint.</b> An editor cannot change the access lists."],
+    ["Owner","Everything an editor can do, plus: add and remove people, hand out contractor crew accounts, change anyone's role, and delete a row outright. bdiaz8448@gmail.com is written into the server rules as a permanent owner, so ownership can never be locked out."],
+    ["Editor — Jacobs","Read and write the whole board: sign off gates, edit systems and punch, raise and edit constraints, set goals, deliveries and manpower. <b>Only an editor can close a constraint.</b> An editor cannot change the access lists and cannot delete."],
     ["Viewer","Reads everything. Writes nothing. No sign-offs, no edits, no closing."],
-    ["Contractor crew","Not switched on yet. When it is, a crew account reaches <b>this tracker and nothing else</b> — not the systems board, not punch, not MCC Closed. They may raise and update rows for their own company and take one as far as <b>Ready to verify</b>. They can never close a row, never hand it to another company, and never delete anything."]
+    ["Contractor crew","A crew account reaches <b>this tracker and nothing else</b> — not the systems board, not punch, not MCC Closed, not manpower. They may raise and update rows for their own company and take one as far as <b>Ready to verify</b>. They can never close a row, never hand it to another company, and never delete anything."]
   ];
   var lists="";
   if(isOwnerUser()){
@@ -2487,19 +2671,31 @@ function dcAccess(){
       var a=(STATE.meta&&STATE.meta[k])||[];
       return '<div class="aclist"><b>'+t+'</b>'+(a.length?a.map(function(x){return '<span class="acpill">'+esc(x)+'</span>';}).join(''):'<i>none added</i>')+'</div>';
     }
+    var crew=Object.keys(STATE.crewList||{}).sort();
     lists='<div class="acbox"><h4>Who is on the board right now</h4>'+
       '<div class="aclist"><b>Permanent owner</b><span class="acpill perm">bdiaz8448@gmail.com</span></div>'+
       L("Owners","ownerEmails")+L("Editors","editorEmails")+L("Viewers","viewerEmails")+
-      '<p class="acnote">Add and remove people in <b>Settings ▸ People</b>. Only an owner can change these lists.</p></div>';
+      '<p class="acnote">Add and remove owners, editors and viewers in <b>Settings ▸ People</b>. Only an owner can change those lists.</p>'+
+      '</div>'+
+      '<div class="acbox"><h4>Contractor crew accounts</h4>'+
+      '<div class="crewl">'+(crew.length?crew.map(function(e){
+        return '<div class="crewr"><span class="cem">'+esc(e)+'</span><span class="cco">'+esc(STATE.crewList[e].co||"—")+'</span>'+
+          '<button class="btn sm" data-act="crewDel" data-e="'+esc(e)+'">remove</button></div>';}).join('')
+        :'<div class="crewr"><i>No crew accounts yet.</i></div>')+'</div>'+
+      '<div class="dcadd" style="border-radius:12px;margin-top:9px">'+
+        '<input type="email" id="crewEm" placeholder="foreman@company.com" class="grow">'+
+        '<input type="text" id="crewCo" list="dcCoList" placeholder="Their company" style="width:190px">'+
+        '<button class="btn pri" data-act="crewAdd">+ Add crew account</button></div>'+
+      '<p class="acnote">They create their own password on the sign-in screen with this email. Do not add someone who is already an editor — the crew limits would take over.</p>'+
+      '</div>';
   }
   return '<div class="dcwrap"><div class="dchead"><h2>Who can do what</h2>'+
-      '<span class="sub">you are signed in as '+esc(em)+' — <b>'+role+'</b></span></div>'+
+      '<span class="sub">you are signed in as '+esc(em)+' — <b>'+esc(myRoleName())+'</b></span></div>'+
     '<div class="acgrid">'+rows.map(function(r){
       return '<div class="acrow"><div class="acr">'+r[0]+'</div><div class="acd">'+r[1]+'</div></div>';}).join('')+'</div>'+
     lists+
     '<div class="acfoot">These are not just page rules. Every one of them is enforced on the server by the database itself, '+
-      'so a person who is not on the list cannot read or write anything even outside this page. Nothing on this tracker is '+
-      'ever deleted — rows, goals, deliveries and manpower all keep their full history.</div>'+
+      'so a person who is not on the list cannot read or write anything even outside this page.</div>'+
     '</div>';
 }
 
@@ -2512,23 +2708,30 @@ function renderDaily(v){
   var mdoc=manDoc(),mtot=0;
   Object.keys(mdoc.r||{}).forEach(function(c){mtot+=manRowTotal(mdoc.r[c]);});
 
-  var explain='<div class="infob"><span class="big2">📋 DSM4 Daily Board</span>'+
-    'The whiteboard from the trailer, live and shared — <b>constraints</b>, <b>weekly goals</b>, <b>deliveries</b> and <b>manpower</b>, '+
-    'in the same order they sit on the wall. Everything here is writable: rooms and companies can be picked from the list or just typed, '+
-    'and anything typed is saved for everyone. A due date only moves with a written reason, and <b>every change is kept</b> with who did it and why.</div>';
+  var explain=isCrewUser()
+    ? '<div class="infob"><span class="big2">📋 DSM4 Daily Board — '+esc(crewCo())+'</span>'+
+      'You can raise a constraint for '+esc(crewCo())+', keep it up to date, and take it as far as <b>Ready to verify</b> when the work is done. '+
+      'Jacobs does the closing. Nothing here is ever deleted, and every change is kept with who made it.</div>'
+    : '<div class="infob"><span class="big2">📋 DSM4 Daily Board</span>'+
+      'The whiteboard from the trailer, live and shared — <b>constraints</b>, <b>weekly goals</b>, <b>deliveries</b> and <b>manpower</b>, '+
+      'in the same order they sit on the wall. Pick the level first and the room list narrows to that floor. '+
+      'A due date only moves with a written reason, and <b>every change is kept</b> with who did it and why.</div>';
   var warn=STATE.dailyErr?('<div class="infob" style="border-color:rgba(224,11,40,.45)"><span class="big2">⚠ Tracker offline</span>'+
     'The board is fine — only this tracker could not be reached ('+esc(STATE.dailyErr)+'). Nothing has been lost; reload in a moment.</div>'):'';
 
-  v.innerHTML=dcDatalists()+explain+warn+
+  var html=dcDatalists()+explain+warn+
     dcSec("con","🚧","Constraints",openN+" still live"+(lateN?" · "+lateN+" past due":""),dcConstraints())+
     dcSec("goals","🎯","Weekly Goals",gd+" of "+gf+" met this week",dcGoals())+
-    dcSec("deliv","🚚","Deliveries",dvN+" logged",dcDeliv())+
-    dcSec("man","👷","Manpower",(mtot||0)+" on site "+fmtMD(manDate()),dcMan())+
-    dcSec("acc","🔒","Who can do what","owner · editor · viewer · crew",dcAccess());
+    dcSec("deliv","🚚","Deliveries",dvN+" logged",dcDeliv());
+  if(!isCrewUser())
+    html+=dcSec("man","👷","Manpower",(mtot||0)+" on site "+fmtMD(manDate()),dcMan());
+  html+=dcSec("acc","🔒","Who can do what","owner · editor · viewer · crew",dcAccess());
+  v.innerHTML=html;
 
-  v.querySelectorAll('.dd textarea').forEach(function(t){t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";});
+  dcAutoGrow(v);
+  if(window.requestAnimationFrame)requestAnimationFrame(function(){dcAutoGrow(v);});
   var q=$("dcQ");
-  if(q)q.addEventListener("input",function(){STATE.df.q=this.value;var p=this.selectionStart;renderDaily($("view"));
+  if(q)q.addEventListener("input",function(){STATE.df.q=this.value;STATE.dcPage=0;var p=this.selectionStart;renderDaily($("view"));
     var q2=$("dcQ");if(q2){q2.focus();try{q2.setSelectionRange(p,p);}catch(e){}}});
 }
 
@@ -2539,9 +2742,9 @@ function dcDlg(html){
   if(!d.open)d.showModal();
 }
 function dcDueDlg(id){
-  var r=STATE.daily[id];if(!r||!dcCanEditRow())return;
+  var r=STATE.daily[id];if(!r||!dcCanEditRow(r))return;
   dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">Move a due date</h3>'+
-    '<p style="margin:0 0 14px;font-size:12.5px;font-weight:700;color:var(--mut)">'+esc(r.co||"")+' · '+esc(r.room||"")+' · '+esc((r.desc||"").slice(0,70))+'</p>'+
+    '<p style="margin:0 0 14px;font-size:12.5px;font-weight:700;color:var(--mut)">'+esc(r.co||"")+' · '+esc(r.room||r.lvl||"")+' · '+esc((r.desc||"").slice(0,70))+'</p>'+
     '<div class="hint" style="background:var(--orgbg);border:1px solid rgba(194,92,0,.4);border-radius:12px;padding:10px 13px;color:var(--orgg);margin-bottom:14px">'+
       'A due date only moves with a reason. The old date, the new one, who moved it and why all stay in the log.</div>'+
     '<label>Current due date</label><input type="text" value="'+(r.due?fmtLong(r.due):"not set")+'" readonly>'+
@@ -2552,21 +2755,34 @@ function dcDueDlg(id){
     '<button class="btn pri" data-act="dcDueSave" data-dc="'+esc(id)+'">Save change</button></div>');
 }
 function dcMccDlg(id){
-  var r=STATE.daily[id];if(!r||!dcCanEditRow())return;
+  var r=STATE.daily[id];if(!r||!dcCanEditRow(r))return;
   var opts=sysList().slice().sort(function(a,b){return (a.mc||"")<(b.mc||"")?-1:1;})
     .map(function(s){return '<option value="'+esc(s.mc)+'">'+esc(s.mc)+' · '+esc(s.desc||"")+'</option>';}).join('');
-  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">Does this block a Mechanical Completion?</h3>'+
+  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">Does this hold up a walk?</h3>'+
     '<p style="margin:0 0 14px;font-size:12.5px;font-weight:700;color:var(--mut)">'+esc(r.co||"")+' · '+esc((r.desc||"").slice(0,70))+'</p>'+
-    '<label>Blocks an MCC</label><select id="dcYN"><option value="N"'+(!r.mcc?" selected":"")+'>No — site work only</option>'+
-      '<option value="Y"'+(r.mcc?" selected":"")+'>Yes — this holds up a system</option></select>'+
+    '<label>Impacts a walk</label><select id="dcYN"><option value="N"'+(!r.mcc?" selected":"")+'>No — site work only</option>'+
+      '<option value="Y"'+(r.mcc?" selected":"")+'>Yes — this holds up a walk</option></select>'+
+    '<label>Which walk?</label><select id="dcGate">'+
+      DC_GATES.map(function(g){return '<option value="'+g+'"'+(((r.gate||"MCC")===g)?" selected":"")+'>'+g+'</option>';}).join('')+
+      '</select>'+
     '<label>Which system? — MC number, so the two boards tie together</label>'+
     '<input type="text" id="dcMcNo" value="'+esc(r.mc||"")+'" placeholder="e.g. 1427" list="dcMcList">'+
     '<datalist id="dcMcList">'+opts+'</datalist>'+
     '<div class="dlgrow" style="margin-top:12px"><button class="btn" data-act="dcClose">Cancel</button>'+
     '<button class="btn pri" data-act="dcMccSave" data-dc="'+esc(id)+'">Save</button></div>');
 }
+function dcDelDlg(id){
+  var r=STATE.daily[id];if(!r||!dcCanDelete())return;
+  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">Delete this row?</h3>'+
+    '<div class="hint" style="background:var(--redbg);border:1px solid rgba(224,11,40,.4);border-radius:12px;padding:10px 13px;color:var(--redg);margin:10px 0 14px">'+
+      'This removes the row and its whole history for good. There is no undo. Only the owner can do this.</div>'+
+    '<div class="dlgrow" style="justify-content:flex-start;gap:8px;margin-bottom:12px;font-size:12.5px;font-weight:800;color:var(--mut)">'+
+      esc(fmtMD(r.date))+' · '+esc(r.co||"")+' · '+esc((r.desc||"").slice(0,90))+'</div>'+
+    '<div class="dlgrow"><button class="btn" data-act="dcClose">Keep it</button>'+
+    '<button class="btn pri" data-act="dcDelGo" data-dc="'+esc(id)+'" style="background:var(--red);border-color:var(--red)">Delete permanently</button></div>');
+}
 
-/* ---------- writes for goals / deliveries / manpower ---------- */
+/* ---------- writes for goals / deliveries / manpower / crew ---------- */
 function goalSave(items,what){
   var w=goalWeek(),cur=STATE.goals[w];
   if(!cur){cur={week:w,items:[],log:[],at:dcNow(),by:dcWho()};STATE.goals[w]=cur;}
@@ -2597,13 +2813,32 @@ function manSave(co,field,val,was){
   if(!cur){cur={date:d,r:{},log:[],at:dcNow(),by:dcWho()};STATE.man[d]=cur;}
   cur.r=cur.r||{};cur.r[co]=cur.r[co]||{};
   if(val===""||val===null)delete cur.r[co][field];else cur.r[co][field]=val;
-  var nm=({gs:"GRND S",gp:"GRND P",l1s:"LVL 1 S",l1p:"LVL 1 P",l2s:"LVL 2 S",l2p:"LVL 2 P",fri:"Friday",sat:"Saturday"})[field]||field;
+  var nm=({gs:"GRND S",gp:"GRND P",l1s:"LVL 1 S",l1p:"LVL 1 P",l2s:"LVL 2 S",l2p:"LVL 2 P",
+           fri:"Friday",sat:"Saturday",sun:"Sunday"})[field]||field;
   cur.log=(cur.log||[]);
   cur.log.unshift({ts:dcNow(),who:dcWho(),what:esc(co)+" · "+nm+" <b>"+esc(was===""||was==null?"—":String(was))+" → "+esc(val===""||val==null?"—":String(val))+"</b>"});
   if(cur.log.length>400)cur.log=cur.log.slice(0,400);
   render();
   db.collection(MAN_COL).doc(d).set({date:d,r:cur.r,log:cur.log},{merge:true})
     .catch(function(e){alert("Could not save: "+e.message);});
+}
+/* owner only: hand out / take back a contractor crew account */
+function crewAdd(email,co){
+  email=String(email||"").trim().toLowerCase();co=String(co||"").trim();
+  if(!isOwnerUser()||email.indexOf("@")<0||!co){alert("A crew account needs a valid email and a company.");return;}
+  if(isEditorEmail(email)){alert(email+" is already an editor or owner.\n\nA crew account would only take capability away. Leave them as they are.");return;}
+  STATE.crewList[email]={co:co,at:dcNow(),by:dcWho()};
+  render();
+  db.collection(CREW_COL).doc(email).set({co:co,at:dcNow(),by:dcWho()})
+    .then(writeGate)
+    .catch(function(e){alert("Could not add: "+e.message);});
+}
+function crewDel(email){
+  if(!isOwnerUser())return;
+  delete STATE.crewList[email];
+  render();
+  db.collection(CREW_COL).doc(email).delete().then(writeGate)
+    .catch(function(e){alert("Could not remove: "+e.message);});
 }
 
 /* ---------- one click handler for the whole tracker ---------- */
@@ -2615,6 +2850,15 @@ document.addEventListener("click",function(e){
     var k=t.getAttribute("data-k");
     if(k==="mcc")STATE.df.mcc=(STATE.df.mcc==="Y")?"ALL":"Y";
     else STATE.df.f=(STATE.df.f===k)?"ALL":k;
+    STATE.dcPage=0;render();return;
+  }
+  if(act==="dcPg"){
+    var p=t.getAttribute("data-p"),hits=dcList().filter(dcPass).length;
+    var pages=Math.max(1,Math.ceil(hits/DC_PAGE));
+    if(p==="first")STATE.dcPage=0;
+    else if(p==="prev")STATE.dcPage=Math.max(0,STATE.dcPage-1);
+    else if(p==="next")STATE.dcPage=Math.min(pages-1,STATE.dcPage+1);
+    else STATE.dcPage=pages-1;
     render();return;
   }
   if(act==="dcLog"){DC_OPEN_LOGS[id]=!DC_OPEN_LOGS[id];render();return;}
@@ -2623,7 +2867,7 @@ document.addEventListener("click",function(e){
   if(act==="dcDvLog"){var dk="_dv_"+t.getAttribute("data-dv");DC_OPEN_LOGS[dk]=!DC_OPEN_LOGS[dk];render();return;}
   if(act==="dcGo"){
     var mc=t.getAttribute("data-mc");
-    var hit=sysList().filter(function(s){return String(s.mc)===String(mc);})[0];
+    var hit=sysList().filter(function(s2){return String(s2.mc)===String(mc);})[0];
     if(hit){STATE.view="board";syncUI();render();openSys(hit.id);}
     else alert("No system with MC "+mc+" on the Board.");
     return;
@@ -2655,9 +2899,22 @@ document.addEventListener("click",function(e){
     goalSave(its,"Goal "+(gi+1)+" <b>"+(its[gi].done?"met":"re-opened")+"</b> — "+esc(its[gi].t));
     return;
   }
+  if(act==="crewAdd"){crewAdd($("crewEm").value,$("crewCo").value);return;}
+  if(act==="crewDel"){
+    var ce=t.getAttribute("data-e");
+    if(confirm("Remove crew access for "+ce+"?\n\nTheir rows stay on the tracker; they just cannot sign in any more."))crewDel(ce);
+    return;
+  }
   if(act==="dcMcc"){dcMccDlg(id);return;}
   if(act==="dcDue"){dcDueDlg(id);return;}
-  if(act==="dcClose"){var d=$("dcDlg");if(d&&d.open)d.close();return;}
+  if(act==="dcDel"){dcDelDlg(id);return;}
+  if(act==="dcDelGo"){hardDelete(DAILY_COL,id,STATE.daily);$("dcDlg").close();return;}
+  if(act==="dvDel"){
+    var vd=t.getAttribute("data-dv");
+    if(confirm("Delete this delivery for good? There is no undo."))hardDelete(DELIV_COL,vd,STATE.deliv);
+    return;
+  }
+  if(act==="dcClose"){var d3=$("dcDlg");if(d3&&d3.open)d3.close();return;}
   if(act==="dcDueSave"){
     var r=STATE.daily[id];if(!r)return;
     var nd=$("dcNew").value,why=($("dcWhy").value||"").trim();
@@ -2671,19 +2928,22 @@ document.addEventListener("click",function(e){
   }
   if(act==="dcMccSave"){
     var r3=STATE.daily[id];if(!r3)return;
-    var yes=$("dcYN").value==="Y",mcno=yes?($("dcMcNo").value||"").trim():"";
-    if(yes!==!!r3.mcc||mcno!==(r3.mc||""))
-      dcSave(id,{mcc:yes,mc:mcno},{what:"MCC blocker set to <b>"+(yes?("Yes"+(mcno?" — MC "+esc(mcno):"")):"No")+"</b>"});
+    var yes=$("dcYN").value==="Y",gt=$("dcGate").value,mcno=yes?($("dcMcNo").value||"").trim():"";
+    if(yes!==!!r3.mcc||mcno!==(r3.mc||"")||(yes&&gt!==(r3.gate||"MCC")))
+      dcSave(id,{mcc:yes,gate:yes?gt:"",mc:mcno},
+        {what:"Walk impact set to <b>"+(yes?(gt+(mcno?" — MC "+esc(mcno):"")):"none")+"</b>"});
     $("dcDlg").close();return;
   }
   if(act==="dcAdd"){
-    var co=($("dcNCo").value||"").trim(),ds=($("dcNDesc").value||"").trim(),rm=($("dcNRoom").value||"").trim();
+    var co=isCrewUser()?crewCo():($("dcNCo").value||"").trim();
+    var ds=($("dcNDesc").value||"").trim(),lv=($("dcNLvl").value||"").trim(),rm=($("dcNRoom").value||"").trim();
     if(!co||!ds){$("dcNDesc").focus();return;}
-    listAdd("companies",co);
-    var chv=($("dcNCh").value||"").trim();if(chv)listAdd("companies",chv);
+    if(!isCrewUser())listAdd("companies",co);
+    var chv=($("dcNCh").value||"").trim();if(chv&&!isCrewUser())listAdd("companies",chv);
     if(rm)listAdd("rooms",rm);
-    dcAdd({date:$("dcNDate").value||todayISO(),co:co,room:rm,desc:ds,
-      mcc:false,mc:"",ch:chv||"—",due:$("dcNDue").value||todayISO(),st:"open",void:false});
+    if(!lv&&rm)lv=dcLevelForRoom(rm);
+    dcAdd({date:$("dcNDate").value||todayISO(),co:co,lvl:lv,room:rm,desc:ds,
+      mcc:false,gate:"",mc:"",ch:chv||"—",due:$("dcNDue").value||todayISO(),st:"open",void:false});
     return;
   }
   if(act==="dvAdd"){
@@ -2700,17 +2960,29 @@ document.addEventListener("focusin",function(e){
   if(el.classList.contains("dcin")||el.classList.contains("dvin")||el.classList.contains("mnin")||el.classList.contains("gtx"))
     el.setAttribute("data-was",el.value);
 });
+/* the description box grows as it is typed in — never make anyone drag a corner */
+document.addEventListener("input",function(e){
+  var el=e.target;
+  if(el.tagName==="TEXTAREA"&&el.classList&&el.classList.contains("dcin")){
+    el.style.height="auto";el.style.height=(el.scrollHeight+2)+"px";
+  }
+});
+window.addEventListener("resize",function(){if(STATE.view==="daily")dcAutoGrow($("view"));});
 document.addEventListener("change",function(e){
   var el=e.target;
   if(el.classList&&el.classList.contains("dcin")){
     var id=el.getAttribute("data-dc"),f=el.getAttribute("data-dcf"),r=STATE.daily[id];
-    if(!r||!dcCanEditRow())return;
+    if(!r||!dcCanEditRow(r))return;
     var was=el.getAttribute("data-was")||"",now=el.value;
     if(was===now)return;
+    if(f==="co"&&isCrewUser()){el.value=was;alert("A crew account cannot hand a row to another company.");return;}
     if(f==="co"||f==="ch")listAdd("companies",now);
     if(f==="room")listAdd("rooms",now);
-    var nm=f==="co"?"Company":f==="ch"?"Champion":f==="room"?"Room":"Description";
+    var nm=f==="co"?"Company":f==="ch"?"Champion":f==="room"?"Room":f==="lvl"?"Level":"Description";
     var pa={};pa[f]=now;
+    /* changing the level clears a room that no longer sits on it */
+    if(f==="lvl"&&r.room&&dcRoomsFor(now).indexOf(r.room)<0)pa.room="";
+    if(f==="room"&&now&&!r.lvl){var gl=dcLevelForRoom(now);if(gl)pa.lvl=gl;}
     dcSave(id,pa,{what:nm+" changed<br><b>"+esc(was||"—")+"</b> → <b>"+esc(now||"—")+"</b>"});
     return;
   }
@@ -2743,11 +3015,12 @@ document.addEventListener("change",function(e){
     goalSave(its2,"Goal "+(gi2+1)+" changed <b>"+esc(gwas||"—")+"</b> → <b>"+esc(gnow||"—")+"</b>");
     return;
   }
+  if(el.id==="dcNLvl"){var rn=$("dcNRoom");if(rn){rn.setAttribute("list",dcRoomListId(el.value));rn.value="";}return;}
   if(el.id==="dcWkIn"){STATE.goalWeek=mondayOf(el.value||todayISO());render();return;}
   if(el.id==="dcMdIn"){STATE.manDate=el.value||todayISO();render();return;}
   if(el.getAttribute&&el.getAttribute("data-act")==="dcSt"){
     var sid=el.getAttribute("data-dc"),row=STATE.daily[sid];
-    if(!row||!dcCanEditRow())return;
+    if(!row||!dcCanEditRow(row))return;
     var to=el.value;
     if(to==="done"&&!dcCanClose()){alert("Only Jacobs can close a constraint. Set it to Ready to verify instead.");render();return;}
     var from=row.st;
@@ -2757,29 +3030,28 @@ document.addEventListener("change",function(e){
     return;
   }
   if(el.getAttribute&&el.getAttribute("data-act")==="dcF"){
-    STATE.df[el.getAttribute("data-f")]=el.value;render();return;
+    STATE.df[el.getAttribute("data-f")]=el.value;STATE.dcPage=0;render();return;
   }
 });
 
 /* ---------------------------------------------------------------------------
    ONE-TIME SEED — the DSM4 whiteboard as it stood on 8-14-26.
    Runs only for an owner, only when the tracker is completely empty, only once
-   per page load. It never touches a row that already exists, so re-opening the
-   page can never duplicate or overwrite anything.
+   per page load. It never touches a row that already exists.
    ------------------------------------------------------------------------- */
-var DC_SEED_DATE="2026-08-14", DC_SEED_WEEK="2026-08-10", _dcSeeded=false;
+var DC_SEED_DATE="2026-08-14", DC_SEED_WEEK="2026-08-10", _dcSeeded=false, _dcMigrated=false;
 var DC_SEED_ROWS=[
- {date:"2026-08-13",co:"FPI",room:"",desc:"BR24D01 Glycol line clash E-11",ch:"ALL",due:"2026-08-14"},
- {date:"2026-08-06",co:"GMI",room:"",desc:"Need flushing hoses removed for Duct AHU #21",ch:"FPI",due:"2026-09-03"},
- {date:"2026-08-12",co:"Brock",room:"",desc:"Need scaffold ROEDI Skids Demo #2300",ch:"Ameco / Pass.",due:"2026-08-13"},
- {date:"2026-08-12",co:"ATEC",room:"Column Packing — 537-01630",desc:"Need scaffold in Column Packing",ch:"Ameco",due:"2026-08-18"},
- {date:"2026-07-28",co:"GMI",room:"Level 2 (overall)",desc:"Need all 2nd Floor ceiling return boxes — 2 more",ch:"ATEC",due:"2026-08-20",origDue:"2026-07-31",revs:1},
- {date:"2026-08-12",co:"ATEC",room:"Harvest — 537-01680",desc:"Need RFI answer — N. & E. wall Harvest",ch:"Jacobs",due:"2026-08-14"},
- {date:"2026-08-11",co:"SIC",room:"Seed Cell Culture — 537-10640",desc:"Need holes cut — holes Seed Cell & IP — pick prints",ch:"ATEC",due:"2026-08-12"},
- {date:"2026-07-30",co:"Brock",room:"",desc:"Need BR24D01 / Production Bioreactor backslopes",ch:"FST ✻ Lola",due:"2026-08-04"},
- {date:"2026-08-11",co:"ATEC",room:"Buffer Hold — 537-10620",desc:"Need pipe moved — Buffer Hold south wall",ch:"FPI",due:"2026-08-11"},
- {date:"2026-08-06",co:"InServ",room:"Buffer Prep — 537-20600",desc:"Need wall panel Buffer Prep for safety shower — Jason",ch:"ATEC",due:"2026-08-14"},
- {date:"2026-08-06",co:"Jacobs",room:"",desc:"Need wall protection on walls",ch:"ATEC",due:"2026-08-12"}
+ {date:"2026-08-13",co:"FPI",lvl:"",room:"",desc:"BR24D01 Glycol line clash E-11",ch:"ALL",due:"2026-08-14"},
+ {date:"2026-08-06",co:"GMI",lvl:"",room:"",desc:"Need flushing hoses removed for Duct AHU #21",ch:"FPI",due:"2026-09-03"},
+ {date:"2026-08-12",co:"Brock",lvl:"",room:"",desc:"Need scaffold ROEDI Skids Demo #2300",ch:"Ameco / Pass.",due:"2026-08-13"},
+ {date:"2026-08-12",co:"ATEC",lvl:"Ground Floor",room:"Column Packing — 537-01630",desc:"Need scaffold in Column Packing",ch:"Ameco",due:"2026-08-18"},
+ {date:"2026-07-28",co:"GMI",lvl:"Level 2",room:"",desc:"Need all 2nd Floor ceiling return boxes — 2 more",ch:"ATEC",due:"2026-08-20",origDue:"2026-07-31",revs:1},
+ {date:"2026-08-12",co:"ATEC",lvl:"Ground Floor",room:"Harvest — 537-01680",desc:"Need RFI answer — N. & E. wall Harvest",ch:"Jacobs",due:"2026-08-14"},
+ {date:"2026-08-11",co:"SIC",lvl:"Level 1",room:"Seed Cell Culture — 537-10640",desc:"Need holes cut — holes Seed Cell & IP — pick prints",ch:"ATEC",due:"2026-08-12"},
+ {date:"2026-07-30",co:"Brock",lvl:"",room:"",desc:"Need BR24D01 / Production Bioreactor backslopes",ch:"FST ✻ Lola",due:"2026-08-04"},
+ {date:"2026-08-11",co:"ATEC",lvl:"Level 1",room:"Buffer Hold — 537-10620",desc:"Need pipe moved — Buffer Hold south wall",ch:"FPI",due:"2026-08-11"},
+ {date:"2026-08-06",co:"InServ",lvl:"Level 2",room:"Buffer Prep — 537-20600",desc:"Need wall panel Buffer Prep for safety shower — Jason",ch:"ATEC",due:"2026-08-14"},
+ {date:"2026-08-06",co:"Jacobs",lvl:"",room:"",desc:"Need wall protection on walls",ch:"ATEC",due:"2026-08-12"}
 ];
 var DC_SEED_GOALS=[
  {t:"Column Packing Walls — Wall Closure",done:false},
@@ -2792,7 +3064,7 @@ var DC_SEED_DELIV=[
  {date:"2026-08-17",co:"SIC",desc:"Product Hold Array 2"},
  {date:"2026-08-14",co:"SIC",desc:"Product Hold Array 2"}
 ];
-/* keys: gs gp l1s l1p l2s l2p fri sat — exactly the columns on the wall */
+/* keys: gs gp l1s l1p l2s l2p fri sat sun — exactly the columns on the wall */
 var DC_SEED_MAN={
  "ATEC":{gp:12,l1p:12,l2p:12},
  "BMWC":{gp:17,l1p:17,l2p:16,fri:50,sat:6},
@@ -2825,8 +3097,8 @@ function dcSeedBoard(){
   var b=db.batch();
   DC_SEED_ROWS.forEach(function(s){
     var ref=db.collection(DAILY_COL).doc();
-    var row={id:ref.id,date:s.date,co:s.co,room:s.room||"",desc:s.desc,ch:s.ch,due:s.due,
-      mcc:false,mc:"",st:"open",void:false,at:dcNow(),by:dcWho(),
+    var row={id:ref.id,date:s.date,co:s.co,lvl:s.lvl||"",room:s.room||"",desc:s.desc,ch:s.ch,due:s.due,
+      mcc:false,gate:"",mc:"",st:"open",void:false,at:dcNow(),by:dcWho(),
       log:[{ts:dcNow(),who:dcWho(),what:stamp,why:""}]};
     if(s.origDue){row.origDue=s.origDue;row.revs=s.revs||1;
       row.log.unshift({ts:dcNow(),who:dcWho(),
@@ -2847,6 +3119,30 @@ function dcSeedBoard(){
       {date:DC_SEED_DATE,r:DC_SEED_MAN,log:[{ts:dcNow(),who:dcWho(),what:stamp}]});
   b.commit().then(function(){console.log("daily board seeded from the whiteboard");})
     .catch(function(e){_dcSeeded=false;console.warn("seed failed",e&&e.code);});
+}
+/* Rows written before the Level column existed: fill it in from the room, and
+   pull the old "(overall)" level placeholders out of the room field. Runs once,
+   editors only, and touches nothing that already has a level. */
+function dcMigrateLevels(){
+  if(_dcMigrated||!canEdit()||!STATE.dailyLoaded)return;
+  var ids=Object.keys(STATE.daily);if(!ids.length)return;
+  _dcMigrated=true;
+  var names=dcLevelNames(),b=db.batch(),n=0;
+  ids.forEach(function(id){
+    var r=STATE.daily[id];if(!r||r.lvl)return;
+    var room=String(r.room||""),lvl="";
+    var bare=room.replace(/\s*\(overall\)$/,"");
+    if(names.indexOf(bare)>=0){lvl=bare;room="";}
+    else if(room)lvl=dcLevelForRoom(room);
+    if(!lvl)return;
+    r.lvl=lvl;r.room=room;
+    r.log=(r.log||[]);
+    r.log.unshift({ts:dcNow(),who:dcWho(),what:"Level set to <b>"+esc(lvl)+"</b> from the room on the plans",why:""});
+    b.set(db.collection(DAILY_COL).doc(id),{lvl:lvl,room:room,log:r.log},{merge:true});n++;
+  });
+  if(!n)return;
+  render();
+  b.commit().catch(function(e){console.warn("level migration",e&&e.code);});
 }
 
 /* ---------- back / forward ----------
@@ -2907,7 +3203,11 @@ function syncUI(){var f=STATE.f;
   var gf=$("groupF");if(gf)gf.value=f.group;
   [].forEach.call($("statusF").children,function(c){var s=c.getAttribute("data-s");c.classList.toggle("on",(s==="ALL"&&f.status==="ALL"&&!f.onlyOpen)||s===f.status);});
   $("contractorF").value=f.contractor;
-  [].forEach.call($("views").children,function(c){c.classList.toggle("active",c.getAttribute("data-view")===STATE.view);});
+  [].forEach.call($("views").children,function(c){
+    var v=c.getAttribute("data-view");
+    c.classList.toggle("active",v===STATE.view);
+    c.style.display=(isCrewUser()&&v!=="daily")?"none":"";
+  });
 }
 
 function renderBoard(v){
@@ -3654,7 +3954,7 @@ function hideNoAccess(){NO_ACCESS=false;var el=$("noAccess");if(el)el.style.disp
    current user may view; otherwise shows the No-access screen. */
 function enforceAccess(){
   if(!CURRENT_USER)return false;
-  if(canView()){if(NO_ACCESS)hideNoAccess();return true;}
+  if(canSee()){if(NO_ACCESS)hideNoAccess();return true;}
   showNoAccess();return false;
 }
 
@@ -3744,7 +4044,8 @@ function emailIsInvited(email){
 }
 /* owner-only: rebuild the gate from the current access lists */
 function writeGate(){
-  var mails=[].concat(OWNER_EMAILS||[],cfgOwnerEmails(),editorEmails(),viewerEmails())
+  var mails=[].concat(OWNER_EMAILS||[],cfgOwnerEmails(),editorEmails(),viewerEmails(),
+    Object.keys(STATE.crewList||{}))
     .map(function(e){return String(e||"").trim().toLowerCase();}).filter(Boolean);
   var seen={},uniq=mails.filter(function(e){return seen[e]?false:(seen[e]=true);});
   return Promise.all(uniq.map(gateHash)).then(function(hs){
