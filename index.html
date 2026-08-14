@@ -385,8 +385,8 @@
   .mrow.go::after{content:"›";margin-left:6px;font-size:19px;font-weight:900;color:var(--mut2);opacity:.55}
   .mrow.go:hover::after{color:var(--acc);opacity:1}
   /* Back — appears once there is somewhere to go back to */
-  #backBtn{display:none}
-  body.cannav #backBtn{display:grid}
+  /* v12.10: no in-app Back button. Browser back/forward, the keyboard and
+     trackpad/mouse gestures drive history; the header stays clean. */
   .mrow .mlight{width:11px;height:11px;border-radius:50%;flex:none}
   .mrow .mtxt{flex:1;min-width:0}
   .mrow .mt1{font-weight:800;font-size:14px}
@@ -776,7 +776,7 @@
     .brand small{display:block;font-size:9.5px;letter-spacing:.15px;margin-top:0;white-space:nowrap}
     .logo{width:30px;height:30px;font-size:13px}
     .live{order:2}.whoami{order:3;margin-right:0}
-    #backBtn,#themeBtn,#lockBtn,#ownerBtn,#pwBtn,#signOutBtn{order:4}
+    #themeBtn,#lockBtn,#ownerBtn,#pwBtn,#signOutBtn{order:4}
     .iconbtn{width:37px;height:37px;font-size:15px;border-radius:50%}
     .iconbtn.crown.on svg{width:22px;height:22px}
     #views{order:9;flex:0 0 100%;width:100%}
@@ -899,7 +899,6 @@
   #presentDock button.on{background:linear-gradient(135deg,var(--acc),var(--acc2));color:#fff;
     box-shadow:0 6px 20px rgba(56,189,248,.5),inset 0 1px 0 rgba(255,255,255,.3)}
   #presentBtn.on{box-shadow:0 0 0 2px var(--acc),0 0 22px rgba(56,189,248,.6),inset 0 0 12px rgba(56,189,248,.2)}
-  body.present #backBtn,
   body.present #addSysBtn,body.present #themeBtn,body.present #lockBtn,body.present #ownerBtn,
   body.present #pwBtn,body.present #signOutBtn,body.present .whoami,body.present .live{display:none!important}
   body.present .wrap{padding:0 34px 44px;max-width:1860px;margin:0 auto}
@@ -1050,7 +1049,6 @@
     <button class="iconbtn" id="presentBtn" title="Present mode — big numbers for the room">TV</button>
     <button class="iconbtn" id="themeBtn" title="Switch dark / light">☾</button>
     <button class="iconbtn" id="lockBtn" title="Unlock to edit">🔒</button>
-    <button class="iconbtn" id="backBtn" title="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 19l-7-7 7-7"/></svg></button>
     <button class="iconbtn" id="ownerBtn" title="Settings" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1 1.55V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1-1.55 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.55-1H3a2 2 0 1 1 0-4h.09a1.7 1.7 0 0 0 1.55-1 1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h.09a1.7 1.7 0 0 0 1-1.55V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1 1.55 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v.09a1.7 1.7 0 0 0 1.55 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.55 1z"/></svg></button>
     <button class="iconbtn" id="pwBtn" title="Change password" style="display:none">🔑</button>
     <button class="iconbtn" id="signOutBtn" title="Sign out"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
@@ -1106,7 +1104,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v12.9-strip-spacing";
+var MC_BUILD="v12.10-no-back-button";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1720,7 +1718,6 @@ function navPush(){
     if(location.hash===h)return;
     NAV_DEPTH++;
     history.pushState({v:STATE.view,sys:STATE.openSysId||null,d:NAV_DEPTH},"",h);
-    navSyncBack();
   }catch(e){}
 }
 function navReplace(){try{history.replaceState({v:STATE.view,sys:STATE.openSysId||null,d:NAV_DEPTH},"",navHash());}catch(e){}}
@@ -1746,10 +1743,9 @@ function navApply(st){
   }finally{NAV_LOCK=false;}
 }
 var NAV_DEPTH=0;
-function navSyncBack(){document.body.classList.toggle("cannav",NAV_DEPTH>0);}
 window.addEventListener("popstate",function(e){
   NAV_DEPTH=(e.state&&typeof e.state.d==="number")?e.state.d:0;
-  navSyncBack();navApply(e.state);
+  navApply(e.state);
 });
 function goHome(){
   STATE.f={comp:"ALL",group:"ALL",status:"ALL",contractor:"ALL",look:STATE.f.look,q:"",onlyOpen:false};
@@ -2205,7 +2201,6 @@ $("contractorF").addEventListener("change",function(){STATE.f.contractor=this.va
 $("searchF").addEventListener("input",function(){STATE.f.q=this.value;render();});
 $("views").addEventListener("click",function(e){var b=e.target.closest("[data-view]");if(!b)return;STATE.view=b.getAttribute("data-view");[].forEach.call(this.children,function(c){c.classList.toggle("active",c===b);});navPush();render();});
 $("lockBtn").addEventListener("click",function(){if(STATE.unlocked){STATE.unlocked=false;STATE.role=null;STATE.roleName=null;this.innerHTML=I_LOCK;this.title="Unlock to edit";this.classList.remove("on");this.classList.toggle("crown",isOwnerUser());$("ownerBtn").style.display="none";render();if(STATE.openSysId)renderModal();}else requireUnlock(function(){});updateWhoami();});
-(function(){var bb=$("backBtn");if(bb)bb.addEventListener("click",function(){try{history.back();}catch(e){}});})();
 $("ownerBtn").addEventListener("click",function(){requireUnlock(openOwner);});
 $("themeBtn").addEventListener("click",toggleTheme);
 $("addSysBtn").addEventListener("click",function(){requireUnlock(openAddSystem);});
@@ -2678,7 +2673,7 @@ function signOut(){
 
 /* kick off: wire login form immediately (script runs after the markup); auth listener drives the rest */
 (function(){
-  navApply(null);navReplace();navSyncBack();   /* honour a #view or #sys/... link on first load */
+  navApply(null);navReplace();   /* honour a #view or #sys/... link on first load */
   var f=$("authForm");if(f)f.addEventListener("submit",function(e){e.preventDefault();doSignIn();});
   var ac=$("authCreate");if(ac)ac.addEventListener("click",function(e){e.preventDefault();doCreate();});
   var af=$("authForgot");if(af)af.addEventListener("click",function(e){e.preventDefault();doForgot();});
