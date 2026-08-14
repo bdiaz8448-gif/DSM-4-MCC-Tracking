@@ -729,11 +729,11 @@
   .dctbl td.dt,.dctbl td.du{white-space:nowrap;font-weight:800;font-size:12.5px}
   .dctbl td.dco{font-weight:900;white-space:nowrap}
   .dctbl td.dd{min-width:290px;font-weight:600;white-space:pre-line}
-  .dcin{width:100%;border:1px solid transparent;border-radius:8px;padding:5px 7px;background:transparent;
+  .dcin,.dvin{width:100%;border:1px solid transparent;border-radius:8px;padding:5px 7px;background:transparent;
     font:inherit;font-weight:inherit;color:inherit;outline:none}
-  .dcin:hover:not([readonly]){border-color:var(--line2);background:rgba(255,255,255,.6)}
-  .dcin:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(7,104,139,.14)}
-  .dcin[readonly]{cursor:default}
+  .dcin:hover:not([readonly]),.dvin:hover:not([readonly]):not(:disabled){border-color:var(--line2);background:rgba(255,255,255,.6)}
+  .dcin:focus,.dvin:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(7,104,139,.14);outline:0}
+  .dcin[readonly],.dvin[readonly],.dvin:disabled{cursor:default}
   .dctbl td.dd .dcin{min-height:32px;resize:vertical;line-height:1.35}
   .dcroom{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);border-radius:99px;
     padding:5px 11px;background:#fff;font-size:11.5px;font-weight:900;color:var(--mut);white-space:nowrap;cursor:pointer}
@@ -781,6 +781,67 @@
     background:var(--glass) padding-box,var(--edge) border-box;box-shadow:var(--gloss);font-family:inherit;color:var(--txt);outline:none}
   .dcadd .grow{flex:1;min-width:200px}
   .dcempty{padding:26px;text-align:center;color:var(--mut2);font-weight:700}
+  /* ---- Daily board: collapsible sections ---- */
+  .dcsec{border:1.5px solid var(--line2);border-radius:16px;background:var(--card);margin:0 0 14px;overflow:hidden}
+  .dcsec.on{border-color:var(--acc);box-shadow:0 6px 22px rgba(0,0,0,.06)}
+  .dcsech{display:flex;align-items:center;gap:11px;width:100%;min-height:56px;padding:12px 18px;
+    background:var(--card2);border:0;border-bottom:1px solid transparent;cursor:pointer;text-align:left;font:inherit;color:var(--txt)}
+  .dcsec.on>.dcsech{border-bottom-color:var(--line)}
+  .dcsech:hover{background:var(--bg2)}
+  .dcsech .chev{font-size:13px;color:var(--acc);width:13px}
+  .dcsech .ico{font-size:17px}
+  .dcsech .ttl{font-size:15.5px;font-weight:900;letter-spacing:-.2px}
+  .dcsech .sub{font-size:12px;font-weight:800;color:var(--mut)}
+  .dcsech .grow{flex:1}
+  .dcsecb{padding:16px 18px 18px}
+  .dcwk{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+  .dcwk .wl{font-size:12.5px;font-weight:900;color:var(--mut)}
+  .dcwk .grow{flex:1}
+  .btn.sm{padding:6px 11px;font-size:12px}
+  .dctbl table.narrow{min-width:640px}
+  .dctbl td.drm{min-width:256px}
+  .dctbl table{min-width:1320px}
+  /* ---- weekly goals ---- */
+  .glbox{padding:8px 4px 12px}
+  .glr{display:flex;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid var(--line)}
+  .glr:last-child{border-bottom:0}
+  .glr .gn{width:20px;font-weight:900;color:var(--mut);font-size:13.5px}
+  .glr .gck{width:19px;height:19px;accent-color:var(--grn);cursor:pointer;flex:none}
+  .glr .gtx{flex:1;border:1px solid transparent;border-radius:9px;padding:7px 9px;background:transparent;
+    color:var(--txt);font:inherit;font-size:14px;font-weight:700}
+  .glr .gtx:hover:not([readonly]){border-color:var(--line2);background:rgba(255,255,255,.6)}
+  .glr .gtx:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(7,104,139,.14);outline:0}
+  .glr.done{background:var(--grnbg)}
+  .glr.done .gtx{text-decoration:line-through;color:var(--grng)}
+  /* ---- manpower grid ---- */
+  .mntbl{min-width:900px}
+  .mntbl th{text-align:center!important}
+  .mntbl th.mnco,.mntbl td.mnco{text-align:left!important;font-weight:900;white-space:nowrap;min-width:170px;position:sticky;left:0;background:var(--card);z-index:2}
+  .mntbl thead th.mnco{background:var(--card2);z-index:5}
+  .mntbl td.mnc{padding:4px 5px!important;text-align:center;width:58px}
+  .mntbl td.mnt,.mntbl th.mnt{text-align:center;font-weight:900;background:var(--bg2);width:66px}
+  .mnin{width:52px;border:1px solid transparent;border-radius:7px;padding:5px 3px;background:transparent;
+    color:var(--txt);font:inherit;font-size:13px;font-weight:800;text-align:center}
+  .mnin:hover:not([readonly]){border-color:var(--line2);background:rgba(255,255,255,.6)}
+  .mnin:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(7,104,139,.14);outline:0}
+  .mntbl tr.empty td.mnco{color:var(--mut2);font-weight:800}
+  .mntbl tr.mntot td{background:var(--card2);font-weight:900;border-top:2px solid var(--line2)}
+  /* ---- who can do what ---- */
+  .acgrid{padding:4px 0}
+  .acrow{display:flex;gap:14px;padding:11px 16px;border-bottom:1px solid var(--line);align-items:flex-start}
+  .acrow:last-child{border-bottom:0}
+  .acrow .acr{width:150px;flex:none;font-size:13px;font-weight:900;color:var(--acc)}
+  .acrow .acd{flex:1;font-size:12.8px;font-weight:600;color:var(--mut);line-height:1.55}
+  .acrow .acd b{color:var(--txt)}
+  .acbox{margin:2px 16px 14px;padding:13px 15px;background:var(--bg2);border:1px solid var(--line2);border-radius:13px}
+  .acbox h4{margin:0 0 9px;font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--mut)}
+  .aclist{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-bottom:8px;font-size:12px;font-weight:800;color:var(--mut)}
+  .aclist b{min-width:130px;color:var(--txt)}
+  .aclist i{color:var(--mut2);font-weight:700}
+  .acpill{background:var(--card);border:1px solid var(--line2);border-radius:99px;padding:3px 10px;font-size:11.5px;font-weight:800;color:var(--txt)}
+  .acpill.perm{border-color:var(--acc);color:var(--acc)}
+  .acnote{margin:6px 0 0;font-size:11.5px;font-weight:700;color:var(--mut2)}
+  .acfoot{padding:12px 16px 14px;font-size:11.8px;font-weight:700;color:var(--mut2);line-height:1.6;border-top:1px solid var(--line)}
   @media(max-width:1300px){.dckpis{grid-template-columns:repeat(4,1fr)}}
   @media(max-width:1000px){.dckpis{grid-template-columns:repeat(3,1fr)}}
   @media(max-width:700px){.dckpis{grid-template-columns:repeat(2,1fr)}.dchl{grid-template-columns:1fr;gap:2px}}
@@ -1276,7 +1337,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v14.0-daily-constraint-tracker";
+var MC_BUILD="v15.0-daily-board";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1293,7 +1354,7 @@ var OWNER_EMAILS=["bdiaz8448@gmail.com"];
 var db=firebase.firestore();
 try{db.enablePersistence({synchronizeTabs:true}).catch(function(e){console.warn('persist',e.message);});}catch(e){}
 var SYS_COL="mc_systems",META_DOC=db.collection("mc_meta").doc("config"),BURN_COL="mc_burndown";
-var DAILY_COL="mc_daily";
+var DAILY_COL="mc_daily",GOALS_COL="mc_goals",DELIV_COL="mc_deliv",MAN_COL="mc_man",META_COL="mc_meta";
 
 var DEFAULT_CONTRACTORS=[
  {name:"FPI",trade:"Mechanical/Piping"},{name:"GMI",trade:"Drywall/Infills"},
@@ -1562,7 +1623,7 @@ function boot(){
   db.collection(DAILY_COL).onSnapshot({includeMetadataChanges:true},function(snap){
     if(NO_ACCESS)return;
     var d={};snap.forEach(function(doc){var x=doc.data();x.id=doc.id;d[doc.id]=x;});
-    STATE.daily=d;STATE.dailyLoaded=true;
+    STATE.daily=d;STATE.dailyLoaded=true;dcSeedBoard();
     if(STATE.view==="daily")render();
   },function(e){
     /* NEVER lock the board out over the tracker. mc_systems is the authority on
@@ -1572,6 +1633,32 @@ function boot(){
     STATE.dailyErr=(e&&e.code)||"unavailable";
     if(STATE.view==="daily")render();
   });
+  /* Goals, deliveries, manpower and the saved pick-lists. Same rule as the
+     tracker: if any of these ever refuse, the board carries on regardless. */
+  function softCol(col,onSnap){
+    db.collection(col).onSnapshot({includeMetadataChanges:true},function(snap){
+      if(NO_ACCESS)return;
+      onSnap(snap);
+      if(STATE.view==="daily")render();
+    },function(e){console.warn(col+" unavailable:",e&&e.code);});
+  }
+  softCol(GOALS_COL,function(snap){
+    var d={};snap.forEach(function(doc){var x=doc.data();x.week=x.week||doc.id;d[doc.id]=x;});
+    STATE.goals=d;STATE.goalsLoaded=true;dcSeedBoard();
+  });
+  softCol(DELIV_COL,function(snap){
+    var d={};snap.forEach(function(doc){var x=doc.data();x.id=doc.id;d[doc.id]=x;});
+    STATE.deliv=d;STATE.delivLoaded=true;dcSeedBoard();
+  });
+  softCol(MAN_COL,function(snap){
+    var d={};snap.forEach(function(doc){var x=doc.data();x.date=x.date||doc.id;d[doc.id]=x;});
+    STATE.man=d;STATE.manLoaded=true;
+  });
+  db.collection(META_COL).doc("lists").onSnapshot({includeMetadataChanges:true},function(doc){
+    if(NO_ACCESS)return;
+    STATE.lists=(doc.exists?doc.data():{})||{};
+    if(STATE.view==="daily")render();
+  },function(e){console.warn("lists unavailable:",e&&e.code);});
   db.collection(BURN_COL).onSnapshot({includeMetadataChanges:true},function(snap){
     if(NO_ACCESS)return;
     var a=[];snap.forEach(function(d){if(d.id.charAt(0)==="2")a.push(d.data());});a.sort(function(x,y){return x.date<y.date?-1:1;});STATE.burn=a;
@@ -1930,12 +2017,156 @@ function renderHero(){
    ========================================================================= */
 var DC_STATES=["open","prog","ready","done"];
 var DC_LABEL={open:"Open",prog:"In progress",ready:"Ready to verify",done:"Closed",late:"Past due"};
-var DC_ROOMS=["Production Bioreactor","Seed Cell","Harvest","Media Prep","Buffer Prep","Buffer Hold",
-  "Column Packing","ROEDI Skid Room","Product Hold","Chiller / Mech Room","AHU Mezzanine",
-  "2nd Floor Ceiling","Corridor — Level 1","Corridor — Level 2","Electrical Room","Utility Yard"];
+
+/* ---------------------------------------------------------------------------
+   DSM4 ROOMS — taken straight off the issued-for-construction floor plans
+   (A537-A1105100 / A1115100 / A1125100 and the two interstitial walk-on
+   ceiling sheets, Building 537 - DSM4, rev 0, 27NOV24). Name and room number
+   exactly as drawn. This list is DSM4 only — nothing from DSM3 or 546.
+   A room typed by hand that is not on this list is kept and added to the list
+   for everyone, so the plans stay the starting point and the field has the
+   last word.
+   ------------------------------------------------------------------------- */
+var DC_LEVELS=["Ground Floor (overall)","Level 1 (overall)","Level 2 (overall)",
+  "Ground Floor Interstitial (overall)","Level 1 Interstitial (overall)","Level 2 Interstitial (overall)",
+  "Roof","Exterior / Utility Yard","Whole building"];
+var DSM4_ROOMS=[
+["Ground Floor",[
+["537-01001","Stair 1"],["537-01002","Stair 2"],["537-01040","Process Corridor"],
+["537-01041","Process Corridor"],["537-01042","Process Corridor"],["537-01043","Process Corridor"],
+["537-01200","CNC Storage"],["537-01201","Water Systems"],["537-01202","HVAC Mechanical"],
+["537-01203","Janitor"],["537-01204","Campaign Equipment Storage"],["537-01205","Mechanical"],
+["537-01206","Waste Systems"],["537-01208","WFI Stills"],["537-01209","Mechanical Equipment"],
+["537-01210","Shaft"],["537-01230","Electrical Closet"],["537-01231","Electrical Closet"],
+["537-01250","Telecom"],["537-01251","IDF"],["537-01260","Sprinkler Riser Room"],
+["537-01600","Final Purification"],["537-01601","PAL In"],["537-01602","MAL"],["537-01603","Clean Staging"],
+["537-01604","JC"],["537-01605","Product Hold"],["537-01610","Bulk Fill"],["537-01611","PAL"],
+["537-01612","MAL"],["537-01613","Cold Pass Through"],["537-01620","Initial Purification"],
+["537-01621","PAL Out"],["537-01622","Cold Room"],["537-01623","Filter Assembly Room"],
+["537-01625","Initial Purification Product Hold"],["537-01630","Column Packing"],["537-01631","MAL"],
+["537-01632","PAL"],["537-01633","Ceiling Access"],["537-01660","Lower Production Cell Culture"],
+["537-01661","WIP Lab"],["537-01662","Open"],["537-01680","Harvest"],["537-01681","MAL"],["537-01682","PAL"],
+["537-01683","JC"],["537-01684","Work Room"],["537-10011","Clean VRC"],["537-10012","Dirty VRC"]
+]],
+["Ground Floor Interstitial",[
+["537-05960","Ground Floor Interstitial Walk-On Ceiling"],
+["537-05961","Ground Floor Interstitial Walk-On Ceiling"]
+]],
+["First Floor",[
+["537-10001","Stair 1"],["537-10002","Stair 2"],["537-10040","Process Corridor"],
+["537-10042","Process Corridor"],["537-10043","Process Corridor"],["537-10200","HVAC Mechanical"],
+["537-10201","Mechanical / Utility"],["537-10202","Central CIP"],["537-10203","Upstream CIP"],
+["537-10204","HVAC Mechanical"],["537-10205","Janitor"],["537-10210","Shaft"],
+["537-10230","Electrical Room"],["537-10250","Telecom Room"],["537-10251","IDF"],["537-10620","Buffer Hold"],
+["537-10630","Inoculum Lab"],["537-10631","CNC Storage"],["537-10632","MAL / PAL"],
+["537-10640","Seed Cell Culture"],["537-10641","PAL"],["537-10642","MAL"],["537-10643","JC"],
+["537-10644","WIP Lab"],["537-10645","Process Mechanical"],["537-10650","Upstream Dirty Staging"],
+["537-10651","Process Mechanical"],["537-10652","Upstream Clean Staging"],["537-10653","Process Mechanical"],
+["537-10654","Upstream Post-Autoclave Staging"],["537-10660","Upper Production Cell Culture"],
+["537-10661","JC"]
+]],
+["Second Floor",[
+["537-20001","Stair 1"],["537-20002","Stair 2"],["537-20040","Process Corridor"],
+["537-20041","Process Corridor"],["537-20200","HVAC Mechanical"],["537-20202","Louver Plenum"],
+["537-20203","Louver Plenum"],["537-20210","Shaft"],["537-20230","Electrical Closet"],
+["537-20231","Electrical Room"],["537-20232","Electrical Room"],["537-20233","Electrical Substation"],
+["537-20250","Telecom Room"],["537-20251","IDF"],["537-20600","Buffer Prep"],["537-20601","PAL"],
+["537-20602","MAL In"],["537-20603","MAL Out"],["537-20604","JC"],["537-20620","Post Autoclave Staging"],
+["537-20621","PAL"],["537-20622","JC"],["537-20623","Process Mechanical"],["537-20624","Clean Wash Staging"],
+["537-20625","Process Mechanical"],["537-20626","Dirty Wash Staging"],["537-20627","MAL"],
+["537-20640","Media Prep"],["537-20641","Cold MAL"],["537-20642","MAL Out"],["537-20643","MAL In"],
+["537-20644","PAL"],["537-20645","FTS Room"],["537-20646","JC"],["537-20647","Cold Room"],
+["537-20648","WIP Lab"],["537-20649","Media Tech Space"],["537-20650","Janitor"],
+["537-20660","Media Hold / Perfusion"]
+]],
+["Second Floor Interstitial",[
+["537-25960","Second Floor Interstitial Walk-On Ceiling"]
+] ]
+];
+function dcRoomLabel(n,t){return t+" — "+n;}
+/* every room on the plans, as one flat list of display strings */
+function dsm4RoomList(){
+  var out=[];
+  DSM4_ROOMS.forEach(function(g){g[1].forEach(function(r){out.push(dcRoomLabel(r[0],r[1]));});});
+  return out;
+}
+/* which floor group a display string belongs to — shown next to it in the picker */
+function dcRoomGroup(v){
+  for(var i=0;i<DSM4_ROOMS.length;i++){
+    for(var j=0;j<DSM4_ROOMS[i][1].length;j++){
+      if(dcRoomLabel(DSM4_ROOMS[i][1][j][0],DSM4_ROOMS[i][1][j][1])===v)return DSM4_ROOMS[i][0];
+    }
+  }
+  return DC_LEVELS.indexOf(v)>=0?"Level / area":"Added on site";
+}
+
+/* ---------------------------------------------------------------------------
+   COMPANIES — the manpower board roster. Same rule as rooms: pick one or type
+   a new one, and a new one is saved for everybody from then on.
+   ------------------------------------------------------------------------- */
+var DC_COMPANIES=["ATEC","Ameco","Astro Pak","BMWC","BMWC (Reassembly)","Blair","Brock","Delaware",
+  "FPI","FST","GMI","Hales & Assoc.","Hales (GMI)","ISI","InServ","InServ (Plumbing)",
+  "InServ (Reassembly)","InServ (Temp Power)","Jacobs","LAAWORKS","LeChase","Merit","Pierson",
+  "Pure Clean","Rain for Rent","SIC","SIC (Building Screens)","SIC (C+R)","SRE","Wolverine"];
+/* the manpower grid keeps the board's own row order, not alphabetical */
+var MAN_ROWS=["ATEC","BMWC","Blair","Ameco","InServ (Reassembly)","InServ (Plumbing)","FPI","GMI",
+  "SIC (C+R)","Merit","Wolverine","SRE","InServ (Temp Power)","BMWC (Reassembly)","LeChase",
+  "Hales (GMI)","Hales & Assoc.","Brock","ISI","LAAWORKS","SIC (Building Screens)","Pure Clean",
+  "Rain for Rent","Pierson","Astro Pak","Delaware"];
+var MAN_COLS=[["gs","GRND","S"],["gp","GRND","P"],["l1s","LVL 1","S"],["l1p","LVL 1","P"],
+  ["l2s","LVL 2","S"],["l2p","LVL 2","P"]];
+
 var DC_OPEN_LOGS={};
+/* which sections are open. Constraints stays open; the rest start folded away
+   so the page is never crowded. */
+var DC_SEC={con:true,goals:false,deliv:false,man:false,acc:false};
 STATE.daily={}; STATE.dailyLoaded=false;
+STATE.goals={}; STATE.deliv={}; STATE.man={}; STATE.lists={};
 STATE.df={f:"ALL",room:"ALL",co:"ALL",mcc:"ALL",q:""};
+STATE.manDate=""; STATE.goalWeek="";
+
+/* ---- the saved add-your-own lists (mc_meta/lists) ---- */
+function savedList(k){var l=STATE.lists&&STATE.lists[k];return (l||[]).map(function(x){return String(x);});}
+function listAdd(k,v){
+  v=String(v||"").trim();
+  if(!v)return;
+  if(k==="companies"&&DC_COMPANIES.indexOf(v)>=0)return;
+  if(k==="rooms"&&(dsm4RoomList().indexOf(v)>=0||DC_LEVELS.indexOf(v)>=0))return;
+  if(savedList(k).indexOf(v)>=0)return;
+  var cur=savedList(k).slice();cur.push(v);cur.sort();
+  STATE.lists[k]=cur;
+  if(!canEdit())return;               /* viewers never write */
+  var p={};p[k]=cur;
+  db.collection(META_COL).doc("lists").set(p,{merge:true})
+    .catch(function(e){console.warn("list save",e&&e.code);});
+}
+function dcRooms(){
+  var seen={},out=[];
+  function push(x){if(x&&!seen[x]){seen[x]=1;out.push(x);}}
+  DC_LEVELS.forEach(push);
+  dsm4RoomList().forEach(push);
+  savedList("rooms").forEach(push);
+  dcList().forEach(function(r){push(r.room);});
+  return out;
+}
+function dcCompanies(){
+  var seen={},out=[];
+  function push(x){x=String(x||"").trim();if(x&&!seen[x]){seen[x]=1;out.push(x);}}
+  DC_COMPANIES.forEach(push);
+  savedList("companies").forEach(push);
+  dcList().forEach(function(r){push(r.co);push(r.ch);});
+  Object.keys(STATE.deliv).forEach(function(k){push(STATE.deliv[k].co);});
+  out.sort(function(a,b){return a.toLowerCase()<b.toLowerCase()?-1:1;});
+  return out;
+}
+/* one <datalist> the whole page shares, so a room or company can be picked
+   from the list OR just typed */
+function dcDatalists(){
+  return '<datalist id="dcRoomList">'+dcRooms().map(function(x){
+      return '<option value="'+esc(x)+'" label="'+esc(dcRoomGroup(x))+'">';}).join('')+'</datalist>'+
+    '<datalist id="dcCoList">'+dcCompanies().map(function(x){
+      return '<option value="'+esc(x)+'">';}).join('')+'</datalist>';
+}
 
 function dcList(){var a=[];for(var k in STATE.daily){var r=STATE.daily[k];if(r&&!r.void)a.push(r);}return a;}
 /* status the row actually reads as: closed wins, then past due, then whatever it is */
@@ -1948,11 +2179,6 @@ function dcLate(r){if(!r.due||r.st==="done")return 0;var d=daysBetween(r.due,tod
 /* only Jacobs closes a row. A contractor can take it to Ready to verify and no further. */
 function dcCanClose(){return canEdit();}
 function dcCanEditRow(){return canEdit();}
-function dcRooms(){
-  var seen={};DC_ROOMS.forEach(function(x){seen[x]=1;});
-  dcList().forEach(function(r){if(r.room)seen[r.room]=1;});
-  return Object.keys(seen).sort();
-}
 function dcPass(r){
   var f=STATE.df,s=dcState(r);
   if(f.f!=="ALL"&&f.f!==s)return false;
@@ -1975,8 +2201,9 @@ function dcSort(a,b){
 /* ---------- writes: every one of them lands in the row's log ---------- */
 function dcWho(){return (CURRENT_USER&&CURRENT_USER.email)||"unknown";}
 function dcNow(){return new Date().toISOString();}
-function dcSave(id,patch,entry){
-  var r=STATE.daily[id];if(!r)return;
+/* one save path for all four sections: patch the doc, push a log line, never delete */
+function logSave(col,id,store,patch,entry){
+  var r=store[id];if(!r)return;
   Object.assign(r,patch);
   if(entry){
     r.log=(r.log||[]);
@@ -1985,9 +2212,10 @@ function dcSave(id,patch,entry){
     patch.log=r.log;
   }
   render();
-  db.collection(DAILY_COL).doc(id).set(patch,{merge:true})
+  db.collection(col).doc(id).set(patch,{merge:true})
     .catch(function(e){alert("Could not save: "+e.message);});
 }
+function dcSave(id,patch,entry){logSave(DAILY_COL,id,STATE.daily,patch,entry);}
 function dcAdd(row){
   var ref=db.collection(DAILY_COL).doc();
   row.id=ref.id;
@@ -1998,16 +2226,36 @@ function dcAdd(row){
   ref.set(row).catch(function(e){alert("Could not save: "+e.message);});
 }
 
-/* ---------- render ---------- */
-function renderDaily(v){
+/* ---------- render: the DSM4 board, section by section ---------- */
+function dcSec(key,icon,title,sub,inner,right){
+  var on=!!DC_SEC[key];
+  return '<div class="dcsec'+(on?" on":"")+'">'+
+    '<button class="dcsech" data-act="dcSec" data-s="'+key+'">'+
+      '<span class="chev">'+(on?"&#9662;":"&#9656;")+'</span>'+
+      '<span class="ico">'+icon+'</span>'+
+      '<span class="ttl">'+title+'</span>'+
+      '<span class="sub">'+sub+'</span>'+
+      '<span class="grow"></span>'+(right||"")+
+    '</button>'+
+    (on?'<div class="dcsecb">'+inner+'</div>':'')+
+  '</div>';
+}
+function mondayOf(iso){
+  var d=new Date((iso||todayISO())+"T00:00:00");
+  var dow=(d.getDay()+6)%7;                       /* Monday = 0 */
+  d.setDate(d.getDate()-dow);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function addDaysISO(iso,n){
+  var d=new Date(iso+"T00:00:00");d.setDate(d.getDate()+n);
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+
+/* ===================== 1. CONSTRAINTS ===================== */
+function dcConstraints(){
   var all=dcList(),rows=all.filter(dcPass).sort(dcSort);
   var n={ALL:all.length,open:0,prog:0,ready:0,done:0,late:0,mcc:0};
   all.forEach(function(r){n[dcState(r)]++;if(r.mcc&&r.st!=="done")n.mcc++;});
-
-  var explain='<div class="infob"><span class="big2">📋 Daily Constraint Tracker</span>'+
-    'The whiteboard in the trailer, live. One row per constraint: <b>who is stuck</b>, <b>which room</b>, what is blocking them, '+
-    '<b>who owes them the fix</b> and when it is needed. Colour follows the live date on its own — green closed, indigo waiting to be verified, '+
-    'yellow in progress, red past due. A due date only moves with a written reason, and <b>every change is kept</b> with who did it and why.</div>';
 
   var kp=[["ALL",n.ALL,"All"],["open",n.open,"Open"],["prog",n.prog,"In progress"],
           ["ready",n.ready,"Ready to verify"],["done",n.done,"Closed"],["late",n.late,"⚠ Past due"]];
@@ -2017,14 +2265,15 @@ function renderDaily(v){
     '<button class="dck d-mcc'+(STATE.df.mcc==="Y"?" on":"")+'" data-act="dcK" data-k="mcc">'+
       '<div class="n">'+n.mcc+'</div><div class="l">⛔ MCC blockers</div></button></div>';
 
-  var cos={};all.forEach(function(r){if(r.co)cos[r.co]=1;});
   function sel(id,label,list,cur){
     return '<select data-act="dcF" data-f="'+id+'"><option value="ALL">'+label+'</option>'+
       list.map(function(x){return '<option value="'+esc(x)+'"'+(cur===x?" selected":"")+'>'+esc(x)+'</option>';}).join('')+'</select>';
   }
+  var usedRooms={},usedCos={};
+  all.forEach(function(r){if(r.room)usedRooms[r.room]=1;if(r.co)usedCos[r.co]=1;});
   var bar='<div class="dcbar">'+
-    sel("room","All rooms",dcRooms(),STATE.df.room)+
-    sel("co","All companies",Object.keys(cos).sort(),STATE.df.co)+
+    sel("room","All rooms",Object.keys(usedRooms).sort(),STATE.df.room)+
+    sel("co","All companies",Object.keys(usedCos).sort(),STATE.df.co)+
     '<select data-act="dcF" data-f="mcc"><option value="ALL">MCC blocker: any</option>'+
       '<option value="Y"'+(STATE.df.mcc==="Y"?" selected":"")+'>MCC blockers only</option>'+
       '<option value="N"'+(STATE.df.mcc==="N"?" selected":"")+'>Not MCC blockers</option></select>'+
@@ -2038,12 +2287,12 @@ function renderDaily(v){
     body+='<tr class="s-'+s+'" data-dc="'+esc(r.id)+'">'+
       '<td class="dcn">'+(i+1)+'</td>'+
       '<td class="dt">'+fmtMD(r.date)+'</td>'+
-      '<td class="dco"><input class="dcin" value="'+esc(r.co||"")+'" data-dcf="co" data-dc="'+esc(r.id)+'"'+ro+'></td>'+
-      '<td><button class="dcroom" data-act="dcRoom" data-dc="'+esc(r.id)+'"'+(ed?"":" disabled")+'><span class="pin">◉</span>'+esc(r.room||"— set —")+'</button></td>'+
+      '<td class="dco"><input class="dcin" list="dcCoList" value="'+esc(r.co||"")+'" data-dcf="co" data-dc="'+esc(r.id)+'"'+ro+'></td>'+
+      '<td class="drm"><input class="dcin" list="dcRoomList" value="'+esc(r.room||"")+'" data-dcf="room" data-dc="'+esc(r.id)+'" placeholder="pick or type a room"'+ro+'></td>'+
       '<td class="dd"><textarea class="dcin" rows="1" data-dcf="desc" data-dc="'+esc(r.id)+'"'+ro+'>'+esc(r.desc||"")+'</textarea></td>'+
       '<td><button class="dcmcc'+(r.mcc?" yes":"")+'" data-act="dcMcc" data-dc="'+esc(r.id)+'"'+(ed?"":" disabled")+'>'+(r.mcc?"⛔ Yes":"No")+'</button>'+
         (r.mcc&&r.mc?'<button class="dcmc" data-act="dcGo" data-mc="'+esc(r.mc)+'" title="open that system on the Board">MC '+esc(r.mc)+' ↗</button>':'')+'</td>'+
-      '<td><input class="dcin" value="'+esc(r.ch||"")+'" data-dcf="ch" data-dc="'+esc(r.id)+'" style="min-width:100px"'+ro+'></td>'+
+      '<td><input class="dcin" list="dcCoList" value="'+esc(r.ch||"")+'" data-dcf="ch" data-dc="'+esc(r.id)+'" style="min-width:110px"'+ro+'></td>'+
       '<td class="du"><button class="dcdue" data-act="dcDue" data-dc="'+esc(r.id)+'"'+(ed?"":" disabled")+'>'+
         (r.origDue?'<span class="was">'+fmtMD(r.origDue)+'</span>':'')+'<span>'+(r.due?fmtMD(r.due):"— set —")+'</span></button>'+
         (r.revs?'<span class="dcrev">moved '+r.revs+'×</span>':'')+
@@ -2055,42 +2304,227 @@ function renderDaily(v){
         '</select></td>'+
       '<td><button class="dclog" data-act="dcLog" data-dc="'+esc(r.id)+'">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button></td>'+
       '</tr>';
-    if(DC_OPEN_LOGS[r.id]){
-      var lg=(r.log||[]);
-      body+='<tr class="dchist"><td colspan="10"><div class="dchbox"><h4>History — every change on this row</h4>'+
-        (lg.length?lg.map(function(h){
-          return '<div class="dchl"><span class="ts">'+esc(String(h.ts||"").replace("T"," ").slice(0,16))+'</span>'+
-            '<span class="who">'+esc(h.who||"")+'</span><span class="what">'+h.what+
-            (h.why?'<span class="why">Reason: '+esc(h.why)+'</span>':'')+'</span></div>';}).join('')
-          :'<div class="dchl"><span class="ts">—</span><span class="who">—</span><span class="what">Nothing changed on this row yet.</span></div>')+
-        '<div class="dckeep"><i>kept</i> nothing on this tracker is ever overwritten or deleted — the full history stays for the life of the job</div>'+
-        '</div></td></tr>';
-    }
+    if(DC_OPEN_LOGS[r.id])body+=dcHistRow(r,10);
   });
 
   var add=ed?('<div class="dcadd">'+
       '<input type="date" id="dcNDate" value="'+todayISO()+'">'+
-      '<input type="text" id="dcNCo" placeholder="Company" style="width:120px">'+
-      '<select id="dcNRoom">'+dcRooms().map(function(x){return '<option>'+esc(x)+'</option>';}).join('')+'</select>'+
+      '<input type="text" id="dcNCo" list="dcCoList" placeholder="Company" style="width:130px">'+
+      '<input type="text" id="dcNRoom" list="dcRoomList" placeholder="Room — pick or type" style="width:200px">'+
       '<input type="text" id="dcNDesc" class="grow" placeholder="Description of constraint…">'+
-      '<input type="text" id="dcNCh" placeholder="Champion" style="width:120px">'+
+      '<input type="text" id="dcNCh" list="dcCoList" placeholder="Champion" style="width:130px">'+
       '<input type="date" id="dcNDue" value="'+todayISO()+'">'+
       '<button class="btn pri" data-act="dcAdd">+ Raise constraint</button></div>'):'';
 
-  var warn=STATE.dailyErr?('<div class="infob" style="border-color:rgba(224,11,40,.45)"><span class="big2">⚠ Tracker offline</span>'+
-    'The board is fine — only this tracker could not be reached ('+esc(STATE.dailyErr)+'). Nothing has been lost; reload in a moment.</div>'):'';
-  v.innerHTML=explain+warn+kh+bar+
-    '<div class="dcwrap"><div class="dchead"><h2>Daily Constraint Tracker</h2>'+
+  return kh+bar+
+    '<div class="dcwrap"><div class="dchead"><h2>Constraints</h2>'+
       '<span class="sub">'+rows.length+' of '+all.length+' shown</span><span style="flex:1"></span>'+
       '<span class="sub">green closed · indigo ready to verify · yellow in progress · red past due</span></div>'+
     '<div class="dctbl"><table><thead><tr>'+
       '<th class="dcn">#</th><th>Date<span class="h2">raised</span></th>'+
-      '<th>Company<span class="h2">who is stuck</span></th><th>Room<span class="h2">DSM4</span></th>'+
+      '<th>Company<span class="h2">who is stuck</span></th><th>Room<span class="h2">DSM4 — pick or type</span></th>'+
       '<th>Description of constraint</th><th>MCC<br>blocker?<span class="h2">links a system</span></th>'+
       '<th>Champion<span class="h2">who clears it</span></th><th>Due date</th><th>Status</th><th style="width:40px">Log</th>'+
     '</tr></thead><tbody>'+(body||'<tr><td colspan="10" class="dcempty">'+
       (all.length?'Nothing matches that filter.':'No constraints on the tracker yet — raise the first one below.')+'</td></tr>')+
     '</tbody></table></div>'+add+'</div>';
+}
+function dcHistRow(r,span){
+  var lg=(r.log||[]);
+  return '<tr class="dchist"><td colspan="'+span+'"><div class="dchbox"><h4>History — every change on this row</h4>'+
+    (lg.length?lg.map(function(h){
+      return '<div class="dchl"><span class="ts">'+esc(String(h.ts||"").replace("T"," ").slice(0,16))+'</span>'+
+        '<span class="who">'+esc(h.who||"")+'</span><span class="what">'+h.what+
+        (h.why?'<span class="why">Reason: '+esc(h.why)+'</span>':'')+'</span></div>';}).join('')
+      :'<div class="dchl"><span class="ts">—</span><span class="who">—</span><span class="what">Nothing changed on this row yet.</span></div>')+
+    '<div class="dckeep"><i>kept</i> nothing on this tracker is ever overwritten or deleted — the full history stays for the life of the job</div>'+
+    '</div></td></tr>';
+}
+
+/* ===================== 2. WEEKLY GOALS ===================== */
+function goalWeek(){return STATE.goalWeek||mondayOf(todayISO());}
+function goalDoc(){
+  var w=goalWeek(),g=STATE.goals[w];
+  return g||{week:w,items:[],log:[]};
+}
+function dcGoals(){
+  var w=goalWeek(),g=goalDoc(),ed=canEdit(),it=g.items||[];
+  var done=0;it.forEach(function(x){if(x&&x.t&&x.done)done++;});
+  var filled=0;it.forEach(function(x){if(x&&x.t)filled++;});
+  var rows="";
+  for(var i=0;i<8;i++){
+    var x=it[i]||{t:"",done:false};
+    rows+='<div class="glr'+(x.done&&x.t?" done":"")+'">'+
+      '<span class="gn">'+(i+1)+'.</span>'+
+      '<input type="checkbox" class="gck" data-act="dcGoalDone" data-i="'+i+'"'+(x.done?" checked":"")+(ed?"":" disabled")+' title="mark this goal met">'+
+      '<input class="gtx" data-gi="'+i+'" value="'+esc(x.t||"")+'" placeholder="'+(i<4?"Goal for the week…":"")+'"'+(ed?"":" readonly")+'>'+
+      '</div>';
+  }
+  var nav='<div class="dcwk">'+
+    '<button class="btn sm" data-act="dcWk" data-d="-7">← previous week</button>'+
+    '<input type="date" id="dcWkIn" value="'+w+'">'+
+    '<span class="wl">week of '+fmtLong(w)+' → '+fmtLong(addDaysISO(w,6))+'</span>'+
+    '<button class="btn sm" data-act="dcWk" data-d="7">next week →</button>'+
+    '<button class="btn sm" data-act="dcWk" data-d="0">this week</button></div>';
+  return nav+'<div class="dcwrap"><div class="dchead"><h2>Weekly Goals</h2>'+
+      '<span class="sub">'+done+' of '+filled+' met</span><span style="flex:1"></span>'+
+      '<button class="dclog" data-act="dcGoalLog">'+((g.log&&g.log.length)?g.log.length:'☰')+'</button></div>'+
+    '<div class="glbox">'+rows+'</div>'+
+    (DC_OPEN_LOGS["_goals_"+w]?'<div class="dchbox"><h4>History — every change to this week’s goals</h4>'+
+      ((g.log||[]).length?(g.log||[]).map(function(h){
+        return '<div class="dchl"><span class="ts">'+esc(String(h.ts||"").replace("T"," ").slice(0,16))+'</span>'+
+          '<span class="who">'+esc(h.who||"")+'</span><span class="what">'+h.what+'</span></div>';}).join('')
+        :'<div class="dchl"><span class="ts">—</span><span class="who">—</span><span class="what">Nothing changed yet.</span></div>')+
+      '<div class="dckeep"><i>kept</i> every week is its own record — last week’s goals are still there next year</div></div>':'')+
+    '</div>';
+}
+
+/* ===================== 3. DELIVERIES ===================== */
+function dcDeliv(){
+  var ed=canEdit(),ro=ed?"":" readonly";
+  var all=[];for(var k in STATE.deliv){var d=STATE.deliv[k];if(d&&!d.void)all.push(d);}
+  all.sort(function(a,b){return (a.date||"")>(b.date||"")?-1:1;});
+  var body="";
+  all.forEach(function(r,i){
+    body+='<tr data-dv="'+esc(r.id)+'">'+
+      '<td class="dcn">'+(i+1)+'</td>'+
+      '<td class="dt"><input class="dvin" type="date" value="'+esc(r.date||"")+'" data-dvf="date" data-dv="'+esc(r.id)+'"'+(ed?"":" disabled")+'></td>'+
+      '<td class="dco"><input class="dvin" list="dcCoList" value="'+esc(r.co||"")+'" data-dvf="co" data-dv="'+esc(r.id)+'"'+ro+'></td>'+
+      '<td class="dd"><input class="dvin" value="'+esc(r.desc||"")+'" data-dvf="desc" data-dv="'+esc(r.id)+'" placeholder="what is arriving, and which floor"'+ro+'></td>'+
+      '<td><button class="dclog" data-act="dcDvLog" data-dv="'+esc(r.id)+'">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button></td></tr>';
+    if(DC_OPEN_LOGS["_dv_"+r.id])body+=dcHistRow(r,5);
+  });
+  var add=ed?('<div class="dcadd">'+
+      '<input type="date" id="dvNDate" value="'+todayISO()+'">'+
+      '<input type="text" id="dvNCo" list="dcCoList" placeholder="Company" style="width:150px">'+
+      '<input type="text" id="dvNDesc" class="grow" placeholder="Description / floor — e.g. Product Hold Array 2">'+
+      '<button class="btn pri" data-act="dvAdd">+ Add delivery</button></div>'):'';
+  return '<div class="dcwrap"><div class="dchead"><h2>Deliveries</h2>'+
+      '<span class="sub">'+all.length+' logged</span></div>'+
+    '<div class="dctbl"><table class="narrow"><thead><tr><th class="dcn">#</th><th>Date</th>'+
+      '<th>Company</th><th>Description / Floor</th><th style="width:40px">Log</th></tr></thead><tbody>'+
+      (body||'<tr><td colspan="5" class="dcempty">Nothing logged yet.</td></tr>')+
+    '</tbody></table></div>'+add+'</div>';
+}
+
+/* ===================== 4. MANPOWER ===================== */
+function manDate(){return STATE.manDate||todayISO();}
+function manDoc(){var d=manDate();return STATE.man[d]||{date:d,r:{},log:[]};}
+function manRowTotal(o){
+  var t=0;MAN_COLS.forEach(function(c){t+=(+(o&&o[c[0]])||0);});return t;
+}
+function manRows(){
+  var doc=manDoc(),seen={},out=[];
+  MAN_ROWS.forEach(function(c){seen[c]=1;out.push(c);});
+  Object.keys(doc.r||{}).forEach(function(c){if(!seen[c]){seen[c]=1;out.push(c);}});
+  return out;
+}
+function dcMan(){
+  var ed=canEdit(),d=manDate(),doc=manDoc(),cos=manRows();
+  var tot={},grand=0,gfri=0,gsat=0;
+  MAN_COLS.forEach(function(c){tot[c[0]]=0;});
+  cos.forEach(function(c){
+    var o=doc.r[c]||{};
+    MAN_COLS.forEach(function(k){tot[k[0]]+=(+o[k[0]]||0);});
+    grand+=manRowTotal(o);gfri+=(+o.fri||0);gsat+=(+o.sat||0);
+  });
+  function cell(c,f,v){
+    return '<td class="mnc"><input class="mnin" inputmode="numeric" data-mnc="'+esc(c)+'" data-mnf="'+f+'" value="'+
+      (v===0||v?esc(String(v)):"")+'"'+(ed?"":" readonly")+'></td>';
+  }
+  var body="";
+  cos.forEach(function(c){
+    var o=doc.r[c]||{},rt=manRowTotal(o);
+    body+='<tr'+(rt||o.fri||o.sat?'':' class="empty"')+'><td class="mnco">'+esc(c)+'</td>'+
+      MAN_COLS.map(function(k){return cell(c,k[0],o[k[0]]);}).join('')+
+      cell(c,"fri",o.fri)+cell(c,"sat",o.sat)+
+      '<td class="mnt">'+(rt||"")+'</td></tr>';
+  });
+  var foot='<tr class="mntot"><td class="mnco">Total</td>'+
+    MAN_COLS.map(function(k){return '<td class="mnc">'+(tot[k[0]]||"")+'</td>';}).join('')+
+    '<td class="mnc">'+(gfri||"")+'</td><td class="mnc">'+(gsat||"")+'</td>'+
+    '<td class="mnt">'+(grand||"")+'</td></tr>';
+  var nav='<div class="dcwk">'+
+    '<button class="btn sm" data-act="dcMd" data-d="-1">← previous day</button>'+
+    '<input type="date" id="dcMdIn" value="'+d+'">'+
+    '<span class="wl">'+fmtLong(d)+'</span>'+
+    '<button class="btn sm" data-act="dcMd" data-d="1">next day →</button>'+
+    '<button class="btn sm" data-act="dcMd" data-d="0">today</button>'+
+    (ed?'<span class="grow"></span><input type="text" id="mnNew" list="dcCoList" placeholder="add a company to the grid" style="width:200px">'+
+      '<button class="btn sm" data-act="mnAdd">+ add</button>':'')+'</div>';
+  return nav+'<div class="dcwrap"><div class="dchead"><h2>Manpower</h2>'+
+      '<span class="sub">'+grand+' on site '+fmtMD(d)+'</span><span style="flex:1"></span>'+
+      '<span class="sub">S and P as written on the board · daily total adds itself</span>'+
+      '<button class="dclog" data-act="dcMnLog">'+((doc.log&&doc.log.length)?doc.log.length:'☰')+'</button></div>'+
+    '<div class="dctbl"><table class="mntbl"><thead>'+
+      '<tr><th rowspan="2" class="mnco">Company</th><th colspan="2">GRND</th><th colspan="2">LVL 1</th>'+
+        '<th colspan="2">LVL 2</th><th colspan="2">Weekend</th><th rowspan="2" class="mnt">Daily<br>total</th></tr>'+
+      '<tr><th>S</th><th>P</th><th>S</th><th>P</th><th>S</th><th>P</th>'+
+        '<th>Fri '+fmtMD(addDaysISO(mondayOf(d),4))+'</th><th>Sat '+fmtMD(addDaysISO(mondayOf(d),5))+'</th></tr>'+
+      '</thead><tbody>'+body+foot+'</tbody></table></div>'+
+    (DC_OPEN_LOGS["_mn_"+d]?'<div class="dchbox"><h4>History — every change to this day’s manpower</h4>'+
+      ((doc.log||[]).length?(doc.log||[]).map(function(h){
+        return '<div class="dchl"><span class="ts">'+esc(String(h.ts||"").replace("T"," ").slice(0,16))+'</span>'+
+          '<span class="who">'+esc(h.who||"")+'</span><span class="what">'+h.what+'</span></div>';}).join('')
+        :'<div class="dchl"><span class="ts">—</span><span class="who">—</span><span class="what">Nothing changed yet.</span></div>')+
+      '<div class="dckeep"><i>kept</i> every day is its own record — nothing is overwritten when tomorrow’s numbers go up</div></div>':'')+
+    '</div>';
+}
+
+/* ===================== 5. WHO CAN DO WHAT ===================== */
+function dcAccess(){
+  var em=(CURRENT_USER&&CURRENT_USER.email)||"—";
+  var role=isOwnerUser()?"Owner":canEdit()?"Editor (Jacobs)":canView()?"Viewer":"No access";
+  var rows=[
+    ["Owner","Everything an editor can do, plus: add and remove people, change anyone's role, reset or re-import the tracker. bdiaz8448@gmail.com is written into the server rules as a permanent owner, so ownership can never be locked out."],
+    ["Editor — Jacobs","Read and write the whole board: sign off gates, edit systems and punch, raise and edit constraints, set goals, deliveries and manpower. <b>Only an editor can close a constraint.</b> An editor cannot change the access lists."],
+    ["Viewer","Reads everything. Writes nothing. No sign-offs, no edits, no closing."],
+    ["Contractor crew","Not switched on yet. When it is, a crew account reaches <b>this tracker and nothing else</b> — not the systems board, not punch, not MCC Closed. They may raise and update rows for their own company and take one as far as <b>Ready to verify</b>. They can never close a row, never hand it to another company, and never delete anything."]
+  ];
+  var lists="";
+  if(isOwnerUser()){
+    function L(t,k){
+      var a=(STATE.meta&&STATE.meta[k])||[];
+      return '<div class="aclist"><b>'+t+'</b>'+(a.length?a.map(function(x){return '<span class="acpill">'+esc(x)+'</span>';}).join(''):'<i>none added</i>')+'</div>';
+    }
+    lists='<div class="acbox"><h4>Who is on the board right now</h4>'+
+      '<div class="aclist"><b>Permanent owner</b><span class="acpill perm">bdiaz8448@gmail.com</span></div>'+
+      L("Owners","ownerEmails")+L("Editors","editorEmails")+L("Viewers","viewerEmails")+
+      '<p class="acnote">Add and remove people in <b>Settings ▸ People</b>. Only an owner can change these lists.</p></div>';
+  }
+  return '<div class="dcwrap"><div class="dchead"><h2>Who can do what</h2>'+
+      '<span class="sub">you are signed in as '+esc(em)+' — <b>'+role+'</b></span></div>'+
+    '<div class="acgrid">'+rows.map(function(r){
+      return '<div class="acrow"><div class="acr">'+r[0]+'</div><div class="acd">'+r[1]+'</div></div>';}).join('')+'</div>'+
+    lists+
+    '<div class="acfoot">These are not just page rules. Every one of them is enforced on the server by the database itself, '+
+      'so a person who is not on the list cannot read or write anything even outside this page. Nothing on this tracker is '+
+      'ever deleted — rows, goals, deliveries and manpower all keep their full history.</div>'+
+    '</div>';
+}
+
+/* ===================== the tab ===================== */
+function renderDaily(v){
+  var all=dcList();
+  var openN=0,lateN=0;all.forEach(function(r){var s=dcState(r);if(s!=="done")openN++;if(s==="late")lateN++;});
+  var g=goalDoc(),gf=0,gd=0;(g.items||[]).forEach(function(x){if(x&&x.t){gf++;if(x.done)gd++;}});
+  var dvN=0;for(var k in STATE.deliv)if(STATE.deliv[k]&&!STATE.deliv[k].void)dvN++;
+  var mdoc=manDoc(),mtot=0;
+  Object.keys(mdoc.r||{}).forEach(function(c){mtot+=manRowTotal(mdoc.r[c]);});
+
+  var explain='<div class="infob"><span class="big2">📋 DSM4 Daily Board</span>'+
+    'The whiteboard from the trailer, live and shared — <b>constraints</b>, <b>weekly goals</b>, <b>deliveries</b> and <b>manpower</b>, '+
+    'in the same order they sit on the wall. Everything here is writable: rooms and companies can be picked from the list or just typed, '+
+    'and anything typed is saved for everyone. A due date only moves with a written reason, and <b>every change is kept</b> with who did it and why.</div>';
+  var warn=STATE.dailyErr?('<div class="infob" style="border-color:rgba(224,11,40,.45)"><span class="big2">⚠ Tracker offline</span>'+
+    'The board is fine — only this tracker could not be reached ('+esc(STATE.dailyErr)+'). Nothing has been lost; reload in a moment.</div>'):'';
+
+  v.innerHTML=dcDatalists()+explain+warn+
+    dcSec("con","🚧","Constraints",openN+" still live"+(lateN?" · "+lateN+" past due":""),dcConstraints())+
+    dcSec("goals","🎯","Weekly Goals",gd+" of "+gf+" met this week",dcGoals())+
+    dcSec("deliv","🚚","Deliveries",dvN+" logged",dcDeliv())+
+    dcSec("man","👷","Manpower",(mtot||0)+" on site "+fmtMD(manDate()),dcMan())+
+    dcSec("acc","🔒","Who can do what","owner · editor · viewer · crew",dcAccess());
 
   v.querySelectorAll('.dd textarea').forEach(function(t){t.style.height="auto";t.style.height=(t.scrollHeight+2)+"px";});
   var q=$("dcQ");
@@ -2117,16 +2551,6 @@ function dcDueDlg(id){
     '<div class="dlgrow" style="margin-top:12px"><button class="btn" data-act="dcClose">Cancel</button>'+
     '<button class="btn pri" data-act="dcDueSave" data-dc="'+esc(id)+'">Save change</button></div>');
 }
-function dcRoomDlg(id){
-  var r=STATE.daily[id];if(!r||!dcCanEditRow())return;
-  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">Room</h3>'+
-    '<p style="margin:0 0 14px;font-size:12.5px;font-weight:700;color:var(--mut)">'+esc(r.co||"")+' · '+esc((r.desc||"").slice(0,70))+'</p>'+
-    '<label>DSM4 room</label><select id="dcRoomSel"><option value=""></option>'+
-      dcRooms().map(function(x){return '<option'+(x===r.room?" selected":"")+'>'+esc(x)+'</option>';}).join('')+'</select>'+
-    '<label>Or type it — anything not on the list yet</label><input type="text" id="dcRoomFree" placeholder="e.g. AHU Mezzanine — east">'+
-    '<div class="dlgrow" style="margin-top:12px"><button class="btn" data-act="dcClose">Cancel</button>'+
-    '<button class="btn pri" data-act="dcRoomSave" data-dc="'+esc(id)+'">Save</button></div>');
-}
 function dcMccDlg(id){
   var r=STATE.daily[id];if(!r||!dcCanEditRow())return;
   var opts=sysList().slice().sort(function(a,b){return (a.mc||"")<(b.mc||"")?-1:1;})
@@ -2142,10 +2566,51 @@ function dcMccDlg(id){
     '<button class="btn pri" data-act="dcMccSave" data-dc="'+esc(id)+'">Save</button></div>');
 }
 
+/* ---------- writes for goals / deliveries / manpower ---------- */
+function goalSave(items,what){
+  var w=goalWeek(),cur=STATE.goals[w];
+  if(!cur){cur={week:w,items:[],log:[],at:dcNow(),by:dcWho()};STATE.goals[w]=cur;}
+  cur.items=items;
+  cur.log=(cur.log||[]);cur.log.unshift({ts:dcNow(),who:dcWho(),what:what});
+  if(cur.log.length>400)cur.log=cur.log.slice(0,400);
+  render();
+  db.collection(GOALS_COL).doc(w).set({week:w,items:items,log:cur.log},{merge:true})
+    .catch(function(e){alert("Could not save: "+e.message);});
+}
+function goalItems(){
+  var it=(goalDoc().items||[]).slice();
+  while(it.length<8)it.push({t:"",done:false});
+  return it.slice(0,8);
+}
+function dvSave(id,patch,entry){logSave(DELIV_COL,id,STATE.deliv,patch,entry);}
+function dvAdd(row){
+  var ref=db.collection(DELIV_COL).doc();
+  row.id=ref.id;
+  row.log=[{ts:dcNow(),who:dcWho(),what:"Delivery logged",why:""}];
+  row.at=dcNow();row.by=dcWho();row.void=false;
+  STATE.deliv[ref.id]=row;
+  render();
+  ref.set(row).catch(function(e){alert("Could not save: "+e.message);});
+}
+function manSave(co,field,val,was){
+  var d=manDate(),cur=STATE.man[d];
+  if(!cur){cur={date:d,r:{},log:[],at:dcNow(),by:dcWho()};STATE.man[d]=cur;}
+  cur.r=cur.r||{};cur.r[co]=cur.r[co]||{};
+  if(val===""||val===null)delete cur.r[co][field];else cur.r[co][field]=val;
+  var nm=({gs:"GRND S",gp:"GRND P",l1s:"LVL 1 S",l1p:"LVL 1 P",l2s:"LVL 2 S",l2p:"LVL 2 P",fri:"Friday",sat:"Saturday"})[field]||field;
+  cur.log=(cur.log||[]);
+  cur.log.unshift({ts:dcNow(),who:dcWho(),what:esc(co)+" · "+nm+" <b>"+esc(was===""||was==null?"—":String(was))+" → "+esc(val===""||val==null?"—":String(val))+"</b>"});
+  if(cur.log.length>400)cur.log=cur.log.slice(0,400);
+  render();
+  db.collection(MAN_COL).doc(d).set({date:d,r:cur.r,log:cur.log},{merge:true})
+    .catch(function(e){alert("Could not save: "+e.message);});
+}
+
 /* ---------- one click handler for the whole tracker ---------- */
 document.addEventListener("click",function(e){
   var t=e.target.closest("[data-act]");if(!t)return;
   var act=t.getAttribute("data-act"),id=t.getAttribute("data-dc");
+  if(act==="dcSec"){var s=t.getAttribute("data-s");DC_SEC[s]=!DC_SEC[s];render();return;}
   if(act==="dcK"){
     var k=t.getAttribute("data-k");
     if(k==="mcc")STATE.df.mcc=(STATE.df.mcc==="Y")?"ALL":"Y";
@@ -2153,6 +2618,9 @@ document.addEventListener("click",function(e){
     render();return;
   }
   if(act==="dcLog"){DC_OPEN_LOGS[id]=!DC_OPEN_LOGS[id];render();return;}
+  if(act==="dcGoalLog"){var gk="_goals_"+goalWeek();DC_OPEN_LOGS[gk]=!DC_OPEN_LOGS[gk];render();return;}
+  if(act==="dcMnLog"){var mk="_mn_"+manDate();DC_OPEN_LOGS[mk]=!DC_OPEN_LOGS[mk];render();return;}
+  if(act==="dcDvLog"){var dk="_dv_"+t.getAttribute("data-dv");DC_OPEN_LOGS[dk]=!DC_OPEN_LOGS[dk];render();return;}
   if(act==="dcGo"){
     var mc=t.getAttribute("data-mc");
     var hit=sysList().filter(function(s){return String(s.mc)===String(mc);})[0];
@@ -2160,7 +2628,33 @@ document.addEventListener("click",function(e){
     else alert("No system with MC "+mc+" on the Board.");
     return;
   }
-  if(act==="dcRoom"){dcRoomDlg(id);return;}
+  if(act==="dcWk"){
+    var dd=+t.getAttribute("data-d");
+    STATE.goalWeek=dd?addDaysISO(goalWeek(),dd):mondayOf(todayISO());
+    render();return;
+  }
+  if(act==="dcMd"){
+    var md=+t.getAttribute("data-d");
+    STATE.manDate=md?addDaysISO(manDate(),md):todayISO();
+    render();return;
+  }
+  if(act==="mnAdd"){
+    var nc=($("mnNew").value||"").trim();
+    if(!nc)return;
+    listAdd("companies",nc);
+    var d0=manDate(),c0=STATE.man[d0];
+    if(!c0){c0={date:d0,r:{},log:[]};STATE.man[d0]=c0;}
+    c0.r=c0.r||{};if(!c0.r[nc])c0.r[nc]={};
+    render();return;
+  }
+  if(act==="dcGoalDone"){
+    if(!canEdit())return;
+    var gi=+t.getAttribute("data-i"),its=goalItems();
+    if(!its[gi].t){render();return;}
+    its[gi].done=!its[gi].done;
+    goalSave(its,"Goal "+(gi+1)+" <b>"+(its[gi].done?"met":"re-opened")+"</b> — "+esc(its[gi].t));
+    return;
+  }
   if(act==="dcMcc"){dcMccDlg(id);return;}
   if(act==="dcDue"){dcDueDlg(id);return;}
   if(act==="dcClose"){var d=$("dcDlg");if(d&&d.open)d.close();return;}
@@ -2175,12 +2669,6 @@ document.addEventListener("click",function(e){
       (old?" ("+(daysBetween(old,nd)>0?"+":"")+daysBetween(old,nd)+" days)":""),why:why});
     $("dcDlg").close();return;
   }
-  if(act==="dcRoomSave"){
-    var r2=STATE.daily[id];if(!r2)return;
-    var v2=(($("dcRoomFree").value||"").trim())||$("dcRoomSel").value;
-    if(v2&&v2!==r2.room)dcSave(id,{room:v2},{what:"Room changed <b>"+esc(r2.room||"—")+"</b> → <b>"+esc(v2)+"</b>"});
-    $("dcDlg").close();return;
-  }
   if(act==="dcMccSave"){
     var r3=STATE.daily[id];if(!r3)return;
     var yes=$("dcYN").value==="Y",mcno=yes?($("dcMcNo").value||"").trim():"";
@@ -2189,16 +2677,28 @@ document.addEventListener("click",function(e){
     $("dcDlg").close();return;
   }
   if(act==="dcAdd"){
-    var co=($("dcNCo").value||"").trim(),ds=($("dcNDesc").value||"").trim();
+    var co=($("dcNCo").value||"").trim(),ds=($("dcNDesc").value||"").trim(),rm=($("dcNRoom").value||"").trim();
     if(!co||!ds){$("dcNDesc").focus();return;}
-    dcAdd({date:$("dcNDate").value||todayISO(),co:co,room:$("dcNRoom").value||"",desc:ds,
-      mcc:false,mc:"",ch:($("dcNCh").value||"").trim()||"—",due:$("dcNDue").value||todayISO(),st:"open",void:false});
+    listAdd("companies",co);
+    var chv=($("dcNCh").value||"").trim();if(chv)listAdd("companies",chv);
+    if(rm)listAdd("rooms",rm);
+    dcAdd({date:$("dcNDate").value||todayISO(),co:co,room:rm,desc:ds,
+      mcc:false,mc:"",ch:chv||"—",due:$("dcNDue").value||todayISO(),st:"open",void:false});
+    return;
+  }
+  if(act==="dvAdd"){
+    var vco=($("dvNCo").value||"").trim(),vds=($("dvNDesc").value||"").trim();
+    if(!vco||!vds){$("dvNDesc").focus();return;}
+    listAdd("companies",vco);
+    dvAdd({date:$("dvNDate").value||todayISO(),co:vco,desc:vds});
     return;
   }
 });
 /* inline cells + status + filter selects */
 document.addEventListener("focusin",function(e){
-  if(e.target.classList&&e.target.classList.contains("dcin"))e.target.setAttribute("data-was",e.target.value);
+  var el=e.target;if(!el.classList)return;
+  if(el.classList.contains("dcin")||el.classList.contains("dvin")||el.classList.contains("mnin")||el.classList.contains("gtx"))
+    el.setAttribute("data-was",el.value);
 });
 document.addEventListener("change",function(e){
   var el=e.target;
@@ -2207,11 +2707,44 @@ document.addEventListener("change",function(e){
     if(!r||!dcCanEditRow())return;
     var was=el.getAttribute("data-was")||"",now=el.value;
     if(was===now)return;
-    var nm=f==="co"?"Company":f==="ch"?"Champion":"Description";
+    if(f==="co"||f==="ch")listAdd("companies",now);
+    if(f==="room")listAdd("rooms",now);
+    var nm=f==="co"?"Company":f==="ch"?"Champion":f==="room"?"Room":"Description";
     var pa={};pa[f]=now;
-    dcSave(id,pa,{what:nm+" changed<br><b>"+esc(was)+"</b> → <b>"+esc(now)+"</b>"});
+    dcSave(id,pa,{what:nm+" changed<br><b>"+esc(was||"—")+"</b> → <b>"+esc(now||"—")+"</b>"});
     return;
   }
+  if(el.classList&&el.classList.contains("dvin")){
+    var vid=el.getAttribute("data-dv"),vf=el.getAttribute("data-dvf"),vr=STATE.deliv[vid];
+    if(!vr||!canEdit())return;
+    var vwas=el.getAttribute("data-was")||"",vnow=el.value;
+    if(vwas===vnow)return;
+    if(vf==="co")listAdd("companies",vnow);
+    var vnm=vf==="co"?"Company":vf==="date"?"Date":"Description / floor";
+    var vp={};vp[vf]=vnow;
+    dvSave(vid,vp,{what:vnm+" changed <b>"+esc(vwas||"—")+"</b> → <b>"+esc(vnow||"—")+"</b>"});
+    return;
+  }
+  if(el.classList&&el.classList.contains("mnin")){
+    if(!canEdit())return;
+    var mco=el.getAttribute("data-mnc"),mf=el.getAttribute("data-mnf");
+    var mwas=el.getAttribute("data-was")||"",mnow=(el.value||"").trim();
+    if(mwas===mnow)return;
+    if(mnow!==""&&!/^\d{1,4}$/.test(mnow)){el.value=mwas;alert("Manpower has to be a whole number.");return;}
+    manSave(mco,mf,mnow===""?"":(+mnow),mwas);
+    return;
+  }
+  if(el.classList&&el.classList.contains("gtx")){
+    if(!canEdit())return;
+    var gi2=+el.getAttribute("data-gi"),gwas=el.getAttribute("data-was")||"",gnow=el.value;
+    if(gwas===gnow)return;
+    var its2=goalItems();its2[gi2].t=gnow;
+    if(!gnow)its2[gi2].done=false;
+    goalSave(its2,"Goal "+(gi2+1)+" changed <b>"+esc(gwas||"—")+"</b> → <b>"+esc(gnow||"—")+"</b>");
+    return;
+  }
+  if(el.id==="dcWkIn"){STATE.goalWeek=mondayOf(el.value||todayISO());render();return;}
+  if(el.id==="dcMdIn"){STATE.manDate=el.value||todayISO();render();return;}
   if(el.getAttribute&&el.getAttribute("data-act")==="dcSt"){
     var sid=el.getAttribute("data-dc"),row=STATE.daily[sid];
     if(!row||!dcCanEditRow())return;
@@ -2227,6 +2760,94 @@ document.addEventListener("change",function(e){
     STATE.df[el.getAttribute("data-f")]=el.value;render();return;
   }
 });
+
+/* ---------------------------------------------------------------------------
+   ONE-TIME SEED — the DSM4 whiteboard as it stood on 8-14-26.
+   Runs only for an owner, only when the tracker is completely empty, only once
+   per page load. It never touches a row that already exists, so re-opening the
+   page can never duplicate or overwrite anything.
+   ------------------------------------------------------------------------- */
+var DC_SEED_DATE="2026-08-14", DC_SEED_WEEK="2026-08-10", _dcSeeded=false;
+var DC_SEED_ROWS=[
+ {date:"2026-08-13",co:"FPI",room:"",desc:"BR24D01 Glycol line clash E-11",ch:"ALL",due:"2026-08-14"},
+ {date:"2026-08-06",co:"GMI",room:"",desc:"Need flushing hoses removed for Duct AHU #21",ch:"FPI",due:"2026-09-03"},
+ {date:"2026-08-12",co:"Brock",room:"",desc:"Need scaffold ROEDI Skids Demo #2300",ch:"Ameco / Pass.",due:"2026-08-13"},
+ {date:"2026-08-12",co:"ATEC",room:"Column Packing — 537-01630",desc:"Need scaffold in Column Packing",ch:"Ameco",due:"2026-08-18"},
+ {date:"2026-07-28",co:"GMI",room:"Level 2 (overall)",desc:"Need all 2nd Floor ceiling return boxes — 2 more",ch:"ATEC",due:"2026-08-20",origDue:"2026-07-31",revs:1},
+ {date:"2026-08-12",co:"ATEC",room:"Harvest — 537-01680",desc:"Need RFI answer — N. & E. wall Harvest",ch:"Jacobs",due:"2026-08-14"},
+ {date:"2026-08-11",co:"SIC",room:"Seed Cell Culture — 537-10640",desc:"Need holes cut — holes Seed Cell & IP — pick prints",ch:"ATEC",due:"2026-08-12"},
+ {date:"2026-07-30",co:"Brock",room:"",desc:"Need BR24D01 / Production Bioreactor backslopes",ch:"FST ✻ Lola",due:"2026-08-04"},
+ {date:"2026-08-11",co:"ATEC",room:"Buffer Hold — 537-10620",desc:"Need pipe moved — Buffer Hold south wall",ch:"FPI",due:"2026-08-11"},
+ {date:"2026-08-06",co:"InServ",room:"Buffer Prep — 537-20600",desc:"Need wall panel Buffer Prep for safety shower — Jason",ch:"ATEC",due:"2026-08-14"},
+ {date:"2026-08-06",co:"Jacobs",room:"",desc:"Need wall protection on walls",ch:"ATEC",due:"2026-08-12"}
+];
+var DC_SEED_GOALS=[
+ {t:"Column Packing Walls — Wall Closure",done:false},
+ {t:"Media Prep KCS Panels",done:false},
+ {t:"",done:false},
+ {t:"W1 MAU & AHU #23 — HVAC",done:false},
+ {t:"",done:false},{t:"",done:false},{t:"",done:false},{t:"",done:false}
+];
+var DC_SEED_DELIV=[
+ {date:"2026-08-17",co:"SIC",desc:"Product Hold Array 2"},
+ {date:"2026-08-14",co:"SIC",desc:"Product Hold Array 2"}
+];
+/* keys: gs gp l1s l1p l2s l2p fri sat — exactly the columns on the wall */
+var DC_SEED_MAN={
+ "ATEC":{gp:12,l1p:12,l2p:12},
+ "BMWC":{gp:17,l1p:17,l2p:16,fri:50,sat:6},
+ "Ameco":{gs:5,l1s:5,l2s:6,fri:16},
+ "InServ (Reassembly)":{l2p:10,fri:10},
+ "InServ (Plumbing)":{gs:1,gp:8,l1s:1,l1p:4,fri:15},
+ "FPI":{gs:1,gp:6,fri:12,sat:12},
+ "GMI":{gs:0,gp:0,l1s:2,l1p:2,l2s:2,l2p:3,fri:12},
+ "SIC (C+R)":{gp:14,l1p:7,l2p:6,fri:25},
+ "Merit":{gs:5,gp:13,l1s:5,l1p:9,l2s:5,l2p:12,fri:49},
+ "SRE":{gp:2,l1p:14,l2p:14,fri:30},
+ "InServ (Temp Power)":{gp:2,l1s:1,l1p:2,l2p:2,fri:5},
+ "BMWC (Reassembly)":{fri:20,sat:20},
+ "LeChase":{l2s:1,l2p:5,fri:6},
+ "Hales (GMI)":{gs:1,gp:1,l1s:1,l1p:1,l2s:4,l2p:4},
+ "Hales & Assoc.":{l1s:1,l1p:4,l2p:6},
+ "Brock":{gp:6,l1p:4,l2p:7,fri:17,sat:17},
+ "ISI":{fri:20,sat:12},
+ "SIC (Building Screens)":{fri:6},
+ "Pure Clean":{fri:8},
+ "Astro Pak":{l1s:3,fri:4,sat:4},
+ "Delaware":{l1s:3,l2s:3}
+};
+function dcSeedBoard(){
+  if(_dcSeeded||!isOwnerUser())return;
+  if(!STATE.dailyLoaded||!STATE.goalsLoaded||!STATE.delivLoaded)return;
+  if(Object.keys(STATE.daily).length||Object.keys(STATE.deliv).length)return;
+  _dcSeeded=true;
+  var stamp="Loaded from the DSM4 whiteboard, "+fmtLong(DC_SEED_DATE);
+  var b=db.batch();
+  DC_SEED_ROWS.forEach(function(s){
+    var ref=db.collection(DAILY_COL).doc();
+    var row={id:ref.id,date:s.date,co:s.co,room:s.room||"",desc:s.desc,ch:s.ch,due:s.due,
+      mcc:false,mc:"",st:"open",void:false,at:dcNow(),by:dcWho(),
+      log:[{ts:dcNow(),who:dcWho(),what:stamp,why:""}]};
+    if(s.origDue){row.origDue=s.origDue;row.revs=s.revs||1;
+      row.log.unshift({ts:dcNow(),who:dcWho(),
+        what:"Due date moved from <b>"+fmtMD(s.origDue)+"</b> to <b>"+fmtMD(s.due)+"</b>",
+        why:"Extended on the whiteboard before the tracker went digital"});}
+    b.set(ref,row);
+  });
+  DC_SEED_DELIV.forEach(function(s){
+    var ref=db.collection(DELIV_COL).doc();
+    b.set(ref,{id:ref.id,date:s.date,co:s.co,desc:s.desc,void:false,at:dcNow(),by:dcWho(),
+      log:[{ts:dcNow(),who:dcWho(),what:stamp,why:""}]});
+  });
+  if(!STATE.goals[DC_SEED_WEEK])
+    b.set(db.collection(GOALS_COL).doc(DC_SEED_WEEK),
+      {week:DC_SEED_WEEK,items:DC_SEED_GOALS,log:[{ts:dcNow(),who:dcWho(),what:stamp}]});
+  if(!STATE.man[DC_SEED_DATE])
+    b.set(db.collection(MAN_COL).doc(DC_SEED_DATE),
+      {date:DC_SEED_DATE,r:DC_SEED_MAN,log:[{ts:dcNow(),who:dcWho(),what:stamp}]});
+  b.commit().then(function(){console.log("daily board seeded from the whiteboard");})
+    .catch(function(e){_dcSeeded=false;console.warn("seed failed",e&&e.code);});
+}
 
 /* ---------- back / forward ----------
    Every view change and every opened system becomes a real history entry, so the browser
