@@ -640,9 +640,19 @@
   .hsearch{position:relative;display:flex;align-items:center;flex:0 1 320px;min-width:150px}
   .hsearch svg{position:absolute;left:14px;width:15px;height:15px;color:var(--mut2);pointer-events:none}
   .hsearch input{width:100%;padding:11px 14px 11px 37px;border-radius:99px;border:2px solid transparent;font-size:13px;
-    font-weight:700;color:var(--txt);background:var(--glass) padding-box,var(--edge) border-box;box-shadow:var(--gloss);outline:none}
-  .hsearch input::placeholder{color:var(--mut2);font-weight:700}
-  .hsearch input:focus{background:var(--card) padding-box,linear-gradient(135deg,var(--acc),var(--acc2)) border-box}
+    font-weight:700;color:var(--txt);-webkit-text-fill-color:var(--txt);caret-color:var(--acc);
+    background:var(--glass) padding-box,var(--edge) border-box;box-shadow:var(--gloss);outline:none}
+  .hsearch input::placeholder{color:var(--mut2);-webkit-text-fill-color:var(--mut2);font-weight:700}
+  /* the focused fill MUST be a gradient, not a bare colour: a solid colour is only legal
+     as the LAST layer of a multi-layer background, so "var(--card) padding-box, ... border-box"
+     is invalid and the browser drops the whole background — which left dark text on the dark
+     page with no field behind it at all. */
+  .hsearch input:focus{background:linear-gradient(var(--card),var(--card)) padding-box,
+    linear-gradient(135deg,var(--acc),var(--acc2)) border-box}
+  .hsearch input::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;
+    width:15px;height:15px;cursor:pointer;border-radius:50%;background:var(--mut2);
+    -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 6l12 12M18 6L6 18' stroke='black' stroke-width='3' stroke-linecap='round'/></svg>") center/12px no-repeat;
+    mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'><path d='M6 6l12 12M18 6L6 18' stroke='black' stroke-width='3' stroke-linecap='round'/></svg>") center/12px no-repeat}
   #searchBtn{display:none}
   #searchBtn svg{width:19px;height:19px}
   .acct{position:relative}
@@ -1172,7 +1182,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v13.0-header-account-search";
+var MC_BUILD="v13.1-search-legible";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
