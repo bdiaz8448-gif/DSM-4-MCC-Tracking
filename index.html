@@ -824,7 +824,6 @@
     color:var(--txt);font:inherit;font-size:13px;font-weight:800;text-align:center}
   .mnin:hover:not([readonly]){border-color:var(--line2);background:rgba(255,255,255,.6)}
   .mnin:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(7,104,139,.14);outline:0}
-  .mntbl tr.empty td.mnco{color:var(--mut2);font-weight:800}
   .mntbl tr.mntot td{background:var(--card2);font-weight:900;border-top:2px solid var(--line2)}
   /* ---- who can do what ---- */
   .acgrid{padding:4px 0}
@@ -868,6 +867,42 @@
   /* weekend block sits to the right of the daily total and reads as its own thing */
   .mntbl th.wke,.mntbl td.wke{background:var(--bg2)}
   .mntbl tr.mntot td.wke{background:var(--card2)}
+  /* ---- manpower: centred, breathing, and obviously typeable ---- */
+  .mnwrap{display:flex;justify-content:center}
+  .dctbl table.mntbl{width:auto;min-width:0;margin:0 auto}
+  .mntbl th.mnco,.mntbl td.mnco{width:250px;min-width:250px;padding-left:20px!important;padding-right:18px!important}
+  .mncoin{width:100%;border:1px solid transparent;border-radius:9px;padding:6px 9px;background:transparent;
+    color:var(--txt);font:inherit;font-size:13.5px;font-weight:900;letter-spacing:-.1px}
+  .mncoin:hover:not([readonly]){border-color:var(--line2);background:rgba(255,255,255,.6)}
+  .mncoin:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(7,104,139,.14);outline:0}
+  .mncoin[readonly]{cursor:default}
+  /* a faint box so it reads as something you can type in */
+  /* just enough of a box to say "type here", not enough to shout */
+  .mnin{border:1px solid rgba(76,96,118,.16);background:transparent;border-radius:7px}
+  .mnin:hover:not([readonly]){border-color:var(--acc2);background:#fff}
+  .mnin[readonly]{border-color:transparent;background:transparent}
+  /* ---- weekly goals: company column, carried-over block, met/missed colour ---- */
+  .glhd{display:flex;align-items:center;gap:10px;padding:6px 14px 8px;border-bottom:1px solid var(--line);
+    font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--mut2)}
+  .glhd .gck{width:19px;text-align:center;font-size:9px}
+  .glr .gco{width:150px;flex:none;border:1px solid transparent;border-radius:9px;padding:6px 8px;background:transparent;
+    color:var(--acc);font:inherit;font-size:12.5px;font-weight:900}
+  .glhd .gco{width:150px;flex:none;color:var(--mut2)}
+  .glr .gco:hover:not([readonly]):not(.ro){border-color:var(--line2);background:rgba(255,255,255,.6)}
+  .glr .gco:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(7,104,139,.14);outline:0}
+  .glr .gco.ro,.glr .gtx.ro{background:transparent;border-color:transparent}
+  .glr .gtag{flex:none;min-width:150px;text-align:right;font-size:10.5px;font-weight:900;
+    letter-spacing:.5px;text-transform:uppercase;color:var(--mut2)}
+  .glhd .gtx{flex:1}
+  .glr.done{background:var(--grnbg)}
+  .glr.done .gtx{text-decoration:line-through;color:var(--grng)}
+  .glr.done .gtag{color:var(--grng)}
+  .glr.late{background:var(--redbg)}
+  .glr.late .gtx{color:var(--redg)}
+  .glr.late .gtag{color:var(--redg)}
+  .glcar{border-top:2px solid var(--line2);margin-top:6px;padding-top:4px}
+  .glcar h4{margin:8px 14px 2px;font-size:10.5px;font-weight:900;letter-spacing:1px;
+    text-transform:uppercase;color:var(--redg)}
   .crewl{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
   .crewr{display:flex;align-items:center;gap:10px;padding:7px 11px;background:var(--card);
     border:1px solid var(--line2);border-radius:11px;font-size:12.5px;font-weight:800}
@@ -1378,7 +1413,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v17.0-tight-weekend-history";
+var MC_BUILD="v18.0-goals-rename-autoclose";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2554,24 +2589,62 @@ function dvHistRow(r,span){
     '</div></td></tr>';
 }
 
-/* ===================== 2. WEEKLY GOALS ===================== */
+/* ===================== 2. WEEKLY GOALS =====================
+   A goal belongs to the week it was set in. Met → green. Not met by the time
+   that week is over → it goes red on its own week AND shows up on every week
+   after it, under "Carried over", until somebody ticks it. Ticking it there
+   marks it met on the week it was set, so the record stays honest. */
 function goalWeek(){return STATE.goalWeek||mondayOf(todayISO());}
-function goalDoc(){
-  var w=goalWeek(),g=STATE.goals[w];
-  return g||{week:w,items:[],log:[]};
+function goalDocFor(w){return STATE.goals[w]||{week:w,items:[],log:[]};}
+function goalDoc(){return goalDocFor(goalWeek());}
+function goalItems(w){
+  var it=(goalDocFor(w||goalWeek()).items||[]).map(function(x){
+    return {t:(x&&x.t)||"",done:!!(x&&x.done),co:(x&&x.co)||""};});
+  while(it.length<8)it.push({t:"",done:false,co:""});
+  return it.slice(0,8);
+}
+/* red once the week it was set in has gone by */
+function goalLate(w,it){return !!(it&&it.t&&!it.done&&w<mondayOf(todayISO()));}
+/* everything still open from an earlier week */
+function goalsCarried(w){
+  var out=[];
+  Object.keys(STATE.goals).forEach(function(k){
+    if(k>=w)return;
+    (STATE.goals[k].items||[]).forEach(function(it,i){
+      if(it&&it.t&&!it.done)out.push({week:k,i:i,t:it.t,co:it.co||""});
+    });
+  });
+  out.sort(function(a,b){return a.week<b.week?-1:(a.week>b.week?1:a.i-b.i);});
+  return out;
 }
 function dcGoals(){
-  var w=goalWeek(),g=goalDoc(),ed=canEdit(),it=g.items||[];
-  var done=0,filled=0;
-  it.forEach(function(x){if(x&&x.t){filled++;if(x.done)done++;}});
+  var w=goalWeek(),g=goalDocFor(w),ed=canEdit(),it=goalItems(w);
+  var done=0,filled=0,late=0;
+  it.forEach(function(x){if(x.t){filled++;if(x.done)done++;else if(goalLate(w,x))late++;}});
+  var carried=goalsCarried(w);
   var rows="";
   for(var i=0;i<8;i++){
-    var x=it[i]||{t:"",done:false};
-    rows+='<div class="glr'+(x.done&&x.t?" done":"")+'">'+
+    var x=it[i],cls=x.t?(x.done?" done":(goalLate(w,x)?" late":"")):"";
+    rows+='<div class="glr'+cls+'">'+
       '<span class="gn">'+(i+1)+'.</span>'+
-      '<input type="checkbox" class="gck" data-act="dcGoalDone" data-i="'+i+'"'+(x.done?" checked":"")+(ed?"":" disabled")+' title="mark this goal met">'+
-      '<input class="gtx" data-gi="'+i+'" value="'+esc(x.t||"")+'" placeholder="'+(i<4?"Goal for the week…":"")+'"'+(ed?"":" readonly")+'>'+
+      '<input type="checkbox" class="gck" data-act="dcGoalDone" data-i="'+i+'" data-w="'+w+'"'+
+        (x.done?" checked":"")+(ed?"":" disabled")+' title="mark this goal met">'+
+      '<input class="gco" list="dcCoList" data-gi="'+i+'" data-w="'+w+'" value="'+esc(x.co)+'" placeholder="company"'+(ed?"":" readonly")+'>'+
+      '<input class="gtx" data-gi="'+i+'" data-w="'+w+'" value="'+esc(x.t)+'" placeholder="'+(i<4?"Goal for the week…":"")+'"'+(ed?"":" readonly")+'>'+
+      '<span class="gtag">'+(x.t?(x.done?"met":(goalLate(w,x)?"missed — carried over":"")):"")+'</span>'+
       '</div>';
+  }
+  var carry="";
+  if(carried.length){
+    carry='<div class="glcar"><h4>Carried over — set in an earlier week and still open</h4>'+
+      carried.map(function(c){
+        return '<div class="glr late">'+
+          '<span class="gn">↳</span>'+
+          '<input type="checkbox" class="gck" data-act="dcGoalDone" data-i="'+c.i+'" data-w="'+c.week+'"'+(ed?"":" disabled")+' title="mark this goal met">'+
+          '<span class="gco ro">'+esc(c.co||"—")+'</span>'+
+          '<span class="gtx ro">'+esc(c.t)+'</span>'+
+          '<span class="gtag">from week of '+fmtMD(c.week)+'</span>'+
+          '</div>';}).join('')+'</div>';
   }
   var nav='<div class="dcwk">'+
     '<button class="btn sm" data-act="dcWk" data-d="-7">← previous week</button>'+
@@ -2580,9 +2653,13 @@ function dcGoals(){
     '<button class="btn sm" data-act="dcWk" data-d="7">next week →</button>'+
     '<button class="btn sm" data-act="dcWk" data-d="0">this week</button></div>';
   return nav+'<div class="dcwrap"><div class="dchead"><h2>Weekly Goals</h2>'+
-      '<span class="sub">'+done+' of '+filled+' met</span><span style="flex:1"></span>'+
+      '<span class="sub">'+done+' of '+filled+' met'+(late?' · '+late+' missed':'')+
+        (carried.length?' · '+carried.length+' carried in':'')+'</span><span style="flex:1"></span>'+
+      '<span class="sub">green met · red missed and carried forward</span>'+
       '<button class="dclog" data-act="dcGoalLog">'+((g.log&&g.log.length)?g.log.length:'☰')+'</button></div>'+
-    '<div class="glbox">'+rows+'</div>'+
+    '<div class="glbox"><div class="glhd"><span class="gn">#</span><span class="gck">met</span>'+
+      '<span class="gco">company</span><span class="gtx">goal for the week</span><span class="gtag"></span></div>'+
+      rows+carry+'</div>'+
     (DC_OPEN_LOGS["_goals_"+w]?'<div class="dchbox"><h4>History — every change to this week’s goals</h4>'+
       histLines("gl",w,g.log||[])+histFoot("gl",w,g.log||[],"")+'</div>':'')+
     '</div>';
@@ -2628,9 +2705,11 @@ function manWeekKey(d){return "wk-"+mondayOf(d||manDate());}
 function manDoc(){var d=manDate();return STATE.man[d]||{date:d,r:{},log:[]};}
 function manWeekDoc(){var k=manWeekKey();return STATE.man[k]||{week:mondayOf(manDate()),w:{},log:[]};}
 function manRowTotal(o){var t=0;MAN_COLS.forEach(function(c){t+=(+(o&&o[c[0]])||0);});return t;}
+/* the roster is editable — rename a company and it is renamed everywhere */
+function manRoster(){var s=savedList("manRows");return s.length?s.slice():MAN_ROWS.slice();}
 function manRows(){
   var doc=manDoc(),wk=manWeekDoc(),seen={},out=[];
-  MAN_ROWS.forEach(function(c){seen[c]=1;out.push(c);});
+  manRoster().forEach(function(c){if(!seen[c]){seen[c]=1;out.push(c);}});
   Object.keys(doc.r||{}).forEach(function(c){if(!seen[c]){seen[c]=1;out.push(c);}});
   Object.keys(wk.w||{}).forEach(function(c){if(!seen[c]){seen[c]=1;out.push(c);}});
   return out;
@@ -2652,17 +2731,17 @@ function dcMan(){
   var body="";
   cos.forEach(function(c){
     var o=doc.r[c]||{},w=(wk.w||{})[c]||{},rt=manRowTotal(o);
-    var wkAny=MAN_WK.some(function(k){return w[k[0]];});
-    body+='<tr'+(rt||wkAny?'':' class="empty"')+'><td class="mnco">'+esc(c)+'</td>'+
+    body+='<tr><td class="mnco"><input class="mncoin" value="'+esc(c)+'" data-mnold="'+esc(c)+'" list="dcCoList"'+
+        (ed?' title="type here to rename this company everywhere"':' readonly')+'></td>'+
       MAN_COLS.map(function(k,i){return cell(c,k[0],o[k[0]],(i%2===0)?"gsep":"");}).join('')+
       '<td class="mnt gsep">'+(rt||"")+'</td>'+
-      MAN_WK.map(function(k,i){return cell(c,k[0],w[k[0]],i===0?"gsep wke":"wke");}).join('')+
+      MAN_WK.map(function(k){return cell(c,k[0],w[k[0]],"gsep wke");}).join('')+
       '</tr>';
   });
   var foot='<tr class="mntot"><td class="mnco">Total</td>'+
     MAN_COLS.map(function(k,i){return '<td class="mnc'+((i%2===0)?" gsep":"")+'">'+(tot[k[0]]||"")+'</td>';}).join('')+
     '<td class="mnt gsep">'+(grand||"")+'</td>'+
-    MAN_WK.map(function(k,i){return '<td class="mnc wke'+(i===0?" gsep":"")+'">'+(wt[k[0]]||"")+'</td>';}).join('')+
+    MAN_WK.map(function(k){return '<td class="mnc wke gsep">'+(wt[k[0]]||"")+'</td>';}).join('')+
     '</tr>';
   var nav='<div class="dcwk">'+
     '<button class="btn sm" data-act="dcMd" data-d="-1">← previous day</button>'+
@@ -2682,7 +2761,7 @@ function dcMan(){
       '<span class="sub">'+grand+' on site '+fmtMD(d)+'</span><span style="flex:1"></span>'+
       '<span class="sub">day counts change daily · the weekend plan holds all week</span>'+
       '<button class="dclog" data-act="dcMnLog">'+(mlog.length||'☰')+'</button></div>'+
-    '<div class="dctbl"><table class="mntbl"><thead>'+
+    '<div class="dctbl mnwrap"><table class="mntbl"><thead>'+
       '<tr><th rowspan="2" class="mnco">Company</th>'+
         '<th colspan="2" class="gsep">GRND<span class="wd">'+fmtMD(d)+'</span></th>'+
         '<th colspan="2" class="gsep">LVL 1<span class="wd">'+fmtMD(d)+'</span></th>'+
@@ -2690,11 +2769,50 @@ function dcMan(){
         '<th rowspan="2" class="mnt gsep">Daily<br>total<span class="wd">'+fmtMD(d)+'</span></th>'+
         '<th colspan="3" class="gsep wke">Weekend<span class="wd">week of '+fmtMD(mon)+'</span></th></tr>'+
       '<tr><th class="gsep">S</th><th>P</th><th class="gsep">S</th><th>P</th><th class="gsep">S</th><th>P</th>'+
-        MAN_WK.map(function(k,i){return '<th class="wke'+(i===0?" gsep":"")+'">'+k[1]+'<span class="wd">'+fmtMD(addDaysISO(mon,k[2]))+'</span></th>';}).join('')+
+        MAN_WK.map(function(k){return '<th class="wke gsep">'+k[1]+'<span class="wd">'+fmtMD(addDaysISO(mon,k[2]))+'</span></th>';}).join('')+
       '</tr></thead><tbody>'+body+foot+'</tbody></table></div>'+
     (openLog?'<div class="dchbox"><h4>History — this day, and this week’s weekend plan</h4>'+
       histLines("mn",d,mlog)+histFoot("mn",d,mlog,"")+'</div>':'')+
     '</div>';
+}
+/* Rename a company on the grid. The roster is saved for everybody and the
+   numbers move with the name on every day and week we hold. */
+function manRenameCo(oldN,newN){
+  oldN=String(oldN||"");newN=String(newN||"").trim();
+  if(!canEdit()||!newN||newN===oldN){render();return;}
+  var roster=manRoster();
+  if(roster.indexOf(newN)>=0){alert(newN+" is already on the grid.");render();return;}
+  var i=roster.indexOf(oldN);
+  if(i>=0)roster[i]=newN;else roster.push(newN);
+  STATE.lists.manRows=roster;
+  listAdd("companies",newN);
+  var hit=[];
+  Object.keys(STATE.man).forEach(function(k){
+    var dd=STATE.man[k];if(!dd)return;
+    var moved=false;
+    if(dd.r&&dd.r[oldN]!==undefined){dd.r[newN]=dd.r[oldN];delete dd.r[oldN];moved=true;}
+    if(dd.w&&dd.w[oldN]!==undefined){dd.w[newN]=dd.w[oldN];delete dd.w[oldN];moved=true;}
+    if(moved){
+      dd.log=(dd.log||[]);
+      dd.log.unshift({ts:dcNow(),who:dcWho(),what:"Company renamed <b>"+esc(oldN)+" → "+esc(newN)+"</b>"});
+      hit.push(k);
+    }
+  });
+  render();
+  db.collection(META_COL).doc("lists").set({manRows:roster},{merge:true})
+    .catch(function(e){console.warn("roster save",e&&e.code);});
+  /* whole-doc writes — a merge would leave the old name sitting there */
+  for(var s=0;s<hit.length;s+=400){
+    (function(part){
+      var b=db.batch();
+      part.forEach(function(k){
+        var dd=STATE.man[k];
+        if(k.indexOf("wk-")===0)b.set(db.collection(MAN_COL).doc(k),{week:dd.week,w:dd.w||{},log:dd.log||[]});
+        else b.set(db.collection(MAN_COL).doc(k),{date:dd.date||k,r:dd.r||{},log:dd.log||[]});
+      });
+      b.commit().catch(function(e){alert("Could not rename everywhere: "+e.message);});
+    })(hit.slice(s,s+400));
+  }
 }
 
 /* ===================== 5. WHO CAN DO WHAT ===================== */
@@ -2829,8 +2947,8 @@ function dcDelDlg(id){
 }
 
 /* ---------- writes for goals / deliveries / manpower / crew ---------- */
-function goalSave(items,what){
-  var w=goalWeek(),cur=STATE.goals[w];
+function goalSave(items,what,week){
+  var w=week||goalWeek(),cur=STATE.goals[w];
   if(!cur){cur={week:w,items:[],log:[],at:dcNow(),by:dcWho()};STATE.goals[w]=cur;}
   cur.items=items;
   cur.log=(cur.log||[]);cur.log.unshift({ts:dcNow(),who:dcWho(),what:what});
@@ -2838,11 +2956,6 @@ function goalSave(items,what){
   render();
   db.collection(GOALS_COL).doc(w).set({week:w,items:items,log:cur.log},{merge:true})
     .catch(function(e){alert("Could not save: "+e.message);});
-}
-function goalItems(){
-  var it=(goalDoc().items||[]).slice();
-  while(it.length<8)it.push({t:"",done:false});
-  return it.slice(0,8);
 }
 function dvSave(id,patch,entry){logSave(DELIV_COL,id,STATE.deliv,patch,entry);}
 function dvAdd(row){
@@ -2961,10 +3074,10 @@ document.addEventListener("click",function(e){
     else STATE.dcPage=pages-1;
     render();return;
   }
-  if(act==="dcLog"){DC_OPEN_LOGS[id]=!DC_OPEN_LOGS[id];render();return;}
-  if(act==="dcGoalLog"){var gk="_goals_"+goalWeek();DC_OPEN_LOGS[gk]=!DC_OPEN_LOGS[gk];render();return;}
-  if(act==="dcMnLog"){var mk="_mn_"+manDate();DC_OPEN_LOGS[mk]=!DC_OPEN_LOGS[mk];render();return;}
-  if(act==="dcDvLog"){var dk="_dv_"+t.getAttribute("data-dv");DC_OPEN_LOGS[dk]=!DC_OPEN_LOGS[dk];render();return;}
+  if(act==="dcLog"){var was=DC_OPEN_LOGS[id];DC_OPEN_LOGS={};if(!was)DC_OPEN_LOGS[id]=true;render();return;}
+  if(act==="dcGoalLog"){var gk="_goals_"+goalWeek(),w0=DC_OPEN_LOGS[gk];DC_OPEN_LOGS={};if(!w0)DC_OPEN_LOGS[gk]=true;render();return;}
+  if(act==="dcMnLog"){var mk="_mn_"+manDate(),m0=DC_OPEN_LOGS[mk];DC_OPEN_LOGS={};if(!m0)DC_OPEN_LOGS[mk]=true;render();return;}
+  if(act==="dcDvLog"){var dk="_dv_"+t.getAttribute("data-dv"),v0=DC_OPEN_LOGS[dk];DC_OPEN_LOGS={};if(!v0)DC_OPEN_LOGS[dk]=true;render();return;}
   if(act==="dcGo"){
     var mc=t.getAttribute("data-mc");
     var hit=sysList().filter(function(s2){return String(s2.mc)===String(mc);})[0];
@@ -2993,10 +3106,11 @@ document.addEventListener("click",function(e){
   }
   if(act==="dcGoalDone"){
     if(!canEdit())return;
-    var gi=+t.getAttribute("data-i"),its=goalItems();
+    var gw=t.getAttribute("data-w")||goalWeek();
+    var gi=+t.getAttribute("data-i"),its=goalItems(gw);
     if(!its[gi].t){render();return;}
     its[gi].done=!its[gi].done;
-    goalSave(its,"Goal "+(gi+1)+" <b>"+(its[gi].done?"met":"re-opened")+"</b> — "+esc(its[gi].t));
+    goalSave(its,"Goal "+(gi+1)+" <b>"+(its[gi].done?"met":"re-opened")+"</b> — "+esc(its[gi].t),gw);
     return;
   }
   if(act==="crewAdd"){crewAdd($("crewEm").value,$("crewCo").value);return;}
@@ -3061,10 +3175,27 @@ document.addEventListener("click",function(e){
     return;
   }
 });
+/* An open history folds itself away as soon as you click somewhere else — on
+   another constraint, on the page, anywhere outside it. Opening still takes a
+   click on the log button; closing never should. */
+function dcAnyLogOpen(){for(var k in DC_OPEN_LOGS)if(DC_OPEN_LOGS[k])return k;return null;}
+document.addEventListener("click",function(e){
+  var open=dcAnyLogOpen();
+  if(!open)return;
+  var t=e.target;
+  if(!t||!t.closest)return;
+  if(t.closest(".dchbox"))return;          /* inside the open panel — leave it */
+  if(t.closest(".dclog"))return;           /* the toggle handled it already */
+  if(t.closest('tr[data-dc="'+(window.CSS&&CSS.escape?CSS.escape(open):open)+'"]'))return; /* its own row */
+  if(t.closest('[data-dv="'+open.replace("_dv_","")+'"]'))return;
+  if(t.closest("dialog"))return;           /* a modal is its own world */
+  DC_OPEN_LOGS={};render();
+});
 /* inline cells + status + filter selects */
 document.addEventListener("focusin",function(e){
   var el=e.target;if(!el.classList)return;
-  if(el.classList.contains("dcin")||el.classList.contains("dvin")||el.classList.contains("mnin")||el.classList.contains("gtx"))
+  if(el.classList.contains("dcin")||el.classList.contains("dvin")||el.classList.contains("mnin")||
+     el.classList.contains("gtx")||el.classList.contains("gco")||el.classList.contains("mncoin"))
     el.setAttribute("data-was",el.value);
 });
 /* the description box grows as it is typed in — never make anyone drag a corner */
@@ -3104,6 +3235,11 @@ document.addEventListener("change",function(e){
     dvSave(vid,vp,{what:vnm+" changed <b>"+esc(vwas||"—")+"</b> → <b>"+esc(vnow||"—")+"</b>"});
     return;
   }
+  if(el.classList&&el.classList.contains("mncoin")){
+    if(!canEdit()){el.value=el.getAttribute("data-mnold")||"";return;}
+    manRenameCo(el.getAttribute("data-mnold"),el.value);
+    return;
+  }
   if(el.classList&&el.classList.contains("mnin")){
     if(!canEdit())return;
     var mco=el.getAttribute("data-mnc"),mf=el.getAttribute("data-mnf");
@@ -3113,13 +3249,16 @@ document.addEventListener("change",function(e){
     manSave(mco,mf,mnow===""?"":(+mnow),mwas);
     return;
   }
-  if(el.classList&&el.classList.contains("gtx")){
+  if(el.classList&&(el.classList.contains("gtx")||el.classList.contains("gco"))&&el.tagName==="INPUT"){
     if(!canEdit())return;
+    var isCo=el.classList.contains("gco");
+    var gw2=el.getAttribute("data-w")||goalWeek();
     var gi2=+el.getAttribute("data-gi"),gwas=el.getAttribute("data-was")||"",gnow=el.value;
     if(gwas===gnow)return;
-    var its2=goalItems();its2[gi2].t=gnow;
-    if(!gnow)its2[gi2].done=false;
-    goalSave(its2,"Goal "+(gi2+1)+" changed <b>"+esc(gwas||"—")+"</b> → <b>"+esc(gnow||"—")+"</b>");
+    var its2=goalItems(gw2);
+    if(isCo){its2[gi2].co=gnow;listAdd("companies",gnow);}
+    else {its2[gi2].t=gnow;if(!gnow){its2[gi2].done=false;}}
+    goalSave(its2,"Goal "+(gi2+1)+" "+(isCo?"company":"text")+" changed <b>"+esc(gwas||"—")+"</b> → <b>"+esc(gnow||"—")+"</b>",gw2);
     return;
   }
   if(el.id==="dcNLvl"){var rn=$("dcNRoom");if(rn){rn.setAttribute("list",dcRoomListId(el.value));rn.value="";}return;}
