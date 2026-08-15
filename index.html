@@ -716,9 +716,9 @@
   .dctbl table{border-collapse:collapse;width:100%;min-width:1180px}
   .dctbl thead th{position:sticky;top:0;z-index:4;background:var(--card2);text-align:left;
     font-size:10px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--redg);
-    padding:10px 11px;border-bottom:2px solid var(--line2);white-space:nowrap}
-  .dctbl thead th .h2{display:block;font-weight:700;text-transform:none;letter-spacing:0;color:var(--mut2);font-size:10px}
-  .dctbl tbody td{padding:8px 11px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:13px}
+    padding:8px 7px;border-bottom:2px solid var(--line2);white-space:nowrap}
+  .dctbl thead th .h2{display:block;font-weight:700;text-transform:none;letter-spacing:0;color:var(--mut2);font-size:9.5px}
+  .dctbl tbody td{padding:6px 7px;border-bottom:1px solid var(--line);vertical-align:middle;font-size:12.5px}
   .dctbl tbody tr{background:var(--card)}
   .dctbl tbody tr.s-late{background:var(--redbg)}
   .dctbl tbody tr.s-prog{background:var(--yelbg)}
@@ -727,9 +727,9 @@
   .dctbl tbody tr.void{opacity:.5}
   .dcn{font-size:11px;font-weight:900;color:var(--mut2);width:30px}
   .dctbl td.dt,.dctbl td.du{white-space:nowrap;font-weight:800;font-size:12.5px}
-  .dctbl td.dco{font-weight:900;white-space:nowrap;min-width:132px}
-  .dctbl td.dd{min-width:290px;font-weight:600;white-space:pre-line}
-  .dcin,.dvin{width:100%;border:1px solid transparent;border-radius:8px;padding:5px 7px;background:transparent;
+  .dctbl td.dco{font-weight:900;white-space:nowrap;width:112px}
+  .dctbl td.dd{min-width:230px;font-weight:600;white-space:pre-line}
+  .dcin,.dvin{width:100%;border:1px solid transparent;border-radius:8px;padding:4px 6px;background:transparent;
     font:inherit;font-weight:inherit;color:inherit;outline:none}
   .dcin:hover:not([readonly]),.dvin:hover:not([readonly]):not(:disabled){border-color:var(--line2);background:rgba(255,255,255,.6)}
   .dcin:focus,.dvin:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(7,104,139,.14);outline:0}
@@ -753,7 +753,7 @@
     padding:2px 7px;border-radius:99px;background:var(--orgbg);color:var(--orgg);border:1px solid rgba(194,92,0,.4)}
   .dclate{display:inline-block;margin-left:5px;font-size:9.5px;font-weight:900;padding:2px 7px;border-radius:99px;
     background:linear-gradient(135deg,var(--red),var(--redg));color:#fff}
-  .dcst{appearance:none;border:1px solid var(--line2);border-radius:99px;padding:6px 28px 6px 12px;font-size:11px;
+  .dcst{appearance:none;border:1px solid var(--line2);border-radius:99px;padding:5px 24px 5px 9px;font-size:10.5px;
     font-weight:900;letter-spacing:.4px;text-transform:uppercase;cursor:pointer;background:#fff;color:var(--mut);
     background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234c6076' stroke-width='3' stroke-linecap='round'><path d='M6 9l6 6 6-6'/></svg>");
     background-repeat:no-repeat;background-position:right 9px center;background-size:11px}
@@ -769,7 +769,7 @@
   .dchist td{background:#f7fafc;padding:0;border-bottom:2px solid var(--line)}
   .dchbox{padding:12px 16px 14px}
   .dchbox h4{margin:0 0 9px;font-size:10.5px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:var(--mut)}
-  .dchl{display:grid;grid-template-columns:150px 200px 1fr;gap:10px;padding:7px 0;border-top:1px dashed var(--line2);font-size:12px}
+  .dchl{display:grid;grid-template-columns:150px 200px 1fr auto;gap:10px;padding:7px 0;border-top:1px dashed var(--line2);font-size:12px}
   .dchl:first-of-type{border-top:0}
   .dchl .ts{font-weight:800;color:var(--mut2);font-size:11px;white-space:nowrap}
   .dchl .who{font-weight:900;font-size:11.5px;word-break:break-all}
@@ -799,8 +799,8 @@
   .dcwk .grow{flex:1}
   .btn.sm{padding:6px 11px;font-size:12px}
   .dctbl table.narrow{min-width:640px}
-  .dctbl td.drm{min-width:250px}
-  .dctbl table{min-width:1480px}
+  .dctbl td.drm{width:226px}
+  .dctbl table{min-width:1214px;table-layout:auto}
   /* ---- weekly goals ---- */
   .glbox{padding:8px 4px 12px}
   .glr{display:flex;align-items:center;gap:10px;padding:7px 14px;border-bottom:1px solid var(--line)}
@@ -845,10 +845,10 @@
   body.crewonly #addSysBtn,body.crewonly #goalwrap,body.crewonly .hsearch{display:none!important}
   .acfoot{padding:12px 16px 14px;font-size:11.8px;font-weight:700;color:var(--mut2);line-height:1.6;border-top:1px solid var(--line)}
   /* ---- constraints: level column, paging, owner delete ---- */
-  .dctbl td.dlv{min-width:158px}
-  .dctbl td.dch{min-width:160px;font-weight:800}
+  .dctbl td.dlv{width:130px}
+  .dctbl td.dch{width:138px;font-weight:800}
   .dctbl td.dd textarea.dcin{resize:none;overflow:hidden}
-  .dctbl th.dact,.dctbl td.dact{width:96px;white-space:nowrap;text-align:right}
+  .dctbl th.dact,.dctbl td.dact{width:40px;white-space:nowrap;text-align:center;padding-left:2px!important;padding-right:6px!important}
   .dcdel{margin-left:5px;border:1px solid var(--line2);background:var(--card);border-radius:9px;
     width:28px;height:28px;font-size:12px;cursor:pointer;color:var(--mut2);vertical-align:middle}
   .dcdel:hover{border-color:var(--red);color:var(--red);background:var(--redbg)}
@@ -858,6 +858,16 @@
   .dcpg .pgl b{color:var(--txt)}
   .dcpg .pgn{margin-left:auto;font-size:11px;font-weight:800;color:var(--mut2)}
   /* ---- crew accounts ---- */
+  .hdel{border:1px solid var(--line2);background:var(--card);border-radius:8px;width:22px;height:22px;
+    font-size:13px;line-height:1;cursor:pointer;color:var(--mut2);flex:none;align-self:center}
+  .hdel:hover{border-color:var(--red);color:var(--red);background:var(--redbg)}
+  .hown{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:9px 0 2px;margin-top:6px;border-top:1px solid var(--line)}
+  .hown .hnote{margin-left:auto;font-size:10.5px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--mut2)}
+  .btn.sm.danger{border-color:rgba(224,11,40,.45);color:var(--redg)}
+  .btn.sm.danger:hover{background:var(--redbg);border-color:var(--red)}
+  /* weekend block sits to the right of the daily total and reads as its own thing */
+  .mntbl th.wke,.mntbl td.wke{background:var(--bg2)}
+  .mntbl tr.mntot td.wke{background:var(--card2)}
   .crewl{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
   .crewr{display:flex;align-items:center;gap:10px;padding:7px 11px;background:var(--card);
     border:1px solid var(--line2);border-radius:11px;font-size:12.5px;font-weight:800}
@@ -1368,7 +1378,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v16.0-levels-paging-crew";
+var MC_BUILD="v17.0-tight-weekend-history";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1722,7 +1732,7 @@ function bootFull(){
   });
   softCol(MAN_COL,function(snap){
     var d={};snap.forEach(function(doc){var x=doc.data();x.date=x.date||doc.id;d[doc.id]=x;});
-    STATE.man=d;STATE.manLoaded=true;
+    STATE.man=d;STATE.manLoaded=true;manMigrateWeekend();
   });
   db.collection(META_COL).doc("lists").onSnapshot({includeMetadataChanges:true},function(doc){
     if(NO_ACCESS)return;
@@ -2439,7 +2449,7 @@ function dcConstraints(){
     '<input type="search" id="dcQ" placeholder="Search description, room, company…" value="'+esc(STATE.df.q)+'">'+
     '</div>';
 
-  var body="",del=dcCanDelete();
+  var body="";
   rows.forEach(function(r,i){
     var s=dcState(r),lt=dcLate(r),ed=dcCanEditRow(r),ro=ed?"":" readonly",dis=ed?"":" disabled";
     body+='<tr class="s-'+s+'" data-dc="'+esc(r.id)+'">'+
@@ -2461,8 +2471,7 @@ function dcConstraints(){
           var d2=(x==="done"&&!dcCanClose())?" disabled":"";
           return '<option value="'+x+'"'+(r.st===x?" selected":"")+d2+'>'+DC_LABEL[x]+'</option>';}).join('')+
         '</select></td>'+
-      '<td class="dact"><button class="dclog" data-act="dcLog" data-dc="'+esc(r.id)+'" title="history">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button>'+
-        (del?'<button class="dcdel" data-act="dcDel" data-dc="'+esc(r.id)+'" title="delete this row — owner only, permanent">🗑</button>':'')+'</td>'+
+      '<td class="dact"><button class="dclog" data-act="dcLog" data-dc="'+esc(r.id)+'" title="open the history for this row">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button></td>'+
       '</tr>';
     if(DC_OPEN_LOGS[r.id])body+=dcHistRow(r,11);
   });
@@ -2505,15 +2514,43 @@ function dcConstraints(){
       (all.length?'Nothing matches that filter.':'No constraints on the tracker yet — raise the first one below.')+'</td></tr>')+
     '</tbody></table></div>'+pager+add+'</div>';
 }
+/* One history panel for every section. The log is folded away until the little
+   log button is clicked; the owner can strike a single line out of it — or the
+   whole row — from inside the panel, so nobody's email has to stay on the board. */
+function histLines(kind,id,lg){
+  var own=isOwnerUser();
+  return (lg.length?lg.map(function(h,i){
+      return '<div class="dchl"><span class="ts">'+esc(String(h.ts||"").replace("T"," ").slice(0,16))+'</span>'+
+        '<span class="who">'+esc(h.who||"")+'</span><span class="what">'+h.what+
+        (h.why?'<span class="why">Reason: '+esc(h.why)+'</span>':'')+'</span>'+
+        (own?'<button class="hdel" data-act="histDel" data-hk="'+kind+'" data-hi="'+esc(id)+'" data-i="'+(h._i===undefined?i:h._i)+'"'+
+          (h._src?' data-hs="'+h._src+'"':'')+' title="remove this line — owner only">×</button>':'')+
+        '</div>';}).join('')
+    :'<div class="dchl"><span class="ts">—</span><span class="who">—</span><span class="what">Nothing changed yet.</span></div>');
+}
+function histFoot(kind,id,lg,extra){
+  var own=isOwnerUser();
+  return '<div class="dckeep"><i>kept</i> every change stays here for the life of the job'+
+    (own?'</div><div class="hown">'+
+      (lg.length?'<button class="btn sm" data-act="histClear" data-hk="'+kind+'" data-hi="'+esc(id)+'">Clear this history</button>':'')+
+      (extra||'')+
+      '<span class="hnote">owner only</span></div>'
+    :'</div>');
+}
 function dcHistRow(r,span){
   var lg=(r.log||[]);
   return '<tr class="dchist"><td colspan="'+span+'"><div class="dchbox"><h4>History — every change on this row</h4>'+
-    (lg.length?lg.map(function(h){
-      return '<div class="dchl"><span class="ts">'+esc(String(h.ts||"").replace("T"," ").slice(0,16))+'</span>'+
-        '<span class="who">'+esc(h.who||"")+'</span><span class="what">'+h.what+
-        (h.why?'<span class="why">Reason: '+esc(h.why)+'</span>':'')+'</span></div>';}).join('')
-      :'<div class="dchl"><span class="ts">—</span><span class="who">—</span><span class="what">Nothing changed on this row yet.</span></div>')+
-    '<div class="dckeep"><i>kept</i> every change stays on the row for the life of the job — only the owner can remove a row outright</div>'+
+    histLines("dc",r.id,lg)+
+    histFoot("dc",r.id,lg,dcCanDelete()
+      ? '<button class="btn sm danger" data-act="dcDel" data-dc="'+esc(r.id)+'">Delete this row</button>':'')+
+    '</div></td></tr>';
+}
+function dvHistRow(r,span){
+  var lg=(r.log||[]);
+  return '<tr class="dchist"><td colspan="'+span+'"><div class="dchbox"><h4>History — every change on this delivery</h4>'+
+    histLines("dv",r.id,lg)+
+    histFoot("dv",r.id,lg,dcCanDelete()
+      ? '<button class="btn sm danger" data-act="dvDel" data-dv="'+esc(r.id)+'">Delete this delivery</button>':'')+
     '</div></td></tr>';
 }
 
@@ -2547,17 +2584,13 @@ function dcGoals(){
       '<button class="dclog" data-act="dcGoalLog">'+((g.log&&g.log.length)?g.log.length:'☰')+'</button></div>'+
     '<div class="glbox">'+rows+'</div>'+
     (DC_OPEN_LOGS["_goals_"+w]?'<div class="dchbox"><h4>History — every change to this week’s goals</h4>'+
-      ((g.log||[]).length?(g.log||[]).map(function(h){
-        return '<div class="dchl"><span class="ts">'+esc(String(h.ts||"").replace("T"," ").slice(0,16))+'</span>'+
-          '<span class="who">'+esc(h.who||"")+'</span><span class="what">'+h.what+'</span></div>';}).join('')
-        :'<div class="dchl"><span class="ts">—</span><span class="who">—</span><span class="what">Nothing changed yet.</span></div>')+
-      '<div class="dckeep"><i>kept</i> every week is its own record — last week’s goals are still there next year</div></div>':'')+
+      histLines("gl",w,g.log||[])+histFoot("gl",w,g.log||[],"")+'</div>':'')+
     '</div>';
 }
 
 /* ===================== 3. DELIVERIES ===================== */
 function dcDeliv(){
-  var ed=canEdit(),del=dcCanDelete();
+  var ed=canEdit();
   var all=[];for(var k in STATE.deliv){var d=STATE.deliv[k];if(d&&!d.void)all.push(d);}
   all.sort(function(a,b){return (a.date||"")>(b.date||"")?-1:1;});
   var body="";
@@ -2568,9 +2601,8 @@ function dcDeliv(){
       '<td class="dt"><input class="dvin" type="date" value="'+esc(r.date||"")+'" data-dvf="date" data-dv="'+esc(r.id)+'"'+(ed?"":" disabled")+'></td>'+
       '<td class="dco"><input class="dvin" list="dcCoList" value="'+esc(r.co||"")+'" data-dvf="co" data-dv="'+esc(r.id)+'"'+ro+'></td>'+
       '<td class="dd"><input class="dvin" value="'+esc(r.desc||"")+'" data-dvf="desc" data-dv="'+esc(r.id)+'" placeholder="what is arriving, and which floor"'+ro+'></td>'+
-      '<td class="dact"><button class="dclog" data-act="dcDvLog" data-dv="'+esc(r.id)+'">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button>'+
-        (del?'<button class="dcdel" data-act="dvDel" data-dv="'+esc(r.id)+'" title="delete — owner only, permanent">🗑</button>':'')+'</td></tr>';
-    if(DC_OPEN_LOGS["_dv_"+r.id])body+=dcHistRow(r,5);
+      '<td class="dact"><button class="dclog" data-act="dcDvLog" data-dv="'+esc(r.id)+'" title="open the history for this delivery">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button></td></tr>';
+    if(DC_OPEN_LOGS["_dv_"+r.id])body+=dvHistRow(r,5);
   });
   var add=ed?('<div class="dcadd">'+
       '<input type="date" id="dvNDate" value="'+todayISO()+'">'+
@@ -2585,24 +2617,32 @@ function dcDeliv(){
     '</tbody></table></div>'+add+'</div>';
 }
 
-/* ===================== 4. MANPOWER ===================== */
+/* ===================== 4. MANPOWER =====================
+   Two records, on purpose:
+     mc_man/<date>            the day — GRND / LVL 1 / LVL 2, S and P
+     mc_man/wk-<monday>       the week — Friday, Saturday, Sunday
+   The weekend plan belongs to the week, not to one day, so it stays put as you
+   step Monday → Tuesday → Wednesday and only clears when a new week starts. */
 function manDate(){return STATE.manDate||todayISO();}
+function manWeekKey(d){return "wk-"+mondayOf(d||manDate());}
 function manDoc(){var d=manDate();return STATE.man[d]||{date:d,r:{},log:[]};}
+function manWeekDoc(){var k=manWeekKey();return STATE.man[k]||{week:mondayOf(manDate()),w:{},log:[]};}
 function manRowTotal(o){var t=0;MAN_COLS.forEach(function(c){t+=(+(o&&o[c[0]])||0);});return t;}
 function manRows(){
-  var doc=manDoc(),seen={},out=[];
+  var doc=manDoc(),wk=manWeekDoc(),seen={},out=[];
   MAN_ROWS.forEach(function(c){seen[c]=1;out.push(c);});
   Object.keys(doc.r||{}).forEach(function(c){if(!seen[c]){seen[c]=1;out.push(c);}});
+  Object.keys(wk.w||{}).forEach(function(c){if(!seen[c]){seen[c]=1;out.push(c);}});
   return out;
 }
 function dcMan(){
-  var ed=canEdit(),d=manDate(),doc=manDoc(),cos=manRows();
-  var tot={},grand=0,wk={fri:0,sat:0,sun:0};
+  var ed=canEdit(),d=manDate(),doc=manDoc(),wk=manWeekDoc(),cos=manRows(),mon=mondayOf(d);
+  var tot={},grand=0,wt={fri:0,sat:0,sun:0};
   MAN_COLS.forEach(function(c){tot[c[0]]=0;});
   cos.forEach(function(c){
-    var o=doc.r[c]||{};
+    var o=doc.r[c]||{},w=(wk.w||{})[c]||{};
     MAN_COLS.forEach(function(k){tot[k[0]]+=(+o[k[0]]||0);});
-    MAN_WK.forEach(function(k){wk[k[0]]+=(+o[k[0]]||0);});
+    MAN_WK.forEach(function(k){wt[k[0]]+=(+w[k[0]]||0);});
     grand+=manRowTotal(o);
   });
   function cell(c,f,v,cls){
@@ -2611,17 +2651,19 @@ function dcMan(){
   }
   var body="";
   cos.forEach(function(c){
-    var o=doc.r[c]||{},rt=manRowTotal(o),wkAny=MAN_WK.some(function(k){return o[k[0]];});
+    var o=doc.r[c]||{},w=(wk.w||{})[c]||{},rt=manRowTotal(o);
+    var wkAny=MAN_WK.some(function(k){return w[k[0]];});
     body+='<tr'+(rt||wkAny?'':' class="empty"')+'><td class="mnco">'+esc(c)+'</td>'+
       MAN_COLS.map(function(k,i){return cell(c,k[0],o[k[0]],(i%2===0)?"gsep":"");}).join('')+
-      MAN_WK.map(function(k){return cell(c,k[0],o[k[0]],"gsep");}).join('')+
-      '<td class="mnt gsep">'+(rt||"")+'</td></tr>';
+      '<td class="mnt gsep">'+(rt||"")+'</td>'+
+      MAN_WK.map(function(k,i){return cell(c,k[0],w[k[0]],i===0?"gsep wke":"wke");}).join('')+
+      '</tr>';
   });
   var foot='<tr class="mntot"><td class="mnco">Total</td>'+
     MAN_COLS.map(function(k,i){return '<td class="mnc'+((i%2===0)?" gsep":"")+'">'+(tot[k[0]]||"")+'</td>';}).join('')+
-    MAN_WK.map(function(k){return '<td class="mnc gsep">'+(wk[k[0]]||"")+'</td>';}).join('')+
-    '<td class="mnt gsep">'+(grand||"")+'</td></tr>';
-  var mon=mondayOf(d);
+    '<td class="mnt gsep">'+(grand||"")+'</td>'+
+    MAN_WK.map(function(k,i){return '<td class="mnc wke'+(i===0?" gsep":"")+'">'+(wt[k[0]]||"")+'</td>';}).join('')+
+    '</tr>';
   var nav='<div class="dcwk">'+
     '<button class="btn sm" data-act="dcMd" data-d="-1">← previous day</button>'+
     '<input type="date" id="dcMdIn" value="'+d+'">'+
@@ -2630,24 +2672,28 @@ function dcMan(){
     '<button class="btn sm" data-act="dcMd" data-d="0">today</button>'+
     (ed?'<span class="grow"></span><input type="text" id="mnNew" list="dcCoList" placeholder="add a company to the grid" style="width:210px">'+
       '<button class="btn sm" data-act="mnAdd">+ add</button>':'')+'</div>';
+  /* one panel, both records: the day's changes and this week's weekend changes */
+  var mlog=[];
+  (doc.log||[]).forEach(function(h,i){mlog.push(Object.assign({},h,{_src:"day",_i:i}));});
+  (wk.log||[]).forEach(function(h,i){mlog.push(Object.assign({},h,{_src:"week",_i:i}));});
+  mlog.sort(function(a,b){return (a.ts||"")<(b.ts||"")?1:-1;});
+  var openLog=DC_OPEN_LOGS["_mn_"+d];
   return nav+'<div class="dcwrap"><div class="dchead"><h2>Manpower</h2>'+
       '<span class="sub">'+grand+' on site '+fmtMD(d)+'</span><span style="flex:1"></span>'+
-      '<span class="sub">S and P as written on the board · daily total adds itself</span>'+
-      '<button class="dclog" data-act="dcMnLog">'+((doc.log&&doc.log.length)?doc.log.length:'☰')+'</button></div>'+
+      '<span class="sub">day counts change daily · the weekend plan holds all week</span>'+
+      '<button class="dclog" data-act="dcMnLog">'+(mlog.length||'☰')+'</button></div>'+
     '<div class="dctbl"><table class="mntbl"><thead>'+
       '<tr><th rowspan="2" class="mnco">Company</th>'+
-        '<th colspan="2" class="gsep">GRND</th><th colspan="2" class="gsep">LVL 1</th>'+
-        '<th colspan="2" class="gsep">LVL 2</th><th colspan="3" class="gsep">Weekend</th>'+
-        '<th rowspan="2" class="mnt gsep">Daily<br>total</th></tr>'+
+        '<th colspan="2" class="gsep">GRND<span class="wd">'+fmtMD(d)+'</span></th>'+
+        '<th colspan="2" class="gsep">LVL 1<span class="wd">'+fmtMD(d)+'</span></th>'+
+        '<th colspan="2" class="gsep">LVL 2<span class="wd">'+fmtMD(d)+'</span></th>'+
+        '<th rowspan="2" class="mnt gsep">Daily<br>total<span class="wd">'+fmtMD(d)+'</span></th>'+
+        '<th colspan="3" class="gsep wke">Weekend<span class="wd">week of '+fmtMD(mon)+'</span></th></tr>'+
       '<tr><th class="gsep">S</th><th>P</th><th class="gsep">S</th><th>P</th><th class="gsep">S</th><th>P</th>'+
-        MAN_WK.map(function(k){return '<th class="gsep">'+k[1]+'<span class="wd">'+fmtMD(addDaysISO(mon,k[2]))+'</span></th>';}).join('')+
+        MAN_WK.map(function(k,i){return '<th class="wke'+(i===0?" gsep":"")+'">'+k[1]+'<span class="wd">'+fmtMD(addDaysISO(mon,k[2]))+'</span></th>';}).join('')+
       '</tr></thead><tbody>'+body+foot+'</tbody></table></div>'+
-    (DC_OPEN_LOGS["_mn_"+d]?'<div class="dchbox"><h4>History — every change to this day’s manpower</h4>'+
-      ((doc.log||[]).length?(doc.log||[]).map(function(h){
-        return '<div class="dchl"><span class="ts">'+esc(String(h.ts||"").replace("T"," ").slice(0,16))+'</span>'+
-          '<span class="who">'+esc(h.who||"")+'</span><span class="what">'+h.what+'</span></div>';}).join('')
-        :'<div class="dchl"><span class="ts">—</span><span class="who">—</span><span class="what">Nothing changed yet.</span></div>')+
-      '<div class="dckeep"><i>kept</i> every day is its own record — nothing is overwritten when tomorrow’s numbers go up</div></div>':'')+
+    (openLog?'<div class="dchbox"><h4>History — this day, and this week’s weekend plan</h4>'+
+      histLines("mn",d,mlog)+histFoot("mn",d,mlog,"")+'</div>':'')+
     '</div>';
 }
 
@@ -2808,20 +2854,74 @@ function dvAdd(row){
   render();
   ref.set(row).catch(function(e){alert("Could not save: "+e.message);});
 }
+function manIsWeekend(f){return f==="fri"||f==="sat"||f==="sun";}
 function manSave(co,field,val,was){
-  var d=manDate(),cur=STATE.man[d];
-  if(!cur){cur={date:d,r:{},log:[],at:dcNow(),by:dcWho()};STATE.man[d]=cur;}
-  cur.r=cur.r||{};cur.r[co]=cur.r[co]||{};
-  if(val===""||val===null)delete cur.r[co][field];else cur.r[co][field]=val;
   var nm=({gs:"GRND S",gp:"GRND P",l1s:"LVL 1 S",l1p:"LVL 1 P",l2s:"LVL 2 S",l2p:"LVL 2 P",
            fri:"Friday",sat:"Saturday",sun:"Sunday"})[field]||field;
-  cur.log=(cur.log||[]);
-  cur.log.unshift({ts:dcNow(),who:dcWho(),what:esc(co)+" · "+nm+" <b>"+esc(was===""||was==null?"—":String(was))+" → "+esc(val===""||val==null?"—":String(val))+"</b>"});
-  if(cur.log.length>400)cur.log=cur.log.slice(0,400);
+  var what=esc(co)+" · "+nm+" <b>"+esc(was===""||was==null?"—":String(was))+" → "+esc(val===""||val==null?"—":String(val))+"</b>";
+  if(manIsWeekend(field)){
+    /* the weekend plan lives on the week, so it survives stepping day to day */
+    var k=manWeekKey(),mon=mondayOf(manDate()),cur=STATE.man[k];
+    if(!cur){cur={week:mon,w:{},log:[],at:dcNow(),by:dcWho()};STATE.man[k]=cur;}
+    cur.w=cur.w||{};cur.w[co]=cur.w[co]||{};
+    if(val===""||val===null)delete cur.w[co][field];else cur.w[co][field]=val;
+    cur.log=(cur.log||[]);cur.log.unshift({ts:dcNow(),who:dcWho(),what:what});
+    if(cur.log.length>400)cur.log=cur.log.slice(0,400);
+    render();
+    db.collection(MAN_COL).doc(k).set({week:mon,w:cur.w,log:cur.log},{merge:true})
+      .catch(function(e){alert("Could not save: "+e.message);});
+    return;
+  }
+  var d=manDate(),c2=STATE.man[d];
+  if(!c2){c2={date:d,r:{},log:[],at:dcNow(),by:dcWho()};STATE.man[d]=c2;}
+  c2.r=c2.r||{};c2.r[co]=c2.r[co]||{};
+  if(val===""||val===null)delete c2.r[co][field];else c2.r[co][field]=val;
+  c2.log=(c2.log||[]);c2.log.unshift({ts:dcNow(),who:dcWho(),what:what});
+  if(c2.log.length>400)c2.log=c2.log.slice(0,400);
   render();
-  db.collection(MAN_COL).doc(d).set({date:d,r:cur.r,log:cur.log},{merge:true})
+  db.collection(MAN_COL).doc(d).set({date:d,r:c2.r,log:c2.log},{merge:true})
     .catch(function(e){alert("Could not save: "+e.message);});
 }
+/* owner only: strike one line, or the whole log, out of any history */
+function histStore(kind){
+  if(kind==="dc")return [DAILY_COL,STATE.daily];
+  if(kind==="dv")return [DELIV_COL,STATE.deliv];
+  if(kind==="gl")return [GOALS_COL,STATE.goals];
+  return [MAN_COL,STATE.man];
+}
+function histWrite(col,id,r){
+  var p={log:r.log};
+  render();
+  db.collection(col).doc(id).set(p,{merge:true})
+    .catch(function(e){alert("Could not save: "+e.message);});
+}
+function histDel(kind,id,idx,src){
+  if(!isOwnerUser())return;
+  var cs=histStore(kind),col=cs[0],store=cs[1];
+  if(kind==="mn"){                       /* the panel merges two docs */
+    var key=(src==="week")?manWeekKey(id):id;
+    var r=store[key];if(!r||!r.log)return;
+    r.log=r.log.slice();r.log.splice(idx,1);
+    histWrite(col,key,r);return;
+  }
+  var r2=store[id];if(!r2||!r2.log)return;
+  r2.log=r2.log.slice();r2.log.splice(idx,1);
+  histWrite(col,id,r2);
+}
+function histClear(kind,id){
+  if(!isOwnerUser())return;
+  var cs=histStore(kind),col=cs[0],store=cs[1];
+  if(kind==="mn"){
+    [id,manWeekKey(id)].forEach(function(k){
+      var r=store[k];if(!r)return;r.log=[];
+      db.collection(col).doc(k).set({log:[]},{merge:true}).catch(function(e){console.warn(e);});
+    });
+    render();return;
+  }
+  var r2=store[id];if(!r2)return;
+  r2.log=[];histWrite(col,id,r2);
+}
+
 /* owner only: hand out / take back a contractor crew account */
 function crewAdd(email,co){
   email=String(email||"").trim().toLowerCase();co=String(co||"").trim();
@@ -2905,6 +3005,12 @@ document.addEventListener("click",function(e){
     if(confirm("Remove crew access for "+ce+"?\n\nTheir rows stay on the tracker; they just cannot sign in any more."))crewDel(ce);
     return;
   }
+  if(act==="histDel"){histDel(t.getAttribute("data-hk"),t.getAttribute("data-hi"),+t.getAttribute("data-i"),t.getAttribute("data-hs"));return;}
+  if(act==="histClear"){
+    var hk=t.getAttribute("data-hk"),hi=t.getAttribute("data-hi");
+    if(confirm("Clear the whole history here?\n\nThe rows and numbers stay — only the change log goes. There is no undo."))histClear(hk,hi);
+    return;
+  }
   if(act==="dcMcc"){dcMccDlg(id);return;}
   if(act==="dcDue"){dcDueDlg(id);return;}
   if(act==="dcDel"){dcDelDlg(id);return;}
@@ -2914,6 +3020,7 @@ document.addEventListener("click",function(e){
     if(confirm("Delete this delivery for good? There is no undo."))hardDelete(DELIV_COL,vd,STATE.deliv);
     return;
   }
+  if(act==="dcMnLog2"){var mk2="_mn_"+manDate();DC_OPEN_LOGS[mk2]=!DC_OPEN_LOGS[mk2];render();return;}
   if(act==="dcClose"){var d3=$("dcDlg");if(d3&&d3.open)d3.close();return;}
   if(act==="dcDueSave"){
     var r=STATE.daily[id];if(!r)return;
@@ -3123,6 +3230,48 @@ function dcSeedBoard(){
 /* Rows written before the Level column existed: fill it in from the room, and
    pull the old "(overall)" level placeholders out of the room field. Runs once,
    editors only, and touches nothing that already has a level. */
+/* Weekend numbers used to sit on the day. Move them onto the week once, so
+   they stop vanishing when you step to the next day. Editors only, runs once. */
+var _manMigrated=false;
+function manMigrateWeekend(){
+  if(_manMigrated||!canEdit()||!STATE.manLoaded)return;
+  var dates=Object.keys(STATE.man).filter(function(k){return k.charAt(0)==="2";});
+  if(!dates.length)return;
+  _manMigrated=true;
+  var days=[],weeks={};
+  dates.forEach(function(d){
+    var doc=STATE.man[d];if(!doc||!doc.r)return;
+    var mon=mondayOf(d),k="wk-"+mon,moved=false;
+    Object.keys(doc.r).forEach(function(co){
+      var o=doc.r[co];if(!o)return;
+      MAN_WK.forEach(function(f){
+        var v=o[f[0]];
+        if(v===undefined||v===null||v==="")return;
+        var wk=STATE.man[k]||{week:mon,w:{},log:[]};
+        wk.w=wk.w||{};
+        if(!(wk.w[co]&&wk.w[co][f[0]]!==undefined)){
+          wk.w[co]=wk.w[co]||{};wk.w[co][f[0]]=v;weeks[k]=1;
+        }
+        STATE.man[k]=wk;
+        delete o[f[0]];moved=true;
+      });
+    });
+    if(moved)days.push(d);
+  });
+  if(!days.length&&!Object.keys(weeks).length)return;
+  render();
+  var b=db.batch();
+  /* the day doc is rewritten whole — a merge would leave the old keys behind */
+  days.forEach(function(d){
+    var doc=STATE.man[d];
+    b.set(db.collection(MAN_COL).doc(d),{date:d,r:doc.r||{},log:doc.log||[]});
+  });
+  Object.keys(weeks).forEach(function(k){
+    var wk=STATE.man[k];
+    b.set(db.collection(MAN_COL).doc(k),{week:wk.week,w:wk.w||{},log:wk.log||[]},{merge:true});
+  });
+  b.commit().catch(function(e){_manMigrated=false;console.warn("weekend migration",e&&e.code);});
+}
 function dcMigrateLevels(){
   if(_dcMigrated||!canEdit()||!STATE.dailyLoaded)return;
   var ids=Object.keys(STATE.daily);if(!ids.length)return;
