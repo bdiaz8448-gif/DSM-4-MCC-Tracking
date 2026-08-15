@@ -712,6 +712,8 @@
   .dck.d-late{background:var(--redbg) padding-box,linear-gradient(135deg,var(--red),var(--redg)) border-box}
   .dck.d-mcc{background:#f2ebff padding-box,linear-gradient(135deg,#7c3aed,#4c1d95) border-box}
   .dcbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:0 0 12px}
+  /* the room list holds long names — let it shrink instead of running off a phone */
+  .dcbar select,.dcbar input{max-width:100%;min-width:0}
   .dctbl{overflow-x:auto}
   .dctbl table{border-collapse:collapse;width:100%;min-width:1180px}
   .dctbl thead th{position:sticky;top:0;z-index:4;background:var(--card2);text-align:left;
@@ -904,6 +906,21 @@
   .glcar{border-top:2px solid var(--line2);margin-top:6px;padding-top:4px}
   .glcar h4{margin:8px 14px 2px;font-size:10.5px;font-weight:900;letter-spacing:1px;
     text-transform:uppercase;color:var(--redg)}
+  /* On a phone the goal, the company and the met/missed tag will not sit on one
+     line — the goal was being cut off at the edge. Goal first, company and tag
+     underneath it. */
+  @media(max-width:620px){
+    .glbox{padding:8px 0 12px}
+    .glr{flex-wrap:wrap;row-gap:4px;gap:9px;padding:9px 12px}
+    .glhd{padding:6px 12px 8px}
+    .glhd .gco,.glhd .gtag{display:none}
+    .glr .gn{order:1}
+    .glr .gck{order:2}
+    .glr .gtx{order:3;flex:1 1 130px;min-width:0}
+    .glr .gco{order:4;width:auto;flex:0 0 auto;margin-left:38px;font-size:11.5px;padding:2px 7px}
+    .glr .gtag{order:5;min-width:0;flex:1 1 auto;text-align:right}
+    .glcar h4{margin:8px 12px 2px}
+  }
   .crewl{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
   .crewr{display:flex;align-items:center;gap:10px;padding:7px 11px;background:var(--card);
     border:1px solid var(--line2);border-radius:11px;font-size:12.5px;font-weight:800}
@@ -1057,6 +1074,16 @@
   .tcgrid{gap:12px}
   @media(prefers-reduced-motion:reduce){.scard.miss::before{animation:none;background:var(--miss2)}.kpi.miss{animation:none}.dot.on{animation:none}}
   @media(max-width:1240px){.hero{grid-template-columns:repeat(4,1fr)}.tcgrid{grid-template-columns:repeat(3,1fr)}}
+  /* The tab strip is five tabs wide now. On a tablet, or a phone turned
+     sideways, the header ran off the right edge and dragged the whole page
+     with it — the tabs take their own row instead. */
+  @media(min-width:761px) and (max-width:1150px){
+    .bar{flex-wrap:wrap;row-gap:10px}
+    .spacer{display:none}
+    #views{order:9;flex:0 0 100%;width:100%}
+    .seg{width:100%}
+    .seg button{flex:1;padding:9px 10px;font-size:12.5px;white-space:nowrap}
+  }
   @media(max-width:760px){
     /* ---- header: wrap into tidy, centered rows that fit any phone ---- */
     .bar{flex-wrap:wrap;gap:8px;padding:10px 12px;justify-content:space-between}
@@ -1103,6 +1130,12 @@
     .kpi .kn{font-size:23px}
     .gbv{font-size:18px}
     .chips button{padding:8px 10px;font-size:11.5px}
+    /* five tabs will not fit across a 320px phone — tighten them until they do */
+    .seg{gap:3px;padding:4px}
+    .seg button{padding:8px 2px;font-size:10.5px;min-width:0}
+    /* the access panel reads as label over text rather than two columns */
+    .acrow{flex-direction:column;gap:4px;padding:10px 13px}
+    .acrow .acr{width:auto}
   }
   /* ---- outlined tabs: every tab inside a capsule reads as its own button ---- */
   .seg{gap:8px;align-items:stretch}
@@ -1414,7 +1447,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v18.1-manpower-full-width";
+var MC_BUILD="v18.2-fits-every-screen";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
