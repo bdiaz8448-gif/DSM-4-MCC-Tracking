@@ -782,6 +782,79 @@
   .dcadd input,.dcadd select{padding:9px 11px;font-size:12.5px;border:2px solid transparent;border-radius:12px;
     background:var(--glass) padding-box,var(--edge) border-box;box-shadow:var(--gloss);font-family:inherit;color:var(--txt);outline:none}
   .dcadd .grow{flex:1;min-width:200px}
+  /* ---- days a constraint has been live ---- */
+  .dcage{display:block;font-size:9.5px;font-weight:900;letter-spacing:.2px;margin-top:2px;color:var(--mut2)}
+  .dcage.warn{color:var(--org)} .dcage.bad{color:var(--redg)}
+  /* ---- constraints held against a system, on the card and in the panel ---- */
+  .cnstrip{display:flex;align-items:center;gap:8px;padding:5px 13px;flex-wrap:wrap;
+    border-top:1px solid var(--line);background:var(--redbg)}
+  .cnchip{font-size:10px;font-weight:900;letter-spacing:.3px;text-transform:uppercase;color:var(--redg);
+    background:var(--card);border:1px solid rgba(217,32,56,.35);border-radius:8px;padding:2px 8px;white-space:nowrap}
+  .cnwho{font-size:10.5px;font-weight:800;color:var(--redg);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mcnbox{margin:10px 0 2px;border:1px solid rgba(217,32,56,.35);border-radius:14px;overflow:hidden;background:var(--redbg)}
+  .mcnbox h4{margin:0;padding:9px 13px;font-size:11px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;
+    color:var(--redg);border-bottom:1px solid rgba(217,32,56,.25)}
+  .mcnrow{display:flex;align-items:center;gap:10px;width:100%;padding:8px 13px;border:0;background:transparent;
+    border-bottom:1px solid rgba(217,32,56,.16);cursor:pointer;text-align:left;font:inherit}
+  .mcnrow:last-of-type{border-bottom:0}
+  .mcnrow:hover{background:var(--card)}
+  .mcnco{flex:0 0 96px;font-size:12px;font-weight:900;color:var(--redg);align-self:flex-start;padding-top:1px}
+  .mcnmid{flex:1;min-width:0;display:flex;flex-direction:column;gap:1px}
+  .mcnd{font-size:12px;font-weight:700;color:var(--txt);line-height:1.35}
+  .mcnrm{font-size:10.5px;font-weight:800;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mcndu{flex:0 0 92px;font-size:11px;font-weight:900;color:var(--mut2);text-align:right;align-self:flex-start;padding-top:1px}
+  .mcnrow.late .mcndu{color:var(--redg)}
+  .mcngo{flex:0 0 14px;font-size:12px;font-weight:900;color:var(--redg);align-self:flex-start;padding-top:1px}
+  .mcnfoot{padding:6px 13px 8px;font-size:10px;font-weight:700;color:var(--mut2)}
+  @media(max-width:700px){
+    .mcnrow{flex-wrap:wrap;gap:4px 10px}
+    .mcnco{flex:0 0 auto}.mcnmid{flex:1 0 100%}.mcndu{flex:0 0 auto}
+  }
+  /* ---- the constraints table becomes cards on a phone ---- */
+  @media(max-width:700px){
+    .dctbl.dcmainwrap{overflow-x:visible}
+    table.dcmain{min-width:0!important;width:100%;table-layout:auto;border-collapse:separate;border-spacing:0}
+    table.dcmain thead{display:none}
+    table.dcmain tbody,table.dcmain tr,table.dcmain td{display:block;width:auto!important;min-width:0!important}
+    table.dcmain tbody tr{border:1px solid var(--line2);border-radius:14px;margin:0 0 10px;padding:4px 2px;
+      background:var(--card);box-shadow:0 1px 3px rgba(11,20,31,.05);overflow:hidden}
+    table.dcmain tbody tr.dchist{padding:0;border-color:var(--line)}
+    table.dcmain tbody td{border-bottom:1px solid var(--line);padding:7px 12px!important;
+      display:flex;align-items:flex-start;gap:10px}
+    table.dcmain tbody td:last-child{border-bottom:0}
+    table.dcmain tbody td[data-l]::before{content:attr(data-l);flex:0 0 84px;padding-top:5px;
+      font-size:9.5px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--mut2)}
+    table.dcmain tbody td.dcn{background:var(--card2);border-bottom:1px solid var(--line2);
+      font-size:11px;font-weight:900;color:var(--mut2);padding:6px 12px!important}
+    table.dcmain tbody td.dcn::before{content:"#";flex:0 0 auto;padding:0;margin-right:2px}
+    table.dcmain tbody td>input,table.dcmain tbody td>textarea,
+    table.dcmain tbody td>select,table.dcmain tbody td>button{flex:1;min-width:0}
+    table.dcmain tbody td .dcin,table.dcmain tbody td select{width:100%}
+    table.dcmain tbody td.dt{flex-wrap:wrap}
+    table.dcmain tbody td.dt .dcage{margin-left:auto;margin-top:0;align-self:center}
+    table.dcmain tbody td.dact{justify-content:flex-start}
+    table.dcmain tr.dchist td{display:block;padding:0!important}
+    table.dcmain tr.dchist td::before{content:none}
+  }
+  /* ---- print: the board on paper, nothing else ---- */
+  @media print{
+    @page{size:landscape;margin:10mm}
+    body{background:#fff!important}
+    .bar,#views,.dcbar,.dcadd,.dcpg,.dckpis,.dchbox,#intro,.fab,footer,.dcsech .btn,
+    .iconbtn,.acct,.hsearch,#searchBtn,.dclog,.dact,.dcsec.acc{display:none!important}
+    .wrap{padding:0!important;max-width:none!important}
+    .dcwrap,.dcsec,.card,.scard{box-shadow:none!important;break-inside:avoid}
+    .dctbl{overflow:visible!important}
+    .dctbl table{min-width:0!important;width:100%!important;font-size:9.5px}
+    .dctbl td,.dctbl th{padding:3px 4px!important}
+    .dcin,.dvin,.mnin,.mncoin,.gtx,.gco{border-color:transparent!important;background:transparent!important}
+    .dcsecb{display:block!important;height:auto!important}
+    tr,.glr,.dvrow{break-inside:avoid}
+    .prthead{display:block!important}
+  }
+  .prthead{display:none;padding:0 0 10px;border-bottom:2px solid #333;margin-bottom:12px}
+  .prthead b{font-size:16px;font-weight:900}
+  .prthead span{display:block;font-size:11px;font-weight:700;color:#444;margin-top:2px}
   /* ---- deliveries: did it show up, and if not, why and when now ---- */
   .dctbl th.dvs,.dctbl td.dvs{width:196px}
   .dvst{display:flex;align-items:center;gap:7px;white-space:nowrap}
@@ -1471,7 +1544,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v19.1-on-time-or-not";
+var MC_BUILD="v20.0-linked-aged-printable";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2347,7 +2420,7 @@ var DC_SEC={con:true,goals:false,deliv:false,man:false,acc:false};
 STATE.daily={}; STATE.dailyLoaded=false;
 STATE.goals={}; STATE.deliv={}; STATE.man={}; STATE.lists={}; STATE.crewList={};
 STATE.crew=null;                       /* set when the signed-in email is a crew account */
-STATE.df={f:"ALL",lvl:"ALL",room:"ALL",co:"ALL",mcc:"ALL",q:""};
+STATE.df={f:"ALL",lvl:"ALL",room:"ALL",co:"ALL",mcc:"ALL",q:"",sort:"new"};
 STATE.dcPage=0;
 STATE.manDate=""; STATE.goalWeek="";
 
@@ -2430,13 +2503,49 @@ function dcPass(r){
     if(((r.desc||"")+" "+(r.co||"")+" "+(r.ch||"")+" "+(r.lvl||"")+" "+(r.room||"")+" "+(r.mc||"")).toLowerCase().indexOf(q)<0)return false;}
   return true;
 }
+/* How long a constraint has been live. Counted from the day it was raised to
+   today; a closed one stops counting on the day it closed. */
+function dcAge(r){
+  if(!r||!r.date)return null;
+  var end=(r.st==="done")?(r.doneAt||todayISO()):todayISO();
+  var d=daysBetween(r.date,end);
+  return d<0?0:d;
+}
+function dcAgeBand(d){return d===null?"":(d>14?"bad":(d>7?"warn":"ok"));}
+/* Constraints still live against one MC number — the link back from the Board. */
+function dcLiveForMc(mc){
+  if(mc===undefined||mc===null||mc==="")return [];
+  var key=String(mc);
+  return dcList().filter(function(r){
+    return r.st!=="done"&&String(r.mc||"")===key;
+  }).sort(function(a,b){return (a.due||"9")<(b.due||"9")?-1:1;});
+}
 /* newest date raised at the top, then company A → Z inside the same day */
-function dcSort(a,b){
+function dcSortNew(a,b){
   var da=a.date||"",db2=b.date||"";
   if(da!==db2)return da<db2?1:-1;
   var ca=(a.co||"").toLowerCase(),cb=(b.co||"").toLowerCase();
   if(ca!==cb)return ca<cb?-1:1;
   return (a.due||"")<(b.due||"")?-1:1;
+}
+function dcSort(a,b){
+  var m=STATE.df&&STATE.df.sort;
+  if(m==="old"){                       /* oldest raised first */
+    var da=a.date||"",db2=b.date||"";
+    if(da!==db2)return da<db2?-1:1;
+    return dcSortNew(a,b);
+  }
+  if(m==="age"){                       /* longest still open first */
+    var aa=(a.st==="done")?-1:(dcAge(a)||0), ab=(b.st==="done")?-1:(dcAge(b)||0);
+    if(aa!==ab)return ab-aa;
+    return dcSortNew(a,b);
+  }
+  if(m==="due"){                       /* soonest due first, no date last */
+    var ua=a.due||"9999-99-99", ub=b.due||"9999-99-99";
+    if(ua!==ub)return ua<ub?-1:1;
+    return dcSortNew(a,b);
+  }
+  return dcSortNew(a,b);
 }
 
 /* ---------- writes: every one of them lands in the row's log ---------- */
@@ -2540,31 +2649,39 @@ function dcConstraints(){
       '<option value="Y"'+(STATE.df.mcc==="Y"?" selected":"")+'>Impacts a walk</option>'+
       '<option value="N"'+(STATE.df.mcc==="N"?" selected":"")+'>No walk impact</option></select>'+
     '<input type="search" id="dcQ" placeholder="Search description, room, company…" value="'+esc(STATE.df.q)+'">'+
+    '<select data-act="dcF" data-f="sort" title="how the list is ordered">'+
+      [["new","Newest raised first"],["old","Oldest raised first"],
+       ["age","Longest open first"],["due","Soonest due first"]].map(function(x){
+        return '<option value="'+x[0]+'"'+((STATE.df.sort||"new")===x[0]?" selected":"")+'>'+x[1]+'</option>';}).join('')+
+      '</select>'+
+    '<button class="btn sm" data-act="dcPrint" title="lay the whole board out on one page for printing or PDF">🖨 Print today</button>'+
     '</div>';
 
   var body="";
   rows.forEach(function(r,i){
     var s=dcState(r),lt=dcLate(r),ed=dcCanEditRow(r),ro=ed?"":" readonly",dis=ed?"":" disabled";
+    var age=dcAge(r);
     body+='<tr class="s-'+s+'" data-dc="'+esc(r.id)+'">'+
       '<td class="dcn">'+(from+i+1)+'</td>'+
-      '<td class="dt">'+fmtMD(r.date)+'</td>'+
-      '<td class="dco"><input class="dcin" list="dcCoList" value="'+esc(r.co||"")+'" data-dcf="co" data-dc="'+esc(r.id)+'"'+ro+'></td>'+
-      '<td class="dlv"><input class="dcin" list="dcLvlList" value="'+esc(r.lvl||"")+'" data-dcf="lvl" data-dc="'+esc(r.id)+'" placeholder="floor"'+ro+'></td>'+
-      '<td class="drm"><input class="dcin" list="'+dcRoomListId(r.lvl)+'" value="'+esc(r.room||"")+'" data-dcf="room" data-dc="'+esc(r.id)+'" placeholder="'+(r.lvl?"room on that floor":"pick a level first")+'"'+ro+'></td>'+
-      '<td class="dd"><textarea class="dcin" rows="1" data-dcf="desc" data-dc="'+esc(r.id)+'"'+ro+'>'+esc(r.desc||"")+'</textarea></td>'+
-      '<td class="dwk"><button class="dcmcc'+(r.mcc?" yes":"")+'" data-act="dcMcc" data-dc="'+esc(r.id)+'"'+dis+'>'+(r.mcc?("⛔ "+esc(r.gate||"MCC")):"No")+'</button>'+
+      '<td class="dt" data-l="Raised">'+fmtMD(r.date)+
+        (age===null?'':'<span class="dcage '+dcAgeBand(age)+'">'+age+'d '+(r.st==="done"?"to close":"open")+'</span>')+'</td>'+
+      '<td class="dco" data-l="Company"><input class="dcin" list="dcCoList" value="'+esc(r.co||"")+'" data-dcf="co" data-dc="'+esc(r.id)+'"'+ro+'></td>'+
+      '<td class="dlv" data-l="Level"><input class="dcin" list="dcLvlList" value="'+esc(r.lvl||"")+'" data-dcf="lvl" data-dc="'+esc(r.id)+'" placeholder="floor"'+ro+'></td>'+
+      '<td class="drm" data-l="Room"><input class="dcin" list="'+dcRoomListId(r.lvl)+'" value="'+esc(r.room||"")+'" data-dcf="room" data-dc="'+esc(r.id)+'" placeholder="'+(r.lvl?"room on that floor":"pick a level first")+'"'+ro+'></td>'+
+      '<td class="dd" data-l="Constraint"><textarea class="dcin" rows="1" data-dcf="desc" data-dc="'+esc(r.id)+'"'+ro+'>'+esc(r.desc||"")+'</textarea></td>'+
+      '<td class="dwk" data-l="Impacts a walk?"><button class="dcmcc'+(r.mcc?" yes":"")+'" data-act="dcMcc" data-dc="'+esc(r.id)+'"'+dis+'>'+(r.mcc?("⛔ "+esc(r.gate||"MCC")):"No")+'</button>'+
         (r.mcc&&r.mc?'<button class="dcmc" data-act="dcGo" data-mc="'+esc(r.mc)+'" title="open that system on the Board">MC '+esc(r.mc)+' ↗</button>':'')+'</td>'+
-      '<td class="dch"><input class="dcin" list="dcCoList" value="'+esc(r.ch||"")+'" data-dcf="ch" data-dc="'+esc(r.id)+'"'+ro+'></td>'+
-      '<td class="du"><button class="dcdue" data-act="dcDue" data-dc="'+esc(r.id)+'"'+dis+'>'+
+      '<td class="dch" data-l="Champion"><input class="dcin" list="dcCoList" value="'+esc(r.ch||"")+'" data-dcf="ch" data-dc="'+esc(r.id)+'"'+ro+'></td>'+
+      '<td class="du" data-l="Due date"><button class="dcdue" data-act="dcDue" data-dc="'+esc(r.id)+'"'+dis+'>'+
         (r.origDue?'<span class="was">'+fmtMD(r.origDue)+'</span>':'')+'<span>'+(r.due?fmtMD(r.due):"— set —")+'</span></button>'+
         (r.revs?'<span class="dcrev">moved '+r.revs+'×</span>':'')+
         (lt?'<span class="dclate">+'+lt+'d</span>':'')+'</td>'+
-      '<td><select class="dcst v-'+s+'" data-act="dcSt" data-dc="'+esc(r.id)+'"'+dis+'>'+
+      '<td class="dsts" data-l="Status"><select class="dcst v-'+s+'" data-act="dcSt" data-dc="'+esc(r.id)+'"'+dis+'>'+
         DC_STATES.map(function(x){
           var d2=(x==="done"&&!dcCanClose())?" disabled":"";
           return '<option value="'+x+'"'+(r.st===x?" selected":"")+d2+'>'+DC_LABEL[x]+'</option>';}).join('')+
         '</select></td>'+
-      '<td class="dact"><button class="dclog" data-act="dcLog" data-dc="'+esc(r.id)+'" title="open the history for this row">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button></td>'+
+      '<td class="dact" data-l="History"><button class="dclog" data-act="dcLog" data-dc="'+esc(r.id)+'" title="open the history for this row">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button></td>'+
       '</tr>';
     if(DC_OPEN_LOGS[r.id])body+=dcHistRow(r,11);
   });
@@ -2594,8 +2711,8 @@ function dcConstraints(){
     '<div class="dcwrap"><div class="dchead"><h2>Constraints</h2>'+
       '<span class="sub">'+hits.length+' of '+all.length+' shown</span><span style="flex:1"></span>'+
       '<span class="sub">newest first · green closed · indigo ready to verify · yellow in progress · red past due</span></div>'+
-    '<div class="dctbl"><table><thead><tr>'+
-      '<th class="dcn">#</th><th>Date<span class="h2">raised</span></th>'+
+    '<div class="dctbl dcmainwrap"><table class="dcmain"><thead><tr>'+
+      '<th class="dcn">#</th><th>Date<span class="h2">raised · days open</span></th>'+
       '<th>Company<span class="h2">who is stuck</span></th>'+
       '<th>Level<span class="h2">floor</span></th>'+
       '<th>Room<span class="h2">on that floor</span></th>'+
@@ -2977,7 +3094,10 @@ function renderDaily(v){
   var warn=STATE.dailyErr?('<div class="infob" style="border-color:rgba(224,11,40,.45)"><span class="big2">⚠ Tracker offline</span>'+
     'The board is fine — only this tracker could not be reached ('+esc(STATE.dailyErr)+'). Nothing has been lost; reload in a moment.</div>'):'';
 
-  var html=dcDatalists()+explain+warn+
+  var html=dcDatalists()+
+    '<div class="prthead"><b>DSM-4 Daily Board — Project Aura</b>'+
+      '<span>'+fmtLong(todayISO())+' · printed by '+esc(dcWho())+'</span></div>'+
+    explain+warn+
     dcSec("con","🚧","Constraints",openN+" still live"+(lateN?" · "+lateN+" past due":""),dcConstraints())+
     dcSec("goals","🎯","Weekly Goals",gd+" of "+gf+" met this week",dcGoals())+
     dcSec("deliv","🚚","Deliveries",dvN+" logged",dcDeliv());
@@ -3235,6 +3355,8 @@ document.addEventListener("click",function(e){
   if(act==="dcGoalLog"){var gk="_goals_"+goalWeek(),w0=DC_OPEN_LOGS[gk];DC_OPEN_LOGS={};if(!w0)DC_OPEN_LOGS[gk]=true;render();return;}
   if(act==="dcMnLog"){var mk="_mn_"+manDate(),m0=DC_OPEN_LOGS[mk];DC_OPEN_LOGS={};if(!m0)DC_OPEN_LOGS[mk]=true;render();return;}
   if(act==="dcDvLog"){var dk="_dv_"+t.getAttribute("data-dv"),v0=DC_OPEN_LOGS[dk];DC_OPEN_LOGS={};if(!v0)DC_OPEN_LOGS[dk]=true;render();return;}
+  if(act==="dcPrint"){dcPrint();return;}
+  if(act==="dcFromSys"){dcFromSys(t.getAttribute("data-mc"));return;}
   if(act==="dcGo"){
     var mc=t.getAttribute("data-mc");
     var hit=sysList().filter(function(s2){return String(s2.mc)===String(mc);})[0];
@@ -3446,6 +3568,36 @@ document.addEventListener("change",function(e){
     STATE.df[el.getAttribute("data-f")]=el.value;STATE.dcPage=0;render();return;
   }
 });
+/* Lay the whole board out and hand it to the printer. Everything is opened
+   first so nothing collapsed gets left off the page. */
+function dcPrint(){
+  DC_SEC.con=true;DC_SEC.goals=true;DC_SEC.deliv=true;DC_SEC.man=true;DC_SEC.acc=false;
+  DC_OPEN_LOGS={};
+  document.body.classList.add("printing");
+  render();
+  setTimeout(function(){
+    try{window.print();}catch(e){}
+    setTimeout(function(){document.body.classList.remove("printing");render();},400);
+  },250);
+}
+/* From a system on the Board straight to the constraints held against it. */
+function dcFromSys(mc){
+  /* the panel's own close handler walks history back, which would land us on
+     the Board again — hold the nav lock across the close and rewrite the hash */
+  var d=$("sysDlg");
+  if(d&&d.open){
+    var was=NAV_LOCK;NAV_LOCK=true;
+    try{unlockRowOrder(STATE.openSysId);STATE.openSysId=null;d.close();}
+    finally{NAV_LOCK=was;}
+  }
+  STATE.df={f:"ALL",lvl:"ALL",room:"ALL",co:"ALL",mcc:"ALL",q:String(mc||""),sort:"age"};
+  STATE.dcPage=0;STATE.view="daily";DC_SEC.con=true;
+  syncUI();render();navReplace();
+  setTimeout(function(){
+    var w=document.querySelector(".dcwrap");
+    if(w&&w.scrollIntoView)w.scrollIntoView({block:"start"});
+  },60);
+}
 
 /* ---------------------------------------------------------------------------
    ONE-TIME SEED — the DSM4 whiteboard as it stood on 8-14-26.
@@ -3706,6 +3858,10 @@ function renderBoard(v){
     if(gh)h+='<div class="gholds">'+gh+'</div>';
     var sst=sysStats(s);
     var _c1=cat1(s);
+    var _cn=dcLiveForMc(s.mc);
+    if(_cn.length)h+='<div class="cnstrip"><span class="cnchip">⛔ '+_cn.length+' live constraint'+
+      (_cn.length===1?'':'s')+'</span><span class="cnwho">'+
+      esc([].concat(_cn.map(function(x){return x.co||"—";})).filter(function(v,i,arr){return arr.indexOf(v)===i;}).slice(0,3).join(" · "))+'</span></div>';
     if(sst.t>0)h+='<div class="sstrip">'+(_c1?'<span class="catpill" title="'+_c1+' Category 1 item'+(_c1===1?'':'s')+' still open — these block the walk">⚠ '+_c1+' Cat 1</span>':'')+'<span><b class="num">'+sst.t+'</b> total</span><span class="ok"><b class="num">'+sst.c+'</b> closed</span><span class="hot"><b class="num">'+sst.o+'</b> open items</span></div>';
     else h+='<div class="sstrip"><span class="nofill">'+(st==="done"?'✓ complete':'no punch items logged yet')+'</span></div>';
     h+='</div></div>';
@@ -3924,6 +4080,21 @@ function renderModal(){
     var _ks=["1","2","3","4"].filter(function(k){return +_co[k]>0;});
     if(_ks.length)h+='<div class="catline">'+_ks.map(function(k){
       return '<span class="cb'+(k==="1"?" c1":"")+'">Cat '+k+' · '+(+_co[k])+'</span>';}).join('')+'</div>';
+  }
+  var _mcn=dcLiveForMc(s.mc);
+  if(_mcn.length){
+    h+='<div class="mcnbox"><h4>⛔ '+_mcn.length+' constraint'+(_mcn.length===1?'':'s')+
+      ' live against this system</h4>'+
+      _mcn.map(function(r){
+        var lt=dcLate(r);
+        return '<button class="mcnrow'+(lt?" late":"")+'" data-act="dcFromSys" data-mc="'+esc(s.mc)+'"'+
+          ' title="open this on the Daily Constraint Tracker">'+
+          '<span class="mcnco">'+esc(r.co||"—")+'</span>'+
+          '<span class="mcnmid"><span class="mcnd">'+esc(r.desc||"")+'</span>'+
+            '<span class="mcnrm">'+esc(r.room||r.lvl||"")+'</span></span>'+
+          '<span class="mcndu">'+(r.due?fmtMD(r.due):"no date")+(lt?' <b>+'+lt+'d</b>':'')+'</span>'+
+          '<span class="mcngo">↗</span></button>';}).join('')+
+      '<div class="mcnfoot">tap any line to open it on the Daily Constraint Tracker</div></div>';
   }
   if(missedMCC(s)){var mg=s.gates.MCC||{};h+='<div class="missbanner">⚠ Did not meet MCC date — target was '+fmtMD(mg.target)+' ('+Math.abs(daysBetween(mg.target,todayISO()))+' days past). MCC is not yet signed off.</div>';}
   if(STATE.unlocked){
