@@ -782,6 +782,28 @@
   .dcadd input,.dcadd select{padding:9px 11px;font-size:12.5px;border:2px solid transparent;border-radius:12px;
     background:var(--glass) padding-box,var(--edge) border-box;box-shadow:var(--gloss);font-family:inherit;color:var(--txt);outline:none}
   .dcadd .grow{flex:1;min-width:200px}
+  /* ---- deliveries: did it show up, and if not, why and when now ---- */
+  .dctbl th.dvs,.dctbl td.dvs{width:196px}
+  .dvst{display:flex;align-items:center;gap:7px;white-space:nowrap}
+  .dvck{width:23px;height:23px;border-radius:8px;border:1.5px solid var(--line2);background:var(--card);
+    display:grid;place-items:center;cursor:pointer;font-size:13px;font-weight:900;color:var(--mut2);
+    flex:0 0 auto;transition:.13s;padding:0}
+  .dvck:hover:not(:disabled){border-color:var(--grn);color:var(--grn)}
+  .dvck:disabled{cursor:default;opacity:.75}
+  .dvck.on{background:var(--grnbg);border-color:rgba(6,122,79,.5);color:var(--grn)}
+  .dvck.miss,.dvck.over{background:var(--redbg);border-color:rgba(217,32,56,.5);color:var(--redg)}
+  .dvck.late{background:var(--orgbg);border-color:rgba(194,92,0,.5);color:var(--org)}
+  .dvtag{font-size:9.5px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;
+    padding:2px 8px;border-radius:8px;white-space:nowrap}
+  .dvtag.ok{background:var(--grnbg);color:var(--grng)}
+  .dvtag.late{background:var(--orgbg);color:var(--org)}
+  .dvtag.miss,.dvtag.over{background:var(--redbg);color:var(--redg)}
+  .dvtag.wait{background:var(--card2);color:var(--mut2)}
+  tr.dvrow.ok{background:var(--grnbg)}
+  tr.dvrow.miss,tr.dvrow.over{background:var(--redbg)}
+  .dvwhy{display:block;font-size:10.5px;font-weight:700;color:var(--redg);line-height:1.4;margin-top:2px}
+  .dvwas{display:block;font-size:9.5px;font-weight:800;color:var(--mut2);letter-spacing:.2px;margin-top:1px}
+  @media(max-width:620px){.dvst{flex-wrap:wrap;gap:5px}}
   .dcempty{padding:26px;text-align:center;color:var(--mut2);font-weight:700}
   /* ---- Daily board: collapsible sections ---- */
   .dcsec{border:1.5px solid var(--line2);border-radius:16px;background:var(--card);margin:0 0 14px;overflow:hidden}
@@ -1447,7 +1469,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v18.2-fits-every-screen";
+var MC_BUILD="v19.0-deliveries-arrived-or-not";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2700,31 +2722,62 @@ function dcGoals(){
 }
 
 /* ===================== 3. DELIVERIES ===================== */
+/* A delivery is in one of five states. Four are stored, one is worked out:
+     waiting   nobody has said either way, and the date has not passed
+     overdue   the date has passed and still nobody has said  <- computed
+     delivered it arrived, and the date was never pushed
+     late      it arrived, but the date had been pushed at least once
+     missed    it did not arrive; a reason and a new date are on the record
+   Only an editor or the owner can set any of this. */
+function dvStatus(r){
+  if(!r)return "wait";
+  if(r.got==="yes")return (+r.pushes>0)?"late":"ok";
+  if(r.got==="no")return "miss";
+  if(r.date&&r.date<todayISO())return "over";
+  return "wait";
+}
+var DV_TAG={ok:"delivered",late:"delivered late",miss:"did not arrive",
+            over:"overdue — not confirmed",wait:"waiting"};
 function dcDeliv(){
   var ed=canEdit();
   var all=[];for(var k in STATE.deliv){var d=STATE.deliv[k];if(d&&!d.void)all.push(d);}
   all.sort(function(a,b){return (a.date||"")>(b.date||"")?-1:1;});
+  var n={ok:0,late:0,miss:0,over:0,wait:0};
+  all.forEach(function(r){n[dvStatus(r)]++;});
   var body="";
   all.forEach(function(r,i){
-    var ro=ed?"":" readonly";
-    body+='<tr data-dv="'+esc(r.id)+'">'+
+    var ro=ed?"":" readonly",st=dvStatus(r);
+    var mark=(st==="ok"||st==="late")?"✓":((st==="miss"||st==="over")?"✕":"");
+    body+='<tr class="dvrow '+st+'" data-dv="'+esc(r.id)+'">'+
       '<td class="dcn">'+(i+1)+'</td>'+
-      '<td class="dt"><input class="dvin" type="date" value="'+esc(r.date||"")+'" data-dvf="date" data-dv="'+esc(r.id)+'"'+(ed?"":" disabled")+'></td>'+
+      '<td class="dt"><input class="dvin" type="date" value="'+esc(r.date||"")+'" data-dvf="date" data-dv="'+esc(r.id)+'"'+(ed?"":" disabled")+'>'+
+        (r.was?'<span class="dvwas">was '+esc(fmtMD(r.was))+'</span>':'')+'</td>'+
       '<td class="dco"><input class="dvin" list="dcCoList" value="'+esc(r.co||"")+'" data-dvf="co" data-dv="'+esc(r.id)+'"'+ro+'></td>'+
-      '<td class="dd"><input class="dvin" value="'+esc(r.desc||"")+'" data-dvf="desc" data-dv="'+esc(r.id)+'" placeholder="what is arriving, and which floor"'+ro+'></td>'+
+      '<td class="dd"><input class="dvin" value="'+esc(r.desc||"")+'" data-dvf="desc" data-dv="'+esc(r.id)+'" placeholder="what is arriving, and which floor"'+ro+'>'+
+        ((st==="miss"&&r.why)?'<span class="dvwhy">⚠ '+esc(r.why)+'</span>':'')+'</td>'+
+      '<td class="dvs"><span class="dvst">'+
+        '<button class="dvck'+(st==="wait"?"":" "+st)+'" data-act="dvGot" data-dv="'+esc(r.id)+
+          '" title="'+(ed?"did this delivery arrive?":"only an editor can set this")+'"'+(ed?"":" disabled")+'>'+mark+'</button>'+
+        '<span class="dvtag '+st+'">'+DV_TAG[st]+'</span></span></td>'+
       '<td class="dact"><button class="dclog" data-act="dcDvLog" data-dv="'+esc(r.id)+'" title="open the history for this delivery">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button></td></tr>';
-    if(DC_OPEN_LOGS["_dv_"+r.id])body+=dvHistRow(r,5);
+    if(DC_OPEN_LOGS["_dv_"+r.id])body+=dvHistRow(r,6);
   });
+  var sum=[];
+  if(n.ok+n.late)sum.push((n.ok+n.late)+" delivered"+(n.late?" ("+n.late+" late)":""));
+  if(n.miss)sum.push(n.miss+" missed");
+  if(n.over)sum.push(n.over+" overdue");
+  if(n.wait)sum.push(n.wait+" waiting");
   var add=ed?('<div class="dcadd">'+
       '<input type="date" id="dvNDate" value="'+todayISO()+'">'+
       '<input type="text" id="dvNCo" list="dcCoList" placeholder="Company" style="width:150px">'+
       '<input type="text" id="dvNDesc" class="grow" placeholder="Description / floor — e.g. Product Hold Array 2">'+
       '<button class="btn pri" data-act="dvAdd">+ Add delivery</button></div>'):'';
   return '<div class="dcwrap"><div class="dchead"><h2>Deliveries</h2>'+
-      '<span class="sub">'+all.length+' logged</span></div>'+
+      '<span class="sub">'+all.length+' logged</span><span style="flex:1"></span>'+
+      '<span class="sub">'+(sum.join(" · ")||"nothing logged yet")+'</span></div>'+
     '<div class="dctbl"><table class="narrow"><thead><tr><th class="dcn">#</th><th>Date</th>'+
-      '<th>Company</th><th>Description / Floor</th><th class="dact">Log</th></tr></thead><tbody>'+
-      (body||'<tr><td colspan="5" class="dcempty">Nothing logged yet.</td></tr>')+
+      '<th>Company</th><th>Description / Floor</th><th class="dvs">Arrived?</th><th class="dact">Log</th></tr></thead><tbody>'+
+      (body||'<tr><td colspan="6" class="dcempty">Nothing logged yet.</td></tr>')+
     '</tbody></table></div>'+add+'</div>';
 }
 
@@ -2992,11 +3045,64 @@ function goalSave(items,what,week){
     .catch(function(e){alert("Could not save: "+e.message);});
 }
 function dvSave(id,patch,entry){logSave(DELIV_COL,id,STATE.deliv,patch,entry);}
+function dcClose(){var d=$("dcDlg");if(d&&d.open)d.close();}
+function dvGotDlg(id){
+  var r=STATE.deliv[id];if(!r||!canEdit())return;
+  var st=dvStatus(r);
+  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">Did this delivery arrive?</h3>'+
+    '<p style="margin:0 0 14px;font-size:12.5px;font-weight:700;color:var(--mut)">'+
+      esc(r.co||"")+' · '+esc((r.desc||"").slice(0,70))+' · due '+(r.date?fmtLong(r.date):"no date")+'</p>'+
+    (st==="over"?'<div class="hint" style="background:var(--redbg);border:1px solid rgba(224,11,40,.4);border-radius:12px;'+
+      'padding:10px 13px;color:var(--redg);margin-bottom:14px">The date has passed and nobody has confirmed this one either way.</div>':'')+
+    '<div class="dlgrow" style="gap:9px;flex-wrap:wrap;margin:0 0 4px">'+
+      '<button class="btn pri" data-act="dvYes" data-dv="'+esc(id)+'">✓ Yes — it arrived</button>'+
+      '<button class="btn danger" data-act="dvNoForm" data-dv="'+esc(id)+'">✕ No — it did not arrive</button>'+
+      (r.got?'<button class="btn" data-act="dvClear" data-dv="'+esc(id)+'">Back to waiting</button>':'')+
+      '<button class="btn" data-act="dcClose">Cancel</button></div>');
+}
+function dvNoDlg(id){
+  var r=STATE.deliv[id];if(!r||!canEdit())return;
+  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">It did not arrive — what happened?</h3>'+
+    '<p style="margin:0 0 14px;font-size:12.5px;font-weight:700;color:var(--mut)">'+
+      esc(r.co||"")+' · '+esc((r.desc||"").slice(0,70))+' · was due '+(r.date?fmtLong(r.date):"no date")+'</p>'+
+    '<div class="hint" style="background:var(--orgbg);border:1px solid rgba(194,92,0,.4);border-radius:12px;'+
+      'padding:10px 13px;color:var(--orgg);margin-bottom:14px">'+
+      'A delivery date only moves with a reason. The old date, the new one, who moved it and why all stay in the log.</div>'+
+    '<label>Why did it not arrive?</label>'+
+    '<textarea id="dvWhy" rows="3" placeholder="e.g. Truck held at the gate — no badge for the driver">'+esc(r.why||"")+'</textarea>'+
+    '<label>New expected date</label><input type="date" id="dvNew" value="'+esc(r.date||todayISO())+'">'+
+    '<div id="dvErr" style="display:none;color:var(--redg);font-size:11.5px;font-weight:800;margin-top:5px">A reason and a new date are both required.</div>'+
+    '<div class="dlgrow" style="margin-top:12px"><button class="btn" data-act="dcClose">Cancel</button>'+
+    '<button class="btn pri" data-act="dvNoSave" data-dv="'+esc(id)+'">Save — mark it missed</button></div>');
+}
+function dvMarkYes(id){
+  var r=STATE.deliv[id];if(!r||!canEdit())return;
+  var lateNow=(+r.pushes>0);
+  dvSave(id,{got:"yes",why:""},
+    {what:"Delivery <b>arrived</b>"+(lateNow?" — late, the date had been moved "+(+r.pushes)+(+r.pushes===1?" time":" times"):"")});
+  dcClose();
+}
+function dvMarkNo(id,why,newDate){
+  var r=STATE.deliv[id];if(!r||!canEdit())return;
+  var was=r.date||"";
+  var moved=(newDate&&newDate!==was);
+  dvSave(id,{got:"no",why:why,date:newDate||was,was:moved?was:(r.was||""),
+             pushes:(+r.pushes||0)+(moved?1:0)},
+    {what:"Delivery <b>did not arrive</b>"+(moved?" — moved <b>"+esc(fmtMD(was)||"—")+" → "+esc(fmtMD(newDate))+"</b>":""),
+     why:why});
+  dcClose();
+}
+function dvClearGot(id){
+  var r=STATE.deliv[id];if(!r||!canEdit())return;
+  dvSave(id,{got:"",why:""},{what:"Delivery status cleared — back to <b>waiting</b>"});
+  dcClose();
+}
 function dvAdd(row){
   var ref=db.collection(DELIV_COL).doc();
   row.id=ref.id;
   row.log=[{ts:dcNow(),who:dcWho(),what:"Delivery logged",why:""}];
   row.at=dcNow();row.by=dcWho();row.void=false;
+  row.got="";row.why="";row.was="";row.pushes=0;
   STATE.deliv[ref.id]=row;
   render();
   ref.set(row).catch(function(e){alert("Could not save: "+e.message);});
@@ -3201,6 +3307,16 @@ document.addEventListener("click",function(e){
       mcc:false,gate:"",mc:"",ch:chv||"—",due:$("dcNDue").value||todayISO(),st:"open",void:false});
     return;
   }
+  if(act==="dvGot"){dvGotDlg(t.getAttribute("data-dv"));return;}
+  if(act==="dvYes"){dvMarkYes(t.getAttribute("data-dv"));return;}
+  if(act==="dvNoForm"){dvNoDlg(t.getAttribute("data-dv"));return;}
+  if(act==="dvClear"){dvClearGot(t.getAttribute("data-dv"));return;}
+  if(act==="dvNoSave"){
+    var dvw=($("dvWhy").value||"").trim(),dvd=$("dvNew").value||"";
+    if(!dvw||!dvd){$("dvErr").style.display="block";return;}
+    dvMarkNo(t.getAttribute("data-dv"),dvw,dvd);
+    return;
+  }
   if(act==="dvAdd"){
     var vco=($("dvNCo").value||"").trim(),vds=($("dvNDesc").value||"").trim();
     if(!vco||!vds){$("dvNDesc").focus();return;}
@@ -3389,6 +3505,7 @@ function dcSeedBoard(){
   DC_SEED_DELIV.forEach(function(s){
     var ref=db.collection(DELIV_COL).doc();
     b.set(ref,{id:ref.id,date:s.date,co:s.co,desc:s.desc,void:false,at:dcNow(),by:dcWho(),
+      got:"",why:"",was:"",pushes:0,
       log:[{ts:dcNow(),who:dcWho(),what:stamp,why:""}]});
   });
   if(!STATE.goals[DC_SEED_WEEK])
