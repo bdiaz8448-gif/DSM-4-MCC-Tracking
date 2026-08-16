@@ -791,7 +791,9 @@
   .dvck:hover:not(:disabled){border-color:var(--grn);color:var(--grn)}
   .dvck:disabled{cursor:default;opacity:.75}
   .dvck.on{background:var(--grnbg);border-color:rgba(6,122,79,.5);color:var(--grn)}
-  .dvck.miss,.dvck.over{background:var(--redbg);border-color:rgba(217,32,56,.5);color:var(--redg)}
+  .dvck.miss{background:var(--redbg);border-color:rgba(217,32,56,.5);color:var(--redg)}
+  /* an overdue row is red, but its box stays empty — nobody has answered it */
+  tr.dvrow.over .dvck{border-color:rgba(217,32,56,.45);border-style:dashed;background:transparent}
   .dvck.late{background:var(--orgbg);border-color:rgba(194,92,0,.5);color:var(--org)}
   .dvtag{font-size:9.5px;font-weight:900;letter-spacing:.4px;text-transform:uppercase;
     padding:2px 8px;border-radius:8px;white-space:nowrap}
@@ -1469,7 +1471,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v19.0-deliveries-arrived-or-not";
+var MC_BUILD="v19.1-on-time-or-not";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2736,7 +2738,7 @@ function dvStatus(r){
   if(r.date&&r.date<todayISO())return "over";
   return "wait";
 }
-var DV_TAG={ok:"delivered",late:"delivered late",miss:"did not arrive",
+var DV_TAG={ok:"arrived on time",late:"arrived late",miss:"did not arrive on time",
             over:"overdue — not confirmed",wait:"waiting"};
 function dcDeliv(){
   var ed=canEdit();
@@ -2747,7 +2749,10 @@ function dcDeliv(){
   var body="";
   all.forEach(function(r,i){
     var ro=ed?"":" readonly",st=dvStatus(r);
-    var mark=(st==="ok"||st==="late")?"✓":((st==="miss"||st==="over")?"✕":"");
+    /* the box only ever shows what a person answered. "Overdue" is the board
+       noticing the date went by — it is NOT an answer, so the box stays empty. */
+    var mark=(st==="ok"||st==="late")?"✓":(st==="miss"?"✕":"");
+    var locked=!ed||(!!r.got&&!isOwnerUser());
     body+='<tr class="dvrow '+st+'" data-dv="'+esc(r.id)+'">'+
       '<td class="dcn">'+(i+1)+'</td>'+
       '<td class="dt"><input class="dvin" type="date" value="'+esc(r.date||"")+'" data-dvf="date" data-dv="'+esc(r.id)+'"'+(ed?"":" disabled")+'>'+
@@ -2756,14 +2761,16 @@ function dcDeliv(){
       '<td class="dd"><input class="dvin" value="'+esc(r.desc||"")+'" data-dvf="desc" data-dv="'+esc(r.id)+'" placeholder="what is arriving, and which floor"'+ro+'>'+
         ((st==="miss"&&r.why)?'<span class="dvwhy">⚠ '+esc(r.why)+'</span>':'')+'</td>'+
       '<td class="dvs"><span class="dvst">'+
-        '<button class="dvck'+(st==="wait"?"":" "+st)+'" data-act="dvGot" data-dv="'+esc(r.id)+
-          '" title="'+(ed?"did this delivery arrive?":"only an editor can set this")+'"'+(ed?"":" disabled")+'>'+mark+'</button>'+
+        '<button class="dvck'+((st==="wait"||st==="over")?"":" "+st)+'" data-act="dvGot" data-dv="'+esc(r.id)+
+          '" title="'+(locked?(ed?"answered already — only the owner can change it":"only an editor can answer this")
+                             :"did this delivery arrive on time?")+'"'+(locked?" disabled":"")+'>'+mark+'</button>'+
         '<span class="dvtag '+st+'">'+DV_TAG[st]+'</span></span></td>'+
       '<td class="dact"><button class="dclog" data-act="dcDvLog" data-dv="'+esc(r.id)+'" title="open the history for this delivery">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button></td></tr>';
     if(DC_OPEN_LOGS["_dv_"+r.id])body+=dvHistRow(r,6);
   });
   var sum=[];
-  if(n.ok+n.late)sum.push((n.ok+n.late)+" delivered"+(n.late?" ("+n.late+" late)":""));
+  if(n.ok)sum.push(n.ok+" on time");
+  if(n.late)sum.push(n.late+" late");
   if(n.miss)sum.push(n.miss+" missed");
   if(n.over)sum.push(n.over+" overdue");
   if(n.wait)sum.push(n.wait+" waiting");
@@ -3046,55 +3053,65 @@ function goalSave(items,what,week){
 }
 function dvSave(id,patch,entry){logSave(DELIV_COL,id,STATE.deliv,patch,entry);}
 function dcClose(){var d=$("dcDlg");if(d&&d.open)d.close();}
+function dvCanAnswer(r){
+  /* an editor may answer one that has not been answered; only the owner may
+     change an answer once it is on the record */
+  if(!r||!canEdit())return false;
+  return !r.got||isOwnerUser();
+}
 function dvGotDlg(id){
-  var r=STATE.deliv[id];if(!r||!canEdit())return;
+  var r=STATE.deliv[id];if(!dvCanAnswer(r))return;
   var st=dvStatus(r);
-  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">Did this delivery arrive?</h3>'+
+  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">Did this delivery arrive on time?</h3>'+
     '<p style="margin:0 0 14px;font-size:12.5px;font-weight:700;color:var(--mut)">'+
       esc(r.co||"")+' · '+esc((r.desc||"").slice(0,70))+' · due '+(r.date?fmtLong(r.date):"no date")+'</p>'+
     (st==="over"?'<div class="hint" style="background:var(--redbg);border:1px solid rgba(224,11,40,.4);border-radius:12px;'+
-      'padding:10px 13px;color:var(--redg);margin-bottom:14px">The date has passed and nobody has confirmed this one either way.</div>':'')+
+      'padding:10px 13px;color:var(--redg);margin-bottom:14px">The date has gone by and nobody has answered this one yet. '+
+      'The board is not saying it was missed — only that it still needs an answer.</div>':'')+
+    (r.got?'<div class="hint" style="background:var(--card2);border:1px solid var(--line);border-radius:12px;'+
+      'padding:10px 13px;color:var(--mut);margin-bottom:14px">Answered already as <b>'+esc(DV_TAG[st])+
+      '</b>. Changing it is recorded in the log under your name.</div>':'')+
     '<div class="dlgrow" style="gap:9px;flex-wrap:wrap;margin:0 0 4px">'+
-      '<button class="btn pri" data-act="dvYes" data-dv="'+esc(id)+'">✓ Yes — it arrived</button>'+
-      '<button class="btn danger" data-act="dvNoForm" data-dv="'+esc(id)+'">✕ No — it did not arrive</button>'+
-      (r.got?'<button class="btn" data-act="dvClear" data-dv="'+esc(id)+'">Back to waiting</button>':'')+
+      '<button class="btn pri" data-act="dvYes" data-dv="'+esc(id)+'">✓ Yes — it arrived on time</button>'+
+      '<button class="btn danger" data-act="dvNoForm" data-dv="'+esc(id)+'">✕ No — it did not arrive on time</button>'+
+      (r.got&&isOwnerUser()?'<button class="btn" data-act="dvClear" data-dv="'+esc(id)+'">Back to no answer</button>':'')+
       '<button class="btn" data-act="dcClose">Cancel</button></div>');
 }
 function dvNoDlg(id){
-  var r=STATE.deliv[id];if(!r||!canEdit())return;
-  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">It did not arrive — what happened?</h3>'+
+  var r=STATE.deliv[id];if(!dvCanAnswer(r))return;
+  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">It did not arrive on time — what happened?</h3>'+
     '<p style="margin:0 0 14px;font-size:12.5px;font-weight:700;color:var(--mut)">'+
       esc(r.co||"")+' · '+esc((r.desc||"").slice(0,70))+' · was due '+(r.date?fmtLong(r.date):"no date")+'</p>'+
     '<div class="hint" style="background:var(--orgbg);border:1px solid rgba(194,92,0,.4);border-radius:12px;'+
       'padding:10px 13px;color:var(--orgg);margin-bottom:14px">'+
       'A delivery date only moves with a reason. The old date, the new one, who moved it and why all stay in the log.</div>'+
-    '<label>Why did it not arrive?</label>'+
+    '<label>Why did it not arrive on time?</label>'+
     '<textarea id="dvWhy" rows="3" placeholder="e.g. Truck held at the gate — no badge for the driver">'+esc(r.why||"")+'</textarea>'+
     '<label>New expected date</label><input type="date" id="dvNew" value="'+esc(r.date||todayISO())+'">'+
-    '<div id="dvErr" style="display:none;color:var(--redg);font-size:11.5px;font-weight:800;margin-top:5px">A reason and a new date are both required.</div>'+
+    '<div id="dvErr" style="display:none;color:var(--redg);font-size:11.5px;font-weight:800;margin-top:5px">A reason and a new expected date are both required.</div>'+
     '<div class="dlgrow" style="margin-top:12px"><button class="btn" data-act="dcClose">Cancel</button>'+
     '<button class="btn pri" data-act="dvNoSave" data-dv="'+esc(id)+'">Save — mark it missed</button></div>');
 }
 function dvMarkYes(id){
-  var r=STATE.deliv[id];if(!r||!canEdit())return;
+  var r=STATE.deliv[id];if(!dvCanAnswer(r))return;
   var lateNow=(+r.pushes>0);
   dvSave(id,{got:"yes",why:""},
-    {what:"Delivery <b>arrived</b>"+(lateNow?" — late, the date had been moved "+(+r.pushes)+(+r.pushes===1?" time":" times"):"")});
+    {what:"Delivery <b>arrived on time</b>"+(lateNow?" — <b>late</b>, the date had been moved "+(+r.pushes)+(+r.pushes===1?" time":" times"):"")});
   dcClose();
 }
 function dvMarkNo(id,why,newDate){
-  var r=STATE.deliv[id];if(!r||!canEdit())return;
+  var r=STATE.deliv[id];if(!dvCanAnswer(r))return;
   var was=r.date||"";
   var moved=(newDate&&newDate!==was);
   dvSave(id,{got:"no",why:why,date:newDate||was,was:moved?was:(r.was||""),
              pushes:(+r.pushes||0)+(moved?1:0)},
-    {what:"Delivery <b>did not arrive</b>"+(moved?" — moved <b>"+esc(fmtMD(was)||"—")+" → "+esc(fmtMD(newDate))+"</b>":""),
+    {what:"Delivery <b>did not arrive on time</b>"+(moved?" — moved <b>"+esc(fmtMD(was)||"—")+" → "+esc(fmtMD(newDate))+"</b>":""),
      why:why});
   dcClose();
 }
 function dvClearGot(id){
-  var r=STATE.deliv[id];if(!r||!canEdit())return;
-  dvSave(id,{got:"",why:""},{what:"Delivery status cleared — back to <b>waiting</b>"});
+  var r=STATE.deliv[id];if(!r||!isOwnerUser())return;
+  dvSave(id,{got:"",why:""},{what:"Delivery answer cleared — back to <b>no answer</b>"});
   dcClose();
 }
 function dvAdd(row){
