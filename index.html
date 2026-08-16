@@ -837,19 +837,103 @@
     table.dcmain tr.dchist td::before{content:none}
   }
   /* ---- print: the board on paper, nothing else ---- */
+  /* ================= PRINT =================
+     Paper only. Nothing in here can reach the screen — every rule is inside
+     @media print. Two things made the old report eight pages of white space:
+       1. break-inside:avoid on a section that is TALLER than a sheet. The
+          browser cannot honour it, so it threw each section onto a fresh page
+          and left the rest of the previous one blank.
+       2. table-layout:auto let the intrinsic column widths run past the edge
+          of the paper, which chopped the last columns off.
+     Sections flow now, and every table is fixed-layout at 100% of the sheet. */
   @media print{
-    @page{size:landscape;margin:10mm}
-    body{background:#fff!important}
-    .bar,#views,.dcbar,.dcadd,.dcpg,.dckpis,.dchbox,#intro,.fab,footer,.dcsech .btn,
-    .iconbtn,.acct,.hsearch,#searchBtn,.dclog,.dact,.dcsec.acc{display:none!important}
-    .wrap{padding:0!important;max-width:none!important}
-    .dcwrap,.dcsec,.card,.scard{box-shadow:none!important;break-inside:avoid}
-    .dctbl{overflow:visible!important}
-    .dctbl table{min-width:0!important;width:100%!important;font-size:9.5px}
-    .dctbl td,.dctbl th{padding:3px 4px!important}
-    .dcin,.dvin,.mnin,.mncoin,.gtx,.gco{border-color:transparent!important;background:transparent!important}
+    @page{size:letter landscape;margin:8mm}
+    html,body{background:#fff!important;width:auto!important;overflow:visible!important}
+    .bar,#views,.dcbar,.dcadd,.dcpg,.dckpis,.dchbox,#intro,.fab,footer,.foot,.dcsech .btn,
+    .iconbtn,.acct,.hsearch,#searchBtn,.dclog,.dact,.dcsech .chev,.dcwk,
+    .dcsec:not(.on){display:none!important}
+    /* the date pickers print their little calendar glyph otherwise */
+    input[type="date"]::-webkit-calendar-picker-indicator{display:none!important}
+    .wrap{padding:0!important;max-width:none!important;width:auto!important}
+    /* let everything flow — this is what closes the gaps */
+    .dcsec,.dcwrap,.dcsecb,.dctbl,.card,.scard,tbody,.glbox{
+      break-inside:auto!important;page-break-inside:auto!important}
+    .dcwrap,.dcsec,.card,.scard{box-shadow:none!important;border-radius:0!important}
+    .dcsec{overflow:visible!important;margin:0 0 5px!important}
+    .dcwrap{border-width:1px!important;margin:0!important}
+    .dcsech{padding:3px 0!important;background:transparent!important;border:0!important}
+    .dchead{padding:3px 7px!important}
+    .dchead h2{font-size:11px!important}
+    .dchead .sub{font-size:8px!important}
+    .infob{padding:5px 9px!important;border-radius:0!important;box-shadow:none!important;margin:0 0 5px!important}
+    /* tables: fixed layout at exactly the width of the sheet */
+    .dctbl{overflow:visible!important;max-width:100%!important}
+    .dctbl table{min-width:0!important;width:100%!important;max-width:100%!important;
+      font-size:8.2px!important;table-layout:fixed!important}
+    .dctbl th,.dctbl td{padding:2px 3px!important;white-space:normal!important;
+      vertical-align:top!important}
+    /* only the wordy columns may break mid-word — breaking a DATE turned 8/20
+       into "8/2" on one line and "0" on the next */
+    .dctbl td.dd,.dctbl td.drm,.dctbl td.dco,.dctbl td.dch,.dctbl td.dlv,
+    .dctbl thead th{word-break:break-word;overflow-wrap:anywhere}
+    .dctbl td.dt,.dctbl td.du,.dctbl td.dcn,.dctbl td.mnc,.dctbl td.mnt,
+    .dctbl td.dsts,.dctbl td.dvs{word-break:keep-all!important;overflow-wrap:normal!important}
+    .dctbl thead th{font-size:7px!important;letter-spacing:.2px!important}
+    .dctbl thead th .h2,.dctbl thead th .wd{font-size:6.4px!important}
+    thead{display:table-header-group}
+    tr,.glr,.dvrow{break-inside:avoid!important;page-break-inside:avoid!important}
+    /* the constraints sheet — the description gets the room it needs */
+    table.dcmain thead th:nth-child(1){width:2.5%}
+    table.dcmain thead th:nth-child(2){width:7.5%}
+    table.dcmain thead th:nth-child(3){width:11.5%}
+    table.dcmain thead th:nth-child(4){width:8%}
+    table.dcmain thead th:nth-child(5){width:15.5%}
+    table.dcmain thead th:nth-child(6){width:24.5%}
+    table.dcmain thead th:nth-child(7){width:6%}
+    table.dcmain thead th:nth-child(8){width:11%}
+    table.dcmain thead th:nth-child(9){width:7.5%}
+    table.dcmain thead th:nth-child(10){width:6%}
+    .dcage{font-size:6.6px!important}
+    .dcmcc,.dcrev,.dclate{font-size:6.6px!important;padding:0 2px!important}
+    /* deliveries */
+    table.narrow thead th:nth-child(1){width:3%}
+    table.narrow thead th:nth-child(2){width:11%}
+    table.narrow thead th:nth-child(3){width:14%}
+    table.narrow thead th:nth-child(4){width:52%}
+    table.narrow thead th:nth-child(5){width:20%}
+    .dvtag{font-size:6.6px!important;padding:1px 4px!important}
+    .dvck{width:12px!important;height:12px!important;font-size:8px!important}
+    .dvwhy,.dvwas{font-size:6.8px!important}
+    /* manpower — the company column was 250px hard, which pushed Sunday off */
+    table.mntbl{table-layout:auto!important}
+    .mntbl th.mnco,.mntbl td.mnco{width:15%!important;min-width:0!important;
+      padding-left:5px!important;padding-right:3px!important}
+    .mntbl .wd{display:block}
+    /* tight rows so the whole crew grid lands on one sheet */
+    .mntbl td,.mntbl th{padding:1px 3px!important;line-height:1.25!important}
+    .mntbl td.mnc .mnin{height:auto!important;line-height:1.25!important}
+    .mntbl td.mnco,.mntbl th.mnco{padding-left:5px!important}
+    .mntbl tr.mntot td{font-size:9px!important}
+    /* weekly goals */
+    .glbox{padding:2px 0 4px!important}
+    .glhd{padding:3px 8px!important}
+    .glr{padding:2px 8px!important;gap:6px!important}
+    .glr .gtx,.glr .gco,.glhd span{font-size:8.5px!important;padding:1px 3px!important}
+    .glr .gtag{font-size:6.6px!important;min-width:90px!important}
+    /* fields print as plain text, not as form controls */
+    .dcin,.dvin,.mnin,.mncoin,.gtx,.gco,.dcst,.dcdue,.dcmcc,.dvck,input,select,textarea{
+      border-color:transparent!important;background:transparent!important;
+      box-shadow:none!important;-webkit-appearance:none!important;appearance:none!important}
+    /* padding:0 clipped the first letter of every field off the page */
+    .dcin,.dvin,.mnin,.mncoin{font-size:7.6px!important;padding:0 2px!important;
+      text-overflow:clip!important}
+    /* a textarea CAN wrap — the description gets the full text either way */
+    textarea.dcin{font-size:8px!important}
+    .mncoin{font-size:8.2px!important;padding:1px 2px!important}
+    textarea.dcin{resize:none!important;overflow:visible!important;height:auto!important}
+    /* an empty goal slot is a blank line on paper — print the ones that say something */
+    .glr:has(input.gtx[value=""]){display:none!important}
     .dcsecb{display:block!important;height:auto!important}
-    tr,.glr,.dvrow{break-inside:avoid}
     .prthead{display:block!important}
   }
   .prthead{display:none;padding:0 0 10px;border-bottom:2px solid #333;margin-bottom:12px}
@@ -1544,7 +1628,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v20.1-one-filter-at-a-time";
+var MC_BUILD="v20.2-print-fits-the-page";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
