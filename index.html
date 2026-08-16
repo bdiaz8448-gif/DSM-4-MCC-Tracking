@@ -932,7 +932,7 @@
     .mncoin{font-size:8.2px!important;padding:1px 2px!important}
     textarea.dcin{resize:none!important;overflow:visible!important;height:auto!important}
     /* an empty goal slot is a blank line on paper — print the ones that say something */
-    .glr:has(input.gtx[value=""]){display:none!important}
+    .glr.empty{display:none!important}
     .dcsecb{display:block!important;height:auto!important}
     .prthead{display:block!important}
   }
@@ -992,6 +992,9 @@
   .glr .gck{width:19px;height:19px;accent-color:var(--grn);cursor:pointer;flex:none}
   .glr .gtx{flex:1;border:1px solid transparent;border-radius:9px;padding:7px 9px;background:transparent;
     color:var(--txt);font:inherit;font-size:14px;font-weight:700}
+  /* a goal is a box, not a single line — long ones wrap instead of being cut off */
+  .glr .gtx{resize:none;overflow:hidden;font-family:inherit;line-height:1.4;
+    min-height:0;display:block;white-space:pre-wrap;word-break:normal;overflow-wrap:break-word}
   .glr .gtx:hover:not([readonly]){border-color:var(--line2);background:rgba(255,255,255,.6)}
   .glr .gtx:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(7,104,139,.14);outline:0}
   .glr.done{background:var(--grnbg)}
@@ -999,7 +1002,7 @@
   /* ---- manpower grid ---- */
   .mntbl{min-width:900px}
   .mntbl th{text-align:center!important}
-  .mntbl th.mnco,.mntbl td.mnco{text-align:left!important;font-weight:900;white-space:nowrap;min-width:170px;position:sticky;left:0;background:var(--card);z-index:2}
+  .mntbl th.mnco,.mntbl td.mnco{text-align:left!important;font-weight:900;min-width:170px;position:sticky;left:0;background:var(--card);z-index:2}
   .mntbl thead th.mnco{background:var(--card2);z-index:5}
   .mntbl td.mnc{padding:4px 5px!important;text-align:center;width:58px}
   .mntbl td.mnt,.mntbl th.mnt{text-align:center;font-weight:900;background:var(--bg2);width:66px}
@@ -1056,10 +1059,35 @@
   .dctbl table.mntbl{width:100%;min-width:1120px;margin:0}
   .mntbl th.mnco,.mntbl td.mnco{width:250px;min-width:250px;padding-left:18px!important;padding-right:14px!important}
   .mncoin{width:100%;border:1px solid transparent;border-radius:9px;padding:6px 9px;background:transparent;
-    color:var(--txt);font:inherit;font-size:13.5px;font-weight:900;letter-spacing:-.1px}
+    color:var(--txt);font:inherit;font-size:13.5px;font-weight:900;letter-spacing:-.1px;
+    resize:none;overflow:hidden;display:block;line-height:1.25;min-height:0;
+    white-space:pre-wrap;word-break:normal;overflow-wrap:break-word;hyphens:none}
   .mncoin:hover:not([readonly]){border-color:var(--line2);background:rgba(255,255,255,.6)}
   .mncoin:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(7,104,139,.14);outline:0}
   .mncoin[readonly]{cursor:default}
+  /* The company name stays put while the grid slides under it. On a phone the
+     250px column was eating two thirds of the screen, so you could scroll all
+     day and never reach a number. It is narrow and slightly see-through there,
+     so you always know which row you are on AND can read what is behind it. */
+  @media(max-width:820px){
+    /* the card was giving 18px of padding away on each side — on a phone that
+       is 36px of grid you do not get to see */
+    .dcsecb{padding-left:9px;padding-right:9px}
+    .dctbl table.mntbl{min-width:505px!important;width:auto!important}
+    .mntbl th.mnco,.mntbl td.mnco{width:97px!important;min-width:97px!important;max-width:97px!important;
+      padding-left:6px!important;padding-right:2px!important;
+      background:rgba(255,255,255,.82)!important;backdrop-filter:blur(1.5px)}
+    .mntbl thead th.mnco{background:rgba(233,238,244,.92)!important}
+    .mntbl tr.mntot td.mnco{background:rgba(233,238,244,.92)!important}
+    .mntbl th.mnco::after,.mntbl td.mnco::after{content:"";position:absolute;top:0;right:0;bottom:0;
+      width:7px;transform:translateX(100%);pointer-events:none;
+      background:linear-gradient(90deg,rgba(11,20,31,.13),rgba(11,20,31,0))}
+    .mncoin{font-size:10.5px!important;letter-spacing:-.2px;padding:4px 2px!important;line-height:1.2}
+    .mntbl td.mnc,.mntbl th.mnc{width:34px!important;padding:3px 0!important}
+    .mnin{width:32px!important;font-size:11.5px!important;padding:5px 0!important}
+    .mntbl td.mnt,.mntbl th.mnt{width:38px!important}
+    .mntbl thead th{font-size:9px}
+  }
   /* a faint box so it reads as something you can type in */
   /* just enough of a box to say "type here", not enough to shout */
   .mnin{border:1px solid rgba(76,96,118,.16);background:transparent;border-radius:7px}
@@ -1076,7 +1104,9 @@
   .glr .gco:focus{border-color:var(--acc);background:#fff;box-shadow:0 0 0 3px rgba(7,104,139,.14);outline:0}
   .glr .gco.ro,.glr .gtx.ro{background:transparent;border-color:transparent}
   .glr .gtag{flex:none;min-width:150px;text-align:right;font-size:10.5px;font-weight:900;
-    letter-spacing:.5px;text-transform:uppercase;color:var(--mut2)}
+    letter-spacing:.5px;text-transform:uppercase;color:var(--mut2);align-self:flex-start;padding-top:7px}
+  .glr{align-items:flex-start}
+  .glr .gn,.glr .gck,.glr .gco{align-self:flex-start;margin-top:6px}
   .glhd .gtx{flex:1}
   .glr.done{background:var(--grnbg)}
   .glr.done .gtx{text-decoration:line-through;color:var(--grng)}
@@ -1628,7 +1658,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v20.2-print-fits-the-page";
+var MC_BUILD="v20.3-readable-on-a-phone";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2694,7 +2724,7 @@ function addDaysISO(iso,n){
 }
 /* grow every description box to fit its text — nobody should have to drag a corner */
 function dcAutoGrow(scope){
-  (scope||document).querySelectorAll("textarea.dcin").forEach(function(t){
+  (scope||document).querySelectorAll("textarea.dcin,textarea.gtx,textarea.mncoin").forEach(function(t){
     t.style.height="auto";
     t.style.height=(t.scrollHeight+2)+"px";
   });
@@ -2886,13 +2916,13 @@ function dcGoals(){
   var carried=goalsCarried(w);
   var rows="";
   for(var i=0;i<8;i++){
-    var x=it[i],cls=x.t?(x.done?" done":(goalLate(w,x)?" late":"")):"";
+    var x=it[i],cls=x.t?(x.done?" done":(goalLate(w,x)?" late":"")):" empty";
     rows+='<div class="glr'+cls+'">'+
       '<span class="gn">'+(i+1)+'.</span>'+
       '<input type="checkbox" class="gck" data-act="dcGoalDone" data-i="'+i+'" data-w="'+w+'"'+
         (x.done?" checked":"")+(ed?"":" disabled")+' title="mark this goal met">'+
       '<input class="gco" list="dcCoList" data-gi="'+i+'" data-w="'+w+'" value="'+esc(x.co)+'" placeholder="company"'+(ed?"":" readonly")+'>'+
-      '<input class="gtx" data-gi="'+i+'" data-w="'+w+'" value="'+esc(x.t)+'" placeholder="'+(i<4?"Goal for the week…":"")+'"'+(ed?"":" readonly")+'>'+
+      '<textarea class="gtx" rows="1" data-gi="'+i+'" data-w="'+w+'" placeholder="'+(i<4?"Goal for the week…":"")+'"'+(ed?"":" readonly")+'>'+esc(x.t)+'</textarea>'+
       '<span class="gtag">'+(x.t?(x.done?"met":(goalLate(w,x)?"missed — carried over":"")):"")+'</span>'+
       '</div>';
   }
@@ -3029,8 +3059,8 @@ function dcMan(){
   var body="";
   cos.forEach(function(c){
     var o=doc.r[c]||{},w=(wk.w||{})[c]||{},rt=manRowTotal(o);
-    body+='<tr><td class="mnco"><input class="mncoin" value="'+esc(c)+'" data-mnold="'+esc(c)+'" list="dcCoList"'+
-        (ed?' title="type here to rename this company everywhere"':' readonly')+'></td>'+
+    body+='<tr><td class="mnco"><textarea class="mncoin" rows="1" data-mnold="'+esc(c)+'"'+
+        (ed?' title="type here to rename this company everywhere"':' readonly')+'>'+esc(c)+'</textarea></td>'+
       MAN_COLS.map(function(k,i){return cell(c,k[0],o[k[0]],(i%2===0)?"gsep":"");}).join('')+
       '<td class="mnt gsep">'+(rt||"")+'</td>'+
       MAN_WK.map(function(k){return cell(c,k[0],w[k[0]],"gsep wke");}).join('')+
@@ -3589,8 +3619,16 @@ document.addEventListener("focusin",function(e){
 /* the description box grows as it is typed in — never make anyone drag a corner */
 document.addEventListener("input",function(e){
   var el=e.target;
-  if(el.tagName==="TEXTAREA"&&el.classList&&el.classList.contains("dcin")){
+  if(el.tagName==="TEXTAREA"&&el.classList&&
+     (el.classList.contains("dcin")||el.classList.contains("gtx")||el.classList.contains("mncoin"))){
     el.style.height="auto";el.style.height=(el.scrollHeight+2)+"px";
+  }
+});
+document.addEventListener("keydown",function(e){
+  if(e.key!=="Enter"||e.shiftKey)return;
+  var el=e.target;
+  if(el&&el.tagName==="TEXTAREA"&&el.classList&&el.classList.contains("mncoin")){
+    e.preventDefault();el.blur();
   }
 });
 window.addEventListener("resize",function(){if(STATE.view==="daily")dcAutoGrow($("view"));});
@@ -3637,7 +3675,8 @@ document.addEventListener("change",function(e){
     manSave(mco,mf,mnow===""?"":(+mnow),mwas);
     return;
   }
-  if(el.classList&&(el.classList.contains("gtx")||el.classList.contains("gco"))&&el.tagName==="INPUT"){
+  if(el.classList&&(el.classList.contains("gtx")||el.classList.contains("gco"))&&
+     (el.tagName==="INPUT"||el.tagName==="TEXTAREA")){
     if(!canEdit())return;
     var isCo=el.classList.contains("gco");
     var gw2=el.getAttribute("data-w")||goalWeek();
