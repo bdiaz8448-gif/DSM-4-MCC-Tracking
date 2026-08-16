@@ -1544,7 +1544,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v20.0-linked-aged-printable";
+var MC_BUILD="v20.1-one-filter-at-a-time";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2629,8 +2629,11 @@ function dcConstraints(){
 
   var kp=[["ALL",n.ALL,"All"],["open",n.open,"Open"],["prog",n.prog,"In progress"],
           ["ready",n.ready,"Ready to verify"],["done",n.done,"Closed"],["late",n.late,"⚠ Past due"]];
+  /* exactly one counter is ever lit — "All" only when nothing is filtered at all */
+  var mccOn=(STATE.df.mcc==="Y");
   var kh='<div class="dckpis">'+kp.map(function(x){
-      return '<button class="dck d-'+(x[0]==="ALL"?"all":x[0])+(STATE.df.f===x[0]?" on":"")+'" data-act="dcK" data-k="'+x[0]+'">'+
+      var lit=(STATE.df.f===x[0])&&!mccOn;
+      return '<button class="dck d-'+(x[0]==="ALL"?"all":x[0])+(lit?" on":"")+'" data-act="dcK" data-k="'+x[0]+'">'+
         '<div class="n">'+x[1]+'</div><div class="l">'+x[2]+'</div></button>';}).join('')+
     '<button class="dck d-mcc'+(STATE.df.mcc==="Y"?" on":"")+'" data-act="dcK" data-k="mcc">'+
       '<div class="n">'+n.mcc+'</div><div class="l">⛔ Impacts a walk</div></button></div>';
@@ -3085,12 +3088,13 @@ function renderDaily(v){
 
   var explain=isCrewUser()
     ? '<div class="infob"><span class="big2">📋 DSM4 Daily Board — '+esc(crewCo())+'</span>'+
-      'You can raise a constraint for '+esc(crewCo())+', keep it up to date, and take it as far as <b>Ready to verify</b> when the work is done. '+
-      'Jacobs does the closing. Nothing here is ever deleted, and every change is kept with who made it.</div>'
+      '<b>Constraints · Weekly Goals · Deliveries · Manpower</b><br>'+
+      'One building, one team. Say what is in your way early — a constraint spoken today is a constraint '+
+      'cleared this week. Nobody clears their own path alone.</div>'
     : '<div class="infob"><span class="big2">📋 DSM4 Daily Board</span>'+
-      'The whiteboard from the trailer, live and shared — <b>constraints</b>, <b>weekly goals</b>, <b>deliveries</b> and <b>manpower</b>, '+
-      'in the same order they sit on the wall. Pick the level first and the room list narrows to that floor. '+
-      'A due date only moves with a written reason, and <b>every change is kept</b> with who did it and why.</div>';
+      '<b>Constraints · Weekly Goals · Deliveries · Manpower</b><br>'+
+      'One building, one team. Say what is in your way early — a constraint spoken today is a constraint '+
+      'cleared this week. Nobody clears their own path alone.</div>';
   var warn=STATE.dailyErr?('<div class="infob" style="border-color:rgba(224,11,40,.45)"><span class="big2">⚠ Tracker offline</span>'+
     'The board is fine — only this tracker could not be reached ('+esc(STATE.dailyErr)+'). Nothing has been lost; reload in a moment.</div>'):'';
 
@@ -3336,10 +3340,21 @@ document.addEventListener("click",function(e){
   var t=e.target.closest("[data-act]");if(!t)return;
   var act=t.getAttribute("data-act"),id=t.getAttribute("data-dc");
   if(act==="dcSec"){var s=t.getAttribute("data-s");DC_SEC[s]=!DC_SEC[s];render();return;}
+  /* The row of counters is ONE selector. Picking any of them releases whatever
+     was picked before, and picking the one already lit turns it off. Before
+     this, "Impacts a walk" stayed on underneath a status pick, the two filters
+     matched nothing between them, and the board looked stuck. */
   if(act==="dcK"){
     var k=t.getAttribute("data-k");
-    if(k==="mcc")STATE.df.mcc=(STATE.df.mcc==="Y")?"ALL":"Y";
-    else STATE.df.f=(STATE.df.f===k)?"ALL":k;
+    if(k==="mcc"){
+      var mccOn=(STATE.df.mcc==="Y");
+      STATE.df.mcc=mccOn?"ALL":"Y";
+      STATE.df.f="ALL";
+    }else{
+      var same=(STATE.df.f===k);
+      STATE.df.f=same?"ALL":k;
+      STATE.df.mcc="ALL";
+    }
     STATE.dcPage=0;render();return;
   }
   if(act==="dcPg"){
