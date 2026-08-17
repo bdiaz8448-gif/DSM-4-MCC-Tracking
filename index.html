@@ -550,6 +550,23 @@
   .catline{display:flex;gap:6px;flex-wrap:wrap;margin:2px 0 8px}
   .catline .cb{font-size:10.5px;font-weight:900;padding:3px 9px;border-radius:99px;border:1px solid var(--line2);background:var(--card2);color:var(--mut)}
   .catline .cb.c1{background:var(--redbg);border-color:rgba(224,11,40,.45);color:var(--redg)}
+  /* ---- pending approval to close: done, but nobody has verified it ---- */
+  .pendp{position:absolute;right:6px;bottom:4px;font-size:8.5px;font-weight:900;letter-spacing:.2px;
+    color:var(--orgg);background:var(--orgbg);border:1px solid rgba(194,92,0,.35);border-radius:6px;padding:0 4px;white-space:nowrap}
+  .pendtag{font-size:9.5px;font-weight:900;letter-spacing:.2px;text-transform:uppercase;
+    color:var(--orgg);background:var(--orgbg);border:1px solid rgba(194,92,0,.35);
+    border-radius:7px;padding:1px 6px;white-space:nowrap}
+  .grollup .rs.pend{color:var(--orgg)}
+  .grollup .rs.pend .num{color:var(--org)}
+  .sstrip .pend{color:var(--orgg)} .sstrip .pend .num{color:var(--org)}
+  /* ---- vendor document packages: real work, but not a walk ---- */
+  .vdrstrip{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:5px 13px;
+    border-top:1px solid var(--line);background:var(--card2)}
+  .vdrchip{font-size:10px;font-weight:900;letter-spacing:.3px;text-transform:uppercase;color:var(--mut);
+    background:var(--card);border:1px solid var(--line2);border-radius:8px;padding:2px 8px;white-space:nowrap}
+  .vdrnote{font-size:10px;font-weight:700;color:var(--mut2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gbox.vdrbox{border-style:dashed}
+  .prow.vdrrow .cell{opacity:.95}
   .sstrip{display:flex;gap:14px;flex-wrap:wrap;align-items:baseline;font-size:11px;font-weight:800;color:var(--mut);padding:8px 0 0;border-top:1px dashed var(--line2);margin-top:auto}
   .sstrip b{font-size:13px;font-weight:900;color:var(--txt)}
   .sstrip .ok b{color:var(--grn)}
@@ -1658,7 +1675,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v20.3-readable-on-a-phone";
+var MC_BUILD="v21.0-pending-approval-to-close";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1692,6 +1709,10 @@ var TRADES=["Mechanical/Piping","Electrical","BMS/Controls","Insulation","Envelo
    colors, missed-MCC and the turnover math still run on the four walk gates,
    so the client-facing counts (Completed / Outstanding) never move because of FAT. */
 var GATE_ORDER=["FAT","W0","W1","MC","MCC"];
+/* stored on the system like a gate so the importer can reuse the whole merge
+   path, but deliberately OUTSIDE GATE_ORDER so no walk rollup ever sees it */
+var VDR_KEY="VDR";
+var ALL_BUCKETS=GATE_ORDER.concat([VDR_KEY]);
 
 var STATE={systems:{},meta:null,burn:[],unlocked:false,view:"board",
   f:{comp:"ALL",group:"ALL",status:"ALL",contractor:"ALL",look:7,q:"",onlyOpen:false},
@@ -1740,26 +1761,38 @@ function daysBetween(a,b){return Math.round((Date.parse(b)-Date.parse(a))/864000
 /* ---- PUNCH MODEL: each contractor per gate = {t: total, c: closed}; open = t - c ----
    Reads the legacy plain-number format (which meant "open") transparently:
    a bare number n becomes {t:n, c:0}. Nothing already entered is lost.        */
+/* A punch item has THREE states, not two.
+     open              nobody has done the work yet
+     pending approval  the contractor says it is done; Jacobs has NOT verified it
+     closed            Date Verified is filled — it is genuinely finished
+   p is the pending count. It is NOT part of c, so a completion nobody has
+   approved never counts as a closure on a number that goes to the client. */
 function pv(v){
-  if(v==null)return{t:0,c:0};
-  if(typeof v==="number")return{t:v,c:0};
-  if(typeof v==="string")return{t:+v||0,c:0};
-  return{t:+v.t||0,c:+v.c||0};
+  if(v==null)return{t:0,c:0,p:0};
+  if(typeof v==="number")return{t:v,c:0,p:0};
+  if(typeof v==="string")return{t:+v||0,c:0,p:0};
+  return{t:+v.t||0,c:+v.c||0,p:+v.p||0};
 }
-function pOpen(v){var o=pv(v);return Math.max(0,o.t-o.c);}
+function pPend(v){var o=pv(v);return Math.max(0,Math.min(o.p,o.t-o.c));}
+function pOpen(v){var o=pv(v);return Math.max(0,o.t-o.c);}   /* pending is inside open */
+function pWaiting(v){var o=pv(v);return Math.max(0,pOpen(v)-pPend(v));}  /* not started / not done */
 /* gate rollup: pure sum of the punch counts. Signing a walk off WRITES closed=total
    (toggleDone / closeAllPunchOnSystem), so display always follows the real data —
    and open EIDA items sitting on an already-signed-off walk still read OPEN. */
 function gateStats(g){
-  if(!g)return{t:0,c:0,o:0};
-  var p=g.punch||{},t=0,c=0;
-  for(var k in p){var v=pv(p[k]);t+=v.t;c+=v.c;}
-  return{t:t,c:c,o:Math.max(0,t-c)};
+  if(!g)return{t:0,c:0,o:0,p:0};
+  var p=g.punch||{},t=0,c=0,pn=0;
+  for(var k in p){var v=pv(p[k]);t+=v.t;c+=v.c;pn+=pPend(p[k]);}
+  return{t:t,c:c,p:pn,o:Math.max(0,t-c)};
 }
 function gateOpen(g){return gateStats(g).o;}
-function sysStats(s){var t=0,c=0;GATE_ORDER.forEach(function(k){var g=s.gates[k];if(!g)return;var st=gateStats(g);t+=st.t;c+=st.c;});return{t:t,c:c,o:Math.max(0,t-c)};}
+function sysStats(s){var t=0,c=0,p=0;GATE_ORDER.forEach(function(k){var g=s.gates[k];if(!g)return;var st=gateStats(g);t+=st.t;c+=st.c;p+=st.p;});return{t:t,c:c,p:p,o:Math.max(0,t-c)};}
+/* Vendor document packages. Real work, but not a walk — they sit outside
+   FAT/W0/W1/MC/MCC so they can never block or flatter a walk number. */
+function vdrStats(s){return gateStats((s&&s.gates)?s.gates[VDR_KEY]:null);}
+function sysPending(s){return sysStats(s).p;}
 function sysOpen(s){return sysStats(s).o;}
-function boardStats(list){var t=0,c=0;(list||sysList()).forEach(function(s){var st=sysStats(s);t+=st.t;c+=st.c;});return{t:t,c:c,o:Math.max(0,t-c)};}
+function boardStats(list){var t=0,c=0,p=0;(list||sysList()).forEach(function(s){var st=sysStats(s);t+=st.t;c+=st.c;p+=st.p;});return{t:t,c:c,p:p,o:Math.max(0,t-c)};}
 /* per-gate date urgency: past due -> red, within yellow-window -> yel, else ok. done/na -> ok */
 /* days-to-due color scale (tracks today's real date):
    past due or < 7 days -> RED, < 14 -> ORANGE, < 30 -> YELLOW, >= 30 -> GREEN. no date -> unset. */
@@ -3995,12 +4028,17 @@ function renderBoard(v){
     });
     if(gh)h+='<div class="gholds">'+gh+'</div>';
     var sst=sysStats(s);
+    var _vd=vdrStats(s);
+    if(_vd.o>0)h+='<div class="vdrstrip"><span class="vdrchip">📄 '+_vd.o+' vendor package'+(_vd.o===1?'':'s')+' open</span>'+
+      '<span class="vdrnote">not a walk — does not hold MC</span></div>';
     var _c1=cat1(s);
     var _cn=dcLiveForMc(s.mc);
     if(_cn.length)h+='<div class="cnstrip"><span class="cnchip">⛔ '+_cn.length+' live constraint'+
       (_cn.length===1?'':'s')+'</span><span class="cnwho">'+
       esc([].concat(_cn.map(function(x){return x.co||"—";})).filter(function(v,i,arr){return arr.indexOf(v)===i;}).slice(0,3).join(" · "))+'</span></div>';
-    if(sst.t>0)h+='<div class="sstrip">'+(_c1?'<span class="catpill" title="'+_c1+' Category 1 item'+(_c1===1?'':'s')+' still open — these block the walk">⚠ '+_c1+' Cat 1</span>':'')+'<span><b class="num">'+sst.t+'</b> total</span><span class="ok"><b class="num">'+sst.c+'</b> closed</span><span class="hot"><b class="num">'+sst.o+'</b> open items</span></div>';
+    if(sst.t>0)h+='<div class="sstrip">'+(_c1?'<span class="catpill" title="'+_c1+' Category 1 item'+(_c1===1?'':'s')+' still open — these block the walk">⚠ '+_c1+' Cat 1</span>':'')+'<span><b class="num">'+sst.t+'</b> total</span><span class="ok"><b class="num">'+sst.c+'</b> closed</span>'+
+      (sst.p>0?'<span class="pend"><b class="num">'+sst.p+'</b> pending approval</span>':'')+
+      '<span class="hot"><b class="num">'+sst.o+'</b> open items</span></div>';
     else h+='<div class="sstrip"><span class="nofill">'+(st==="done"?'✓ complete':'no punch items logged yet')+'</span></div>';
     h+='</div></div>';
   });
@@ -4022,13 +4060,16 @@ function phaseBadge(s){
 }
 function gatePill(k,g){
   if(!g||g.na)return '<div class="gp d-unset"><div class="gl">'+k+'</div><div class="gd">'+(k==="FAT"?"vendor":"— set —")+'</div><div class="gv">'+(g&&g.punch?(gateStats(g).o||0):0)+'</div></div>';
-  if(g.done){var lt=gateLate(g);
+  if(g.done){var lt=gateLate(g),ps=gateStats(g);
+    /* a walk can be signed off and STILL have items waiting on approval — say so */
     return '<div class="gp sok"><div class="gl">'+k+' ✓</div><div class="gd">'+fmtMD(g.date)+'</div><div class="gv" style="color:var(--grn)">✓</div>'+
+      (ps.p>0?'<span class="pendp" title="'+ps.p+' item'+(ps.p===1?'':'s')+' done and waiting on approval to close">'+ps.p+' pend</span>':'')+
       (lt>0?'<span class="slip" title="signed '+lt+' days after target">+'+lt+'d</span>':'')+'</div>';}
   var ds=gateDateState(g),st=gateStats(g);
   var dtxt=g.date?fmtMD(g.date):(k==="FAT"?"vendor":"— set —");
   var sl=gateSlip(g);
   return '<div class="gp d-'+ds+'"><div class="gl">'+k+'</div><div class="gd">'+dtxt+'</div><div class="gv num'+(st.o>0?' hot':'')+'">'+st.o+(st.t>0?'<span class="oft">/'+st.t+'</span>':'')+'</div>'+
+    (st.p>0?'<span class="pendp" title="'+st.p+' of these are done and waiting on approval to close">'+st.p+' pend</span>':'')+
     (sl>0?'<span class="slip" title="'+sl+' days past the target date">+'+sl+'d</span>':'')+'</div>';
 }
 
@@ -4212,7 +4253,11 @@ function renderModal(){
   var pill=st==="red"?'<span class="mpill red">constraint</span>':st==="yel"?'<span class="mpill yel">upcoming</span>':st==="done"?'<span class="mpill done">complete</span>':'<span class="mpill grn">on track</span>';
   var h='<div class="mhead"><div class="mstrip" style="background:'+stripc+'"></div>';
   h+='<div class="mtop"><span class="light '+st+'"></span><span class="mmc num">'+esc(s.mc)+'</span><span class="btag">'+esc(s.board||'')+'</span>'+pill+'<span style="flex:1"></span><button class="iconbtn" data-act="closeSys">✕</button></div>';
-  h+='<div class="mdesc">'+esc(s.desc)+'</div><div class="mmeta">'+esc(s.code)+' · target MC '+fmtMD(s.target)+' · '+open+' open punch item'+(open===1?'':'s')+(STATE.unlocked?'':' · 🔒 unlock to edit')+'</div>';
+  var _pend=sysPending(s),_vdr=vdrStats(s);
+  h+='<div class="mdesc">'+esc(s.desc)+'</div><div class="mmeta">'+esc(s.code)+' · target MC '+fmtMD(s.target)+' · '+open+' open punch item'+(open===1?'':'s')+
+    (_pend>0?' · <b style="color:var(--org)">'+_pend+' pending approval to close</b>':'')+
+    (_vdr.o>0?' · '+_vdr.o+' vendor package'+(_vdr.o===1?'':'s')+'':'')+
+    (STATE.unlocked?'':' · 🔒 unlock to edit')+'</div>';
   var _co=catOpen(s);
   if(_co){
     var _ks=["1","2","3","4"].filter(function(k){return +_co[k]>0;});
@@ -4242,6 +4287,27 @@ function renderModal(){
   }
   h+='</div>';
   h+='<div class="mbody">';
+  h+=(function(){
+    var vg=(s.gates||{})[VDR_KEY];if(!vg)return '';
+    var vs=gateStats(vg);if(!vs.t)return '';
+    var pp=vg.punch||{};
+    return '<div class="gbox vdrbox"><div class="gbhd"><span class="gbn">📄 Vendor packages</span>'+
+      '<span class="gbd">document turnover — not a walk, holds nothing</span><span style="flex:1"></span>'+
+      '<span class="mpill '+(vs.o>0?'yel':'done')+'">'+vs.o+' of '+vs.t+' open</span></div>'+
+      '<div class="grollup"><span class="rs"><b class="num">'+vs.t+'</b> total</span>'+
+        '<span class="rs ok"><b class="num">'+vs.c+'</b> closed</span>'+
+        (vs.p>0?'<span class="rs pend"><b class="num">'+vs.p+'</b> pending approval to close</span>':'')+
+        '<span class="rs hot"><b class="num">'+vs.o+'</b> open</span></div>'+
+      Object.keys(pp).sort().map(function(n){
+        var q=pv(pp[n]),o2=Math.max(0,q.t-q.c),p2=pPend(pp[n]);
+        return '<div class="prow vdrrow"><span class="pn'+(o2>0?' hot':'')+'">'+esc(n)+
+          (p2>0?' <span class="pendtag">'+p2+' pending approval</span>':'')+'</span>'+
+          '<span class="cell"><span class="cval num">'+q.t+'</span></span>'+
+          '<span class="cell"><span class="cval num">'+q.c+'</span></span>'+
+          '<span class="cell"><span class="cval num'+(o2>0?' hot':'')+'">'+o2+'</span></span>'+
+          '<span></span><span></span><span></span></div>';}).join('')+
+      '</div>';
+  })();
   GATE_ORDER.forEach(function(k){
     var g=s.gates[k]||{na:false,date:null,done:false,punch:{}};
     var ds=gateDateState(g),isGov=gg===k;
@@ -4268,12 +4334,15 @@ function renderModal(){
     }
     var p=g.punch||{},names=orderedNames(s.id,k,p); /* LOCKED order — never re-sort while the panel is open */
     var gst=gateStats(g);
-    h+='<div class="grollup"><span class="rs"><b class="num">'+gst.t+'</b> total</span><span class="rs ok"><b class="num">'+gst.c+'</b> closed</span><span class="rs hot"><b class="num">'+gst.o+'</b> open</span></div>';
+    h+='<div class="grollup"><span class="rs"><b class="num">'+gst.t+'</b> total</span><span class="rs ok"><b class="num">'+gst.c+'</b> closed</span>'+
+      (gst.p>0?'<span class="rs pend"><b class="num">'+gst.p+'</b> pending approval to close</span>':'')+
+      '<span class="rs hot"><b class="num">'+gst.o+'</b> open</span></div>';
     if(g.done){h+='<div class="hint">Walk signed off — items already logged were closed. New items logged here still count as open.</div>';}
     else if(!names.length){h+='<div class="hint">No punch items yet. Type a contractor and their total below.</div>';}
     h+=names.length?'<div class="phead"><span class="pn"></span><span class="ch">Total</span><span class="ch">Closed</span><span class="ch">Open</span><span></span><span></span><span></span></div>':'';
-    names.forEach(function(n){var q=pv(p[n]),op=Math.max(0,q.t-q.c);
-      h+='<div class="prow"><span class="pn'+(op>0?' hot':'')+'">'+esc(n)+' <span class="trade">'+esc(tradeOf(n))+'</span>'+(q.t>0&&op===0?' <span class="trade">all closed</span>':'')+'</span>';
+    names.forEach(function(n){var q=pv(p[n]),op=Math.max(0,q.t-q.c),pn=pPend(p[n]);
+      h+='<div class="prow"><span class="pn'+(op>0?' hot':'')+'">'+esc(n)+' <span class="trade">'+esc(tradeOf(n))+'</span>'+(q.t>0&&op===0?' <span class="trade">all closed</span>':'')+
+        (pn>0?' <span class="pendtag" title="done, waiting on Jacobs to verify">'+pn+' pending approval</span>':'')+'</span>';
       h+='<span class="cell"><input class="totin num" type="number" min="0" value="'+q.t+'" data-act="setTotal" data-sys="'+esc(s.id)+'" data-gate="'+k+'" data-name="'+esc(n)+'" title="Total punch items (admin)"></span>';
       h+='<span class="cell"><span class="cval num">'+q.c+'</span></span>';
       h+='<span class="cell">'+stepper(s.id,k,n,op)+'</span>';
@@ -5153,7 +5222,12 @@ function impAutoMap(headers){
   if(m.pcat<0)m.pcat=find(/^(punch\s*category|item\s*category|cat)$/);
   m.ptype=find(/^punch\s*phase\s*type$/);
   if(m.ptype<0)m.ptype=find(/(punch\s*phase\s*type|phase\s*type|punch\s*type)/);
-  m.closeDate=find(/^(complete\s*date|completion\s*date|date\s*verified|closed\s*date|date\s*closed)$/);
+  /* two different dates, and the difference is the whole point:
+       Complete Date  the contractor says the work is done
+       Date Verified  Jacobs/FUJIFILM actually accepted it
+     Only the second one closes an item. */
+  m.closeDate =find(/^(complete\s*date|completion\s*date|closed\s*date|date\s*closed)$/);
+  m.verifyDate=find(/^(date\s*verified|verified\s*date|verification\s*date|date\s*approved|approved\s*date)$/);
   ["FAT","W0","W1","MC","MCC"].forEach(function(g){
     var gl=g.toLowerCase(),done=-1,tgt=-1;
     for(var i=0;i<H.length;i++){
@@ -5284,7 +5358,10 @@ function impGateOf(v){
   if(/\bw1\b/.test(s))return "W1";
   if(/mcc|post\s*mc\b/.test(s))return "MCC";
   if(/\bmc\b/.test(s))return "MC";
-  if(/\bfat\b|factory\s*acceptance|\bvdr\b/.test(s))return "FAT";
+  /* vendor document packages are NOT a walk — checked before FAT on purpose,
+     they used to be swept into the FAT count */
+  if(/\bvdr\b|vendor\s*(turnover|package)|package\s*disposition/.test(s))return VDR_KEY;
+  if(/\bfat\b|factory\s*acceptance/.test(s))return "FAT";
   return null;
 }
 /* EIDA writes legal company names ("GETINGE USA SALES LLC"); the board carries the
@@ -5317,8 +5394,9 @@ function impClosedIds(cell){var v=cell&&cell.cids;return (v&&v.length)?v.map(Str
    that comes back after being closed has been REOPENED. Totals are cumulative and
    never fall — closures move the number into "closed", they don't erase history. */
 function impPlanPunch(rows,map){
+  var canSplit=(map.verifyDate>=0);
   var ix=impIndexSystems(),agg={},plan={kind:"punch",matched:0,unmatched:[],newContractors:[],updates:{},
-        totalItems:0,closedItems:0,changed:0,noGate:0,aliases:[],absent:[],removals:0,
+        totalItems:0,closedItems:0,pendItems:0,canSplit:canSplit,vdrItems:0,changed:0,noGate:0,aliases:[],absent:[],removals:0,
         byId:(map.item>=0),text:{},cats:{},closedNow:0,raisedNow:0,reopened:0,stillOpen:0,noBaseline:0,
         perCo:{},closedList:[],raisedList:[],reopenList:[]};
   var rosterNames=contractors().map(function(c){return c.name;});
@@ -5342,14 +5420,25 @@ function impPlanPunch(rows,map){
     var cname=map.contractor>=0?impNorm(r[map.contractor]):"";
     cname=cname?co(cname):"Unassigned";
     var st=impKey(map.status>=0?r[map.status]:"");
-    var closed=/^(closed|complete|completed|done|verified|accepted|signed)/.test(st);
-    if(!closed&&map.closeDate>=0&&impNorm(r[map.closeDate]))closed=true;
-    plan.totalItems++;if(closed)plan.closedItems++;
+    /* THE SPLIT. If the file carries no verified-date column we cannot tell a
+       completion from an approval, so we behave exactly as before and claim
+       nothing — canSplit is what keeps every existing file's numbers identical. */
+    var verified=/^(verified|accepted|signed|approved)/.test(st);
+    if(!verified&&canSplit&&impNorm(r[map.verifyDate]))verified=true;
+    var complete=/^(closed|complete|completed|done)/.test(st);
+    if(!complete&&map.closeDate>=0&&impNorm(r[map.closeDate]))complete=true;
+    var closed,pend;
+    if(canSplit){ closed=verified; pend=(!verified&&complete); }
+    else        { closed=(verified||complete); pend=false; }
+    plan.totalItems++;
+    if(closed)plan.closedItems++;
+    if(pend)plan.pendItems++;
     agg[id]=agg[id]||{};agg[id][g]=agg[id][g]||{};
-    var cell=agg[id][g][cname]||(agg[id][g][cname]={t:0,c:0,ids:[]});
+    var cell=agg[id][g][cname]||(agg[id][g][cname]={t:0,c:0,ids:[],pids:[]});
     cell.t++;if(closed)cell.c++;
     var pid=map.item>=0?impNorm(r[map.item]):"";
     if(pid&&!closed)cell.ids.push(pid);
+    if(pid&&pend)cell.pids.push(pid);
     if(pid&&!closed&&(map.pdesc>=0||map.ptype>=0||map.pcat>=0)){
       var dsc=map.pdesc>=0?impText(r[map.pdesc]):"";
       var typ=map.ptype>=0?impNorm(r[map.ptype]).trim():"";
@@ -5366,13 +5455,15 @@ function impPlanPunch(rows,map){
     var sys=STATE.systems[id];if(!sys)return;
     plan.matched++;
     var lines={},full={},dirty=false;
-    GATE_ORDER.forEach(function(g){
+    ALL_BUCKETS.forEach(function(g){
       var nw=agg[id][g]||{},cur=((sys.gates||{})[g]||{}).punch||{},names={},out={};
       Object.keys(nw).forEach(function(n){names[n]=1;});Object.keys(cur).forEach(function(n){names[n]=1;});
       Object.keys(names).forEach(function(n){
         var a=nw[n],b=cur[n]||{};
         var oldT=+b.t||0,oldC=+b.c||0,oldIds=impPunchIds(b),oldCids=impClosedIds(b);
         var newIds=(a&&a.ids&&a.ids.length)?a.ids:null;
+        /* pending is a fact about right now, read fresh from the file every time */
+        var newPids=(a&&a.pids&&a.pids.length)?a.pids.slice():[];
         var res;
         if(plan.byId&&newIds){
           if(oldIds||oldCids.length){
@@ -5387,32 +5478,37 @@ function impPlanPunch(rows,map){
             if(c<0)c=0;
             if(t-c!==newIds.length)t=c+newIds.length;      /* keep open = total − closed exact */
             var cids=oldCids.filter(function(x){return !newSet[x];}).concat(closedNow);
-            res={t:t,c:c,ids:newIds,cids:cids,
+            res={t:t,c:c,ids:newIds,cids:cids,pids:newPids,
                  closedNow:closedNow,raisedNow:raised,reopenedNow:reopened};
           }else{
             /* nothing recorded for this pairing yet — take the file as the baseline,
                claim no closures we cannot prove */
-            res={t:Math.max(oldT,oldC+newIds.length),c:oldC,ids:newIds,cids:oldCids,
+            res={t:Math.max(oldT,oldC+newIds.length),c:oldC,ids:newIds,cids:oldCids,pids:newPids,
                  closedNow:[],raisedNow:[],reopenedNow:[],baseline:true};
             plan.noBaseline++;
           }
         }else if(plan.byId&&!newIds&&oldIds){
           /* every item this contractor held has gone from the file -> all closed */
-          res={t:oldT,c:oldC+oldIds.length,ids:[],cids:oldCids.concat(oldIds),
+          res={t:oldT,c:oldC+oldIds.length,ids:[],cids:oldCids.concat(oldIds),pids:[],
                closedNow:oldIds,raisedNow:[],reopenedNow:[]};
         }else if(plan.byId){
           /* nothing new for this pairing and nothing open on the board: leave the
              record exactly as it stands — a closed-out contractor is history, not
              something to erase on the next import. */
-          res={t:oldT,c:oldC,ids:[],cids:oldCids,closedNow:[],raisedNow:[],reopenedNow:[],untouched:true};
+          res={t:oldT,c:oldC,ids:[],cids:oldCids,pids:(b.pids||[]),closedNow:[],raisedNow:[],reopenedNow:[],untouched:true};
         }else{
           var na=a||{t:0,c:0};
-          res={t:na.t,c:na.c,ids:na.ids||[],cids:oldCids,closedNow:[],raisedNow:[],reopenedNow:[]};
+          res={t:na.t,c:na.c,ids:na.ids||[],cids:oldCids,pids:newPids,closedNow:[],raisedNow:[],reopenedNow:[]};
         }
-        var changed=(res.t!==oldT||res.c!==oldC||(oldIds||[]).join(",")!==(res.ids||[]).join(","));
+        var changed=(res.t!==oldT||res.c!==oldC||(oldIds||[]).join(",")!==(res.ids||[]).join(",")||
+                     ((b.pids||[]).join(",")!==(res.pids||[]).join(",")));
         if(res.untouched)changed=false;
-        if(res.ids&&res.ids.length){out[n]={t:res.t,c:res.c,ids:res.ids,cids:res.cids};}
-        else if(res.t>0){out[n]={t:res.t,c:res.c,ids:[],cids:res.cids};}
+        /* only carry pending IDs that are genuinely still open on this line */
+        var opSet={};(res.ids||[]).forEach(function(x){opSet[x]=1;});
+        var pOut=(res.pids||[]).filter(function(x){return opSet[x];});
+        if(res.ids&&res.ids.length){out[n]={t:res.t,c:res.c,p:pOut.length,ids:res.ids,cids:res.cids,pids:pOut};}
+        else if(res.t>0){out[n]={t:res.t,c:res.c,p:0,ids:[],cids:res.cids,pids:[]};}
+        if(out[n])plan.pendOnBoard=(plan.pendOnBoard||0)+(out[n].p||0);
         if(changed){
           dirty=true;
           if(!out[n]&&oldT)plan.removals++;
@@ -5444,16 +5540,16 @@ function impPlanPunch(rows,map){
   Object.keys(STATE.systems).forEach(function(id){
     if(agg[id])return;
     var sys=STATE.systems[id],open=0,full={},lines={},any=false;
-    GATE_ORDER.forEach(function(g){
+    ALL_BUCKETS.forEach(function(g){
       var p=((sys.gates||{})[g]||{}).punch||{},out={};
       Object.keys(p).forEach(function(n){
         var b=p[n],t=+b.t||0,c=+b.c||0,ids=impPunchIds(b),cids=impClosedIds(b);
         var o=ids?ids.length:Math.max(0,t-c);
         open+=o;
         if(o>0){any=true;
-          out[n]={t:t,c:c+o,ids:[],cids:cids.concat(ids||[])};
+          out[n]={t:t,c:c+o,p:0,ids:[],cids:cids.concat(ids||[]),pids:[]};
           lines[g]=lines[g]||{};lines[g][n]={t:t,c:c+o,wasT:t,wasC:c,closed:o,raised:0,reopened:0};
-        }else out[n]={t:t,c:c,ids:ids||[],cids:cids};
+        }else out[n]={t:t,c:c,p:+b.p||0,ids:ids||[],cids:cids,pids:(b.pids||[])};
       });
       full[g]=out;
     });
