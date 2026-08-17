@@ -1675,7 +1675,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v21.0-pending-approval-to-close";
+var MC_BUILD="v21.1-cat1-says-what-it-counts";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1868,10 +1868,10 @@ function passExceptComp(s){var f=STATE.f;
   if(f.q&&!sysMatchesQ(s,f.q.toLowerCase()))return false;
   return true;}
 function refreshCompLabels(){
-  var n={all:0,out:0,pending:0,upcoming:0,done:0,missed:0,cat1:0};
+  var n={all:0,out:0,pending:0,upcoming:0,done:0,missed:0,cat1:0,cat1Items:0};
   sysList().forEach(function(s){if(!passExceptComp(s))return;n.all++;
     if(missedMCC(s))n.missed++;
-    if(cat1(s)>0)n.cat1++;
+    if(cat1(s)>0){n.cat1++;n.cat1Items+=cat1(s);}
     var ph=sysPhase(s);
     if(ph==="done"){n.done++;return;}
     n.out++;
@@ -1889,7 +1889,10 @@ function refreshCompLabels(){
   var cb=document.querySelector('#compF [data-c="cat1"]');
   if(n.cat1>0){
     if(!cb){cb=document.createElement("button");cb.setAttribute("data-c","cat1");$("compF").appendChild(cb);}
-    setChip("cat1","⚠ Cat 1",n.cat1);
+    /* both numbers, both named — "48" alone reads as an item count and it is not */
+    var cb2=document.querySelector('#compF [data-c="cat1"]');
+    var t2='⚠ Cat 1 <span class="cnt">'+n.cat1+' sys · '+n.cat1Items+' items</span>';
+    if(cb2&&cb2.innerHTML!==t2)cb2.innerHTML=t2;
     cb.classList.toggle("on",STATE.f.comp==="cat1");
   }else if(cb){
     if(STATE.f.comp==="cat1"){STATE.f.comp="ALL";}
