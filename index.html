@@ -782,6 +782,14 @@
   .dcst.v-done{background-color:var(--grnbg);color:var(--grng);border-color:rgba(10,125,79,.45)}
   .dcst.v-late{background-color:var(--redbg);color:var(--redg);border-color:rgba(224,11,40,.45)}
   .dcst[disabled]{cursor:not-allowed;background-image:none;padding-right:12px;opacity:.75}
+  /* the tick box: one click closes a constraint without opening the menu */
+  .dcbx{width:23px;height:23px;margin-left:7px;border:2.5px solid var(--grn);border-radius:7px;background:#fff;
+    color:var(--grng);font-size:14px;font-weight:900;line-height:1;cursor:pointer;vertical-align:middle;
+    display:inline-flex;align-items:center;justify-content:center;padding:0}
+  .dcbx.on{background:var(--grn);color:#fff}
+  .dcbx[disabled]{opacity:.4;cursor:not-allowed}
+  .dcdiv td{background:var(--ink,#0f172a);color:#94a3b8;font-size:10px;font-weight:900;letter-spacing:2px;
+    text-transform:uppercase;padding:7px 12px}
   .dclog{border:1px solid var(--line2);background:#fff;border-radius:9px;width:29px;height:29px;cursor:pointer;
     font-size:11px;font-weight:900;color:var(--mut);display:grid;place-items:center}
   .dclog:hover{border-color:var(--acc);color:var(--acc)}
@@ -1525,6 +1533,8 @@
   #tvov .tvx{background:#1e293b;border:none;color:#e2e8f0;font-size:min(1.6vw,24px);font-weight:800;padding:.9vh 1.3vw;border-radius:12px;cursor:pointer}
   #tvov .tvbody{flex:1;display:flex;flex-direction:column;justify-content:center;gap:3.2vh;padding:2vh 4.5vw;min-height:0}
   #tvov .tvbody.late{background:linear-gradient(180deg,#fff 0%,#fef2f2 100%)}
+  #tvov .tvbody.done{background:linear-gradient(180deg,#fff 0%,#f0fdf4 100%)}
+  #tvov .tvtag .ok{color:#16a34a}
   #tvov .tvtag{font-size:min(2.2vw,34px);font-weight:800;color:#64748b;letter-spacing:1px}
   #tvov .tvtag b{color:#dc2626}
   #tvov .tvdesc{font-weight:900;line-height:1.1;letter-spacing:-1px;overflow-wrap:break-word;word-break:normal}
@@ -1532,10 +1542,21 @@
   #tvov .tvdesc.f2{font-size:min(5.6vw,86px)}
   #tvov .tvdesc.f3{font-size:min(4.4vw,68px)}
   #tvov .tvwhere{font-size:min(2.5vw,38px);color:#64748b;font-weight:700}
-  #tvov .tvchips{display:flex;gap:1.4vw;align-items:stretch;flex-wrap:wrap}
+  #tvov .tvchips{display:flex;gap:1.4vw;align-items:stretch;flex-wrap:nowrap;min-width:0}
+  #tvov .tvchips.tight{gap:1.1vw}
+  #tvov .tvchips.tight .tvchip .v{font-size:min(3.1vw,48px)}
+  #tvov .tvchips.tight .tvchip{padding:1.6vh 1.6vw}
+  #tvov .tvchips.tiny{gap:.8vw}
+  #tvov .tvchips.tiny .tvchip .v{font-size:min(2.8vw,40px)}
+  #tvov .tvchips.tiny .tvchip .k{font-size:min(1.15vw,18px)}
+  #tvov .tvchips.tiny .tvchip{padding:1.3vh 1.2vw}
+  #tvov .tvchips.tiny .tvarr{font-size:min(2.6vw,40px)}
+  /* Holding four chips on one line is a big-screen rule. On a phone, held a foot
+     from your face, wrapping beats shrinking the letters into nothing. */
+  @media (max-width:999px){#tvov .tvchips,#tvov .tvchips.tight,#tvov .tvchips.tiny{flex-wrap:wrap}}
   #tvov .tvchip{border-radius:20px;padding:1.9vh 2.1vw;font-weight:900;display:flex;flex-direction:column;justify-content:center}
   #tvov .tvchip .k{font-size:min(1.45vw,23px);letter-spacing:2px;opacity:.75;font-weight:800;margin-bottom:.6vh;white-space:nowrap}
-  #tvov .tvchip .v{font-size:min(3.9vw,60px);line-height:1.05}
+  #tvov .tvchip .v{font-size:min(3.9vw,60px);line-height:1.05;white-space:nowrap}
   #tvov .tvstuck{background:#fff7ed;border:4px solid #fb923c;color:#9a3412}
   #tvov .tvchamp{background:#eff6ff;border:4px solid #2563eb;color:#1e3a8a}
   #tvov .tvdue{background:#f8fafc;border:4px solid #cbd5e1;color:#0f172a}
@@ -1545,6 +1566,7 @@
   #tvov .tvdots{display:flex;gap:.5vw;min-width:0;overflow:hidden;padding:0 2vw 1.2vh;flex:0 0 auto}
   #tvov .tvdots i{width:1.4vw;height:10px;border-radius:5px;background:#e2e8f0;flex:0 0 auto}
   #tvov .tvdots i.pd{background:#fecaca}
+  #tvov .tvdots i.cl{background:#bbf7d0}
   #tvov .tvdots i.on{background:#2563eb}
   #tvov .tvdots i.pd.on{background:#dc2626}
   #tvov .tvbtn{background:#f1f5f9;border:2px solid #cbd5e1;border-radius:14px;color:#0f172a;
@@ -1560,6 +1582,12 @@
   #tvov .tvst button.on-prog{background:#eab308;color:#1c1917}
   #tvov .tvst button.on-ready{background:#6366f1;color:#fff}
   #tvov .tvst button.on-done{background:#16a34a;color:#fff}
+  #tvov .tvst button.closetab{display:flex;align-items:center;justify-content:center;gap:.8vw;flex:1.25;
+    background:#f0fdf4;color:#166534;border-left:3px solid #86efac}
+  #tvov .tvst button.closetab .bx{width:max(2vw,34px);height:max(2vw,34px);border:4px solid #16a34a;border-radius:9px;
+    background:#fff;display:flex;align-items:center;justify-content:center;font-size:min(1.7vw,26px);color:#16a34a;flex:0 0 auto}
+  #tvov .tvst button.closetab.on{background:#16a34a;color:#fff}
+  #tvov .tvst button.closetab.on .bx{background:#fff;color:#16a34a;border-color:#fff}
   #tvov .tvbtn.grn{background:#16a34a;border-color:#16a34a;color:#fff}
   #tvov .tvbtn[disabled]{opacity:.45;cursor:not-allowed}
   #tvov .tvnewt{font-size:min(2.2vw,34px);font-weight:900;color:#16a34a;letter-spacing:2px}
@@ -1747,7 +1775,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v24.0-tv-dictation-mic";
+var MC_BUILD="v25.0-three-states-tick-to-close";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2091,7 +2119,7 @@ function bootFull(){
   db.collection(DAILY_COL).onSnapshot({includeMetadataChanges:true},function(snap){
     if(NO_ACCESS)return;
     var d={};snap.forEach(function(doc){var x=doc.data();x.id=doc.id;d[doc.id]=x;});
-    STATE.daily=d;STATE.dailyLoaded=true;dcSeedBoard();dcMigrateLevels();
+    STATE.daily=d;STATE.dailyLoaded=true;dcSeedBoard();dcMigrateLevels();dcMigrateProg();
     if(STATE.view==="daily")render();
   },function(e){
     /* NEVER lock the board out over the tracker. mc_systems is the authority on
@@ -2490,7 +2518,10 @@ function renderHero(){
    the fix, when it is needed. Nothing here is ever deleted — a row can be
    voided by the owner but it stays in the collection with its whole log.
    ========================================================================= */
-var DC_STATES=["open","prog","ready","done"];
+/* Three states only. "prog" (In progress) was retired in v25 — the label stays
+   in DC_LABEL so old history lines still read right, but nothing offers it and
+   any row still carrying it is migrated to Open (see dcMigrateProg). */
+var DC_STATES=["open","ready","done"];
 var DC_LABEL={open:"Open",prog:"In progress",ready:"Ready to verify",done:"Closed",late:"Past due"};
 /* which walk a constraint holds up — same order as the board's own gates */
 var DC_GATES=["W0","W1","MC","MCC"];
@@ -2699,7 +2730,7 @@ function dcList(){var a=[];for(var k in STATE.daily){var r=STATE.daily[k];if(r&&
 function dcState(r){
   if(r.st==="done")return "done";
   if(r.due&&daysBetween(r.due,todayISO())>0)return "late";
-  return (r.st==="ready"||r.st==="prog")?r.st:"open";
+  return (r.st==="ready")?"ready":"open";      /* a stray legacy "prog" reads as Open */
 }
 function dcLate(r){if(!r.due||r.st==="done")return 0;var d=daysBetween(r.due,todayISO());return d>0?d:0;}
 /* only Jacobs closes a row. A contractor takes it to Ready to verify, no further. */
@@ -2750,7 +2781,14 @@ function dcSortNew(a,b){
   if(ca!==cb)return ca<cb?-1:1;
   return (a.due||"")<(b.due||"")?-1:1;
 }
+/* Closed constraints always sink below the live ones — whatever the sort.
+   They are never removed: the row, its dates and its whole log stay put. */
 function dcSort(a,b){
+  var ad=(a.st==="done")?1:0, bd=(b.st==="done")?1:0;
+  if(ad!==bd)return ad-bd;
+  return dcSortLive(a,b);
+}
+function dcSortLive(a,b){
   var m=STATE.df&&STATE.df.sort;
   if(m==="old"){                       /* oldest raised first */
     var da=a.date||"",db2=b.date||"";
@@ -2788,6 +2826,16 @@ function logSave(col,id,store,patch,entry){
     .catch(function(e){alert("Could not save: "+e.message);});
 }
 function dcSave(id,patch,entry){logSave(DAILY_COL,id,STATE.daily,patch,entry);}
+/* The tick box. One path for the table and the TV so both log the same line.
+   Ticking closes and stamps the day; unticking puts it back to Open. Nothing
+   is deleted either way — the row keeps its history. */
+function dcToggleClose(id){
+  var row=STATE.daily[id];if(!row)return;
+  if(!dcCanEditRow(row))return;
+  if(!dcCanClose()){alert("Only Jacobs can close a constraint. Set it to Ready to verify instead.");return;}
+  if(row.st==="done")dcSave(id,{st:"open",doneAt:""},{what:"Reopened <b>Closed → Open</b>"});
+  else dcSave(id,{st:"done",doneAt:todayISO()},{what:"Status changed <b>"+(DC_LABEL[row.st]||"Open")+" → Closed</b>"});
+}
 function dcAdd(row){
   var ref=db.collection(DAILY_COL).doc();
   row.id=ref.id;
@@ -2846,10 +2894,10 @@ function dcConstraints(){
   if(STATE.dcPage<0)STATE.dcPage=0;
   var from=STATE.dcPage*DC_PAGE, rows=hits.slice(from,from+DC_PAGE);
 
-  var n={ALL:all.length,open:0,prog:0,ready:0,done:0,late:0,mcc:0};
+  var n={ALL:all.length,open:0,ready:0,done:0,late:0,mcc:0};
   all.forEach(function(r){n[dcState(r)]++;if(r.mcc&&r.st!=="done")n.mcc++;});
 
-  var kp=[["ALL",n.ALL,"All"],["open",n.open,"Open"],["prog",n.prog,"In progress"],
+  var kp=[["ALL",n.ALL,"All"],["open",n.open,"Open"],
           ["ready",n.ready,"Ready to verify"],["done",n.done,"Closed"],["late",n.late,"⚠ Past due"]];
   /* exactly one counter is ever lit — "All" only when nothing is filtered at all */
   var mccOn=(STATE.df.mcc==="Y");
@@ -2883,9 +2931,11 @@ function dcConstraints(){
     '<button class="btn sm" data-act="tvMode" title="Full screen, one constraint at a time — big enough to read from the back of the room. Esc or ✕ to leave.">📺 TV mode</button>'+
     '</div>';
 
-  var body="";
+  var body="",sawDone=false;
   rows.forEach(function(r,i){
     var s=dcState(r),lt=dcLate(r),ed=dcCanEditRow(r),ro=ed?"":" readonly",dis=ed?"":" disabled";
+    if(r.st==="done"&&!sawDone){sawDone=true;
+      body+='<tr class="dcdiv"><td colspan="11">Closed — kept on the board, out of the way</td></tr>';}
     var age=dcAge(r);
     body+='<tr class="s-'+s+'" data-dc="'+esc(r.id)+'">'+
       '<td class="dcn">'+(from+i+1)+'</td>'+
@@ -2906,7 +2956,10 @@ function dcConstraints(){
         DC_STATES.map(function(x){
           var d2=(x==="done"&&!dcCanClose())?" disabled":"";
           return '<option value="'+x+'"'+(r.st===x?" selected":"")+d2+'>'+DC_LABEL[x]+'</option>';}).join('')+
-        '</select></td>'+
+        '</select>'+
+        '<button class="dcbx'+(r.st==="done"?" on":"")+'" data-act="dcTick" data-dc="'+esc(r.id)+'"'+
+          ((ed&&dcCanClose())?"":" disabled")+' title="'+(r.st==="done"?"Closed — tick again to reopen it":"Tick to close this constraint")+'">'+
+          (r.st==="done"?"✓":"")+'</button></td>'+
       '<td class="dact" data-l="History"><button class="dclog" data-act="dcLog" data-dc="'+esc(r.id)+'" title="open the history for this row">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button></td>'+
       '</tr>';
     if(DC_OPEN_LOGS[r.id])body+=dcHistRow(r,11);
@@ -2936,7 +2989,7 @@ function dcConstraints(){
   return kh+bar+
     '<div class="dcwrap"><div class="dchead"><h2>Constraints</h2>'+
       '<span class="sub">'+hits.length+' of '+all.length+' shown</span><span style="flex:1"></span>'+
-      '<span class="sub">newest first · green closed · indigo ready to verify · yellow in progress · red past due</span></div>'+
+      '<span class="sub">newest first · red past due · indigo ready to verify · green closed, kept at the bottom</span></div>'+
     '<div class="dctbl dcmainwrap"><table class="dcmain"><thead><tr>'+
       '<th class="dcn">#</th><th>Date<span class="h2">raised · days open</span></th>'+
       '<th>Company<span class="h2">who is stuck</span></th>'+
@@ -2944,7 +2997,8 @@ function dcConstraints(){
       '<th>Room<span class="h2">on that floor</span></th>'+
       '<th>Description of constraint</th>'+
       '<th>Impacts<br>a walk?<span class="h2">W0 · W1 · MC · MCC</span></th>'+
-      '<th>Champion<span class="h2">who clears it</span></th><th>Due date</th><th>Status</th>'+
+      '<th>Champion<span class="h2">who clears it</span></th><th>Due date</th>'+
+      '<th>Status<span class="h2">tick the box to close</span></th>'+
       '<th class="dact">Log</th>'+
     '</tr></thead><tbody>'+(body||'<tr><td colspan="'+cols+'" class="dcempty">'+
       (all.length?'Nothing matches that filter.':'No constraints on the tracker yet — raise the first one below.')+'</td></tr>')+
@@ -2963,7 +3017,10 @@ function dcConstraints(){
    dcAdd) — same permission rules, same history log entries. */
 var TV={on:false,idx:0,mode:"deck",timer:null,draft:null};
 function tvRows(){
-  return dcList().filter(function(r){return r.st!=="done";}).sort(function(a,b){
+  /* every constraint is on the TV — closed ones simply sort to the very end */
+  return dcList().sort(function(a,b){
+    var da=(a.st==="done")?1:0,db2=(b.st==="done")?1:0;
+    if(da!==db2)return da-db2;
     var la=dcLate(a),lb=dcLate(b);
     if((la>0)!==(lb>0))return la>0?-1:1;          /* past due jump the line   */
     if(la>0&&lb>0&&la!==lb)return lb-la;          /* most overdue speaks first */
@@ -2984,6 +3041,11 @@ function tvOpen(){
     else if(k==="next")tvStep(1);
     else if(k==="prev")tvStep(-1);
     else if(k==="st")tvSetSt(b.getAttribute("data-st"));
+    else if(k==="close"){
+      var rr=tvRows()[TV.idx];
+      if(rr){dcToggleClose(rr.id);tvFollow(rr.id);}
+      tvPaint();
+    }
     else if(k==="raise")tvRaise();
     else if(k==="mic")tvMicToggle();
     else if(k==="rsave"){tvMicStop();tvRaiseSave();}
@@ -3006,6 +3068,13 @@ function tvClose(){
   /* keep the screen lock only if present mode's own Stay awake still wants it */
   if(!(document.body.classList.contains("present")&&lsGet(AWAKE_KEY)==="1"))wakeRelease();
 }
+/* After a status change the constraint moves in the deck (closed sink to the
+   end). Follow it, so the room sees the tick land on the card they were just
+   discussing instead of the screen jumping to somebody else's constraint. */
+function tvFollow(id){
+  var rows=tvRows();
+  for(var i=0;i<rows.length;i++)if(rows[i].id===id){TV.idx=i;return;}
+}
 function tvStep(d){
   var n=tvRows().length;
   if(!n){tvPaint();return;}
@@ -3020,9 +3089,9 @@ function tvSetSt(to){
   if(!row||!dcCanEditRow(row))return;
   if(to==="done"&&!dcCanClose()){alert("Only Jacobs can close a constraint. Set it to Ready to verify instead.");return;}
   if(row.st===to)return;
-  var extra=(to==="done")?{doneAt:todayISO()}:{};
-  dcSave(r.id,Object.assign({st:to},extra),{what:"Status changed <b>"+DC_LABEL[row.st]+" → "+DC_LABEL[to]+"</b>"});
-  /* closing removes it from the deck — the card that comes up next is the next constraint */
+  var extra=(to==="done")?{doneAt:todayISO()}:(row.st==="done"?{doneAt:""}:{});
+  dcSave(r.id,Object.assign({st:to},extra),{what:"Status changed <b>"+(DC_LABEL[row.st]||"Open")+" → "+DC_LABEL[to]+"</b>"});
+  tvFollow(r.id);      /* a closed card sorts to the end — stay on it */
   tvPaint();
 }
 function tvHd(pill){
@@ -3046,15 +3115,17 @@ function tvPaint(){
     return;
   }
   if(TV.idx>=n)TV.idx=0;
-  var r=rows[TV.idx],lt=dcLate(r),age=dcAge(r);
+  var r=rows[TV.idx],lt=dcLate(r),age=dcAge(r),done=(r.st==="done");
   var dl=(r.desc||"").length,fs=dl>90?"f3":(dl>40?"f2":"f1");
   var where=[r.lvl,r.room].filter(Boolean).join(" · ");
-  var tag=(lt>0?'<b>PAST DUE · '+age+'d OPEN</b>':(age===null?'':age+'d OPEN'))+
-    (r.date?' · RAISED '+fmtMD(r.date):'');
+  var tag=done
+    ? ('<span class="ok">✓ CLOSED'+(r.doneAt?' '+fmtMD(r.doneAt):'')+'</span>'+(age===null?'':' · '+age+'d TO CLOSE'))
+    : ((lt>0?'<b>PAST DUE · '+age+'d OPEN</b>':(age===null?'':age+'d OPEN')));
+  tag+=(r.date?' · RAISED '+fmtMD(r.date):'');
   var dots='';rows.forEach(function(x,i){
-    dots+='<i class="'+(dcLate(x)>0?'pd':'')+(i===TV.idx?' on':'')+'"></i>';});
+    dots+='<i class="'+(x.st==="done"?'cl':(dcLate(x)>0?'pd':''))+(i===TV.idx?' on':'')+'"></i>';});
   d.innerHTML=tvHd()+
-    '<div class="tvbody'+(lt>0?' late':'')+'">'+
+    '<div class="tvbody'+(done?' done':(lt>0?' late':''))+'">'+
       '<div class="tvtag">'+tag+'</div>'+
       '<div class="tvdesc '+fs+'">'+esc(r.desc||"(no description)")+'</div>'+
       (where?'<div class="tvwhere">'+esc(where)+'</div>':'')+
@@ -3069,19 +3140,34 @@ function tvPaint(){
       '</div>'+
     '</div>'+
     '<div class="tvdots">'+dots+'</div>'+tvFoot(r);
+  tvFitChips();
+}
+/* The four chips stay on ONE line, always. If the set is too wide for the
+   screen they all step down a size together — a chip dropping underneath
+   used to shove the description up the screen. */
+function tvFitChips(){
+  var c=document.querySelector("#tvov .tvchips");if(!c)return;
+  c.className="tvchips";
+  if(c.scrollWidth>c.clientWidth+1)c.className="tvchips tight";
+  if(c.scrollWidth>c.clientWidth+1)c.className="tvchips tiny";
 }
 function tvFoot(r){
   var ed=r?dcCanEditRow(STATE.daily[r.id]):false;
   var st=r?r.st:"";
   function tab(v,lbl,onCls){
-    var dis=(!r||!ed||(v==="done"&&!dcCanClose()))?" disabled":"";
+    var dis=(!r||!ed)?" disabled":"";
     return '<button data-tv="st" data-st="'+v+'" class="'+(st===v?onCls:'')+'"'+dis+'>'+lbl+'</button>';
   }
+  /* the CLOSED tab IS the tick box — the whole pill is the target, no aiming */
+  var cdis=(!r||!ed||!dcCanClose())?" disabled":"";
+  var closed=(st==="done");
+  var ctab='<button class="closetab'+(closed?" on":"")+'" data-tv="close"'+cdis+
+    ' title="'+(closed?"Closed — tap again to reopen it":"Tap anywhere on this to close the constraint")+'">'+
+    '<span class="bx">'+(closed?"✓":"")+'</span>CLOSED</button>';
   return '<div class="tvfoot">'+
     '<button class="tvbtn" data-tv="prev"'+(r?'':' disabled')+'>‹ Back</button>'+
     '<div class="tvst"><span class="lbl">STATUS</span>'+
-      tab("open","OPEN","on-open")+tab("prog","IN PROGRESS","on-prog")+
-      tab("ready","READY TO VERIFY","on-ready")+tab("done","CLOSED ✓","on-done")+'</div>'+
+      tab("open","OPEN","on-open")+tab("ready","READY TO VERIFY","on-ready")+ctab+'</div>'+
     (dcCanAdd()?'<button class="tvbtn grn" data-tv="raise">＋ Raise new</button>':'')+
     '<button class="tvbtn" data-tv="next"'+(r?'':' disabled')+'>Next ›</button>'+
     '</div>';
@@ -3876,6 +3962,7 @@ document.addEventListener("click",function(e){
   if(act==="dcGoalLog"){var gk="_goals_"+goalWeek(),w0=DC_OPEN_LOGS[gk];DC_OPEN_LOGS={};if(!w0)DC_OPEN_LOGS[gk]=true;render();return;}
   if(act==="dcMnLog"){var mk="_mn_"+manDate(),m0=DC_OPEN_LOGS[mk];DC_OPEN_LOGS={};if(!m0)DC_OPEN_LOGS[mk]=true;render();return;}
   if(act==="dcDvLog"){var dk="_dv_"+t.getAttribute("data-dv"),v0=DC_OPEN_LOGS[dk];DC_OPEN_LOGS={};if(!v0)DC_OPEN_LOGS[dk]=true;render();return;}
+  if(act==="dcTick"){dcToggleClose(id);return;}   /* NOT "dcClose" — that name belongs to the dialog's Cancel button */
   if(act==="dcPrint"){dcPrint();return;}
   if(act==="tvMode"){tvOpen();return;}
   if(act==="dcFromSys"){dcFromSys(t.getAttribute("data-mc"));return;}
@@ -4261,6 +4348,25 @@ function manMigrateWeekend(){
     b.set(db.collection(MAN_COL).doc(k),{week:wk.week,w:wk.w||{},log:wk.log||[]},{merge:true});
   });
   b.commit().catch(function(e){_manMigrated=false;console.warn("weekend migration",e&&e.code);});
+}
+/* v25 retired "In progress". Any row still sitting on it becomes Open, with a
+   line in its own history saying so, so nobody wonders where the status went. */
+var _dcProgMigrated=false;
+function dcMigrateProg(){
+  if(_dcProgMigrated||!canEdit()||!STATE.dailyLoaded)return;
+  var ids=Object.keys(STATE.daily);if(!ids.length)return;
+  _dcProgMigrated=true;
+  var b=db.batch(),n=0;
+  ids.forEach(function(id){
+    var r=STATE.daily[id];if(!r||r.st!=="prog")return;
+    r.st="open";
+    r.log=(r.log||[]);
+    r.log.unshift({ts:dcNow(),who:dcWho(),what:"Status changed <b>In progress → Open</b> — In progress was retired from the board",why:""});
+    b.set(db.collection(DAILY_COL).doc(id),{st:"open",log:r.log},{merge:true});n++;
+  });
+  if(!n)return;
+  render();
+  b.commit().catch(function(e){console.warn("prog migration",e&&e.code);});
 }
 function dcMigrateLevels(){
   if(_dcMigrated||!canEdit()||!STATE.dailyLoaded)return;
