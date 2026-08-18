@@ -1525,22 +1525,22 @@
   #tvov .tvx{background:#1e293b;border:none;color:#e2e8f0;font-size:min(1.6vw,24px);font-weight:800;padding:.9vh 1.3vw;border-radius:12px;cursor:pointer}
   #tvov .tvbody{flex:1;display:flex;flex-direction:column;justify-content:center;gap:3.2vh;padding:2vh 4.5vw;min-height:0}
   #tvov .tvbody.late{background:linear-gradient(180deg,#fff 0%,#fef2f2 100%)}
-  #tvov .tvtag{font-size:min(1.9vw,30px);font-weight:800;color:#64748b;letter-spacing:1px}
+  #tvov .tvtag{font-size:min(2.2vw,34px);font-weight:800;color:#64748b;letter-spacing:1px}
   #tvov .tvtag b{color:#dc2626}
   #tvov .tvdesc{font-weight:900;line-height:1.1;letter-spacing:-1px;overflow-wrap:break-word;word-break:normal}
-  #tvov .tvdesc.f1{font-size:min(6.8vw,104px)}
-  #tvov .tvdesc.f2{font-size:min(5.2vw,80px)}
-  #tvov .tvdesc.f3{font-size:min(4vw,62px)}
-  #tvov .tvwhere{font-size:min(2.2vw,34px);color:#64748b;font-weight:700}
+  #tvov .tvdesc.f1{font-size:min(7.2vw,110px)}
+  #tvov .tvdesc.f2{font-size:min(5.6vw,86px)}
+  #tvov .tvdesc.f3{font-size:min(4.4vw,68px)}
+  #tvov .tvwhere{font-size:min(2.5vw,38px);color:#64748b;font-weight:700}
   #tvov .tvchips{display:flex;gap:1.4vw;align-items:stretch;flex-wrap:wrap}
-  #tvov .tvchip{border-radius:20px;padding:1.6vh 1.9vw;font-weight:900;display:flex;flex-direction:column;justify-content:center}
-  #tvov .tvchip .k{font-size:min(1.25vw,20px);letter-spacing:2px;opacity:.75;font-weight:800;margin-bottom:.6vh;white-space:nowrap}
-  #tvov .tvchip .v{font-size:min(3.4vw,52px);line-height:1.05}
+  #tvov .tvchip{border-radius:20px;padding:1.9vh 2.1vw;font-weight:900;display:flex;flex-direction:column;justify-content:center}
+  #tvov .tvchip .k{font-size:min(1.45vw,23px);letter-spacing:2px;opacity:.75;font-weight:800;margin-bottom:.6vh;white-space:nowrap}
+  #tvov .tvchip .v{font-size:min(3.9vw,60px);line-height:1.05}
   #tvov .tvstuck{background:#fff7ed;border:4px solid #fb923c;color:#9a3412}
   #tvov .tvchamp{background:#eff6ff;border:4px solid #2563eb;color:#1e3a8a}
   #tvov .tvdue{background:#f8fafc;border:4px solid #cbd5e1;color:#0f172a}
   #tvov .tvdue.over{background:#dc2626;border-color:#dc2626;color:#fff}
-  #tvov .tvarr{font-size:min(3.6vw,56px);color:#94a3b8;font-weight:900;align-self:center}
+  #tvov .tvarr{font-size:min(4vw,62px);color:#94a3b8;font-weight:900;align-self:center}
   #tvov .tvfoot{flex:0 0 auto;display:flex;align-items:center;gap:.8vw;padding:0 2vw 2vh}
   #tvov .tvdots{display:flex;gap:.5vw;min-width:0;overflow:hidden;padding:0 2vw 1.2vh;flex:0 0 auto}
   #tvov .tvdots i{width:1.4vw;height:10px;border-radius:5px;background:#e2e8f0;flex:0 0 auto}
@@ -1562,7 +1562,7 @@
   #tvov .tvst button.on-done{background:#16a34a;color:#fff}
   #tvov .tvbtn.grn{background:#16a34a;border-color:#16a34a;color:#fff}
   #tvov .tvbtn[disabled]{opacity:.45;cursor:not-allowed}
-  #tvov .tvnewt{font-size:min(1.9vw,30px);font-weight:900;color:#16a34a;letter-spacing:2px}
+  #tvov .tvnewt{font-size:min(2.2vw,34px);font-weight:900;color:#16a34a;letter-spacing:2px}
   #tvov .tvdesc .ph{color:#94a3b8}
   #tvov .tvcaret{display:inline-block;width:.35vw;height:.9em;background:#2563eb;vertical-align:-.08em;margin-left:.3vw;border-radius:3px;animation:tvblink 1s step-end infinite}
   @keyframes tvblink{50%{opacity:0}}
@@ -1742,7 +1742,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v23.0-tv-status-tabs-and-raise-live";
+var MC_BUILD="v23.1-tv-card-type-bumped";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
