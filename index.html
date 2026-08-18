@@ -1509,6 +1509,51 @@
     body.present #presentDock{right:10px;bottom:10px;flex-wrap:wrap;justify-content:flex-end}
     body.present #presentDock button{padding:10px 15px;font-size:12.5px}
   }
+
+  /* ---------- 📺 TV mode: one constraint at a time, readable from the back wall ----------
+     Sizes are in vw/vh so the same layout fills a 43" or a 75" TV. The rule used
+     throughout: ~1 inch of letter height per 10 feet of viewer. */
+  body.tvon{overflow:hidden}
+  #tvov{position:fixed;inset:0;z-index:9000;background:#fff;display:flex;flex-direction:column;
+        color:#0f172a;user-select:none;-webkit-user-select:none}
+  #tvov .tvhd{display:flex;align-items:center;gap:1.6vw;padding:1.6vh 2.2vw;background:#0f172a;color:#fff;flex:0 0 auto}
+  #tvov .tvhd .t{font-size:min(2.6vw,40px);font-weight:900;letter-spacing:.5px;white-space:nowrap}
+  #tvov .tvhd .sub{font-size:min(1.6vw,25px);color:#94a3b8;font-weight:700;white-space:nowrap}
+  #tvov .tvpg{background:#1e293b;color:#cbd5e1;font-size:min(1.6vw,25px);font-weight:800;padding:.8vh 1.2vw;border-radius:999px;white-space:nowrap}
+  #tvov .tvpd{margin-left:auto;background:#dc2626;color:#fff;font-size:min(1.7vw,27px);font-weight:900;padding:.8vh 1.4vw;border-radius:999px;white-space:nowrap}
+  #tvov .tvpd.none{margin-left:auto;background:transparent}
+  #tvov .tvx{background:#1e293b;border:none;color:#e2e8f0;font-size:min(1.6vw,24px);font-weight:800;padding:.9vh 1.3vw;border-radius:12px;cursor:pointer}
+  #tvov .tvbody{flex:1;display:flex;flex-direction:column;justify-content:center;gap:3.2vh;padding:2vh 4.5vw;min-height:0}
+  #tvov .tvbody.late{background:linear-gradient(180deg,#fff 0%,#fef2f2 100%)}
+  #tvov .tvtag{font-size:min(1.9vw,30px);font-weight:800;color:#64748b;letter-spacing:1px}
+  #tvov .tvtag b{color:#dc2626}
+  #tvov .tvdesc{font-weight:900;line-height:1.1;letter-spacing:-1px;overflow-wrap:break-word;word-break:normal}
+  #tvov .tvdesc.f1{font-size:min(6.8vw,104px)}
+  #tvov .tvdesc.f2{font-size:min(5.2vw,80px)}
+  #tvov .tvdesc.f3{font-size:min(4vw,62px)}
+  #tvov .tvwhere{font-size:min(2.2vw,34px);color:#64748b;font-weight:700}
+  #tvov .tvchips{display:flex;gap:1.4vw;align-items:stretch;flex-wrap:wrap}
+  #tvov .tvchip{border-radius:20px;padding:1.6vh 1.9vw;font-weight:900;display:flex;flex-direction:column;justify-content:center}
+  #tvov .tvchip .k{font-size:min(1.25vw,20px);letter-spacing:2px;opacity:.75;font-weight:800;margin-bottom:.6vh;white-space:nowrap}
+  #tvov .tvchip .v{font-size:min(3.4vw,52px);line-height:1.05}
+  #tvov .tvstuck{background:#fff7ed;border:4px solid #fb923c;color:#9a3412}
+  #tvov .tvchamp{background:#eff6ff;border:4px solid #2563eb;color:#1e3a8a}
+  #tvov .tvdue{background:#f8fafc;border:4px solid #cbd5e1;color:#0f172a}
+  #tvov .tvdue.over{background:#dc2626;border-color:#dc2626;color:#fff}
+  #tvov .tvarr{font-size:min(3.6vw,56px);color:#94a3b8;font-weight:900;align-self:center}
+  #tvov .tvfoot{flex:0 0 auto;display:flex;align-items:center;gap:.8vw;padding:0 4.5vw 2.2vh}
+  #tvov .tvdots{display:flex;gap:.5vw;flex:1;min-width:0;overflow:hidden}
+  #tvov .tvdots i{width:1.4vw;height:10px;border-radius:5px;background:#e2e8f0;flex:0 0 auto}
+  #tvov .tvdots i.pd{background:#fecaca}
+  #tvov .tvdots i.on{background:#2563eb}
+  #tvov .tvdots i.pd.on{background:#dc2626}
+  #tvov .tvbtn{background:#f1f5f9;border:2px solid #cbd5e1;border-radius:14px;color:#0f172a;
+    font-size:min(1.7vw,26px);font-weight:900;padding:1.1vh 1.5vw;cursor:pointer;white-space:nowrap}
+  #tvov .tvbtn.on{background:#0f172a;color:#fff;border-color:#0f172a}
+  #tvov .tvempty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2vh}
+  #tvov .tvempty .big{font-size:min(5vw,80px);font-weight:900}
+  #tvov .tvempty .small{font-size:min(2vw,30px);color:#64748b;font-weight:700}
+  @media print{#tvov{display:none}}
 </style>
 </head>
 <body>
@@ -1675,7 +1720,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v21.2-punch-tracker-matches-dashboard";
+var MC_BUILD="v22.0-tv-mode-one-at-a-time";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2808,6 +2853,7 @@ function dcConstraints(){
         return '<option value="'+x[0]+'"'+((STATE.df.sort||"new")===x[0]?" selected":"")+'>'+x[1]+'</option>';}).join('')+
       '</select>'+
     '<button class="btn sm" data-act="dcPrint" title="lay the whole board out on one page for printing or PDF">🖨 Print today</button>'+
+    '<button class="btn sm" data-act="tvMode" title="Full screen, one constraint at a time — big enough to read from the back of the room. Esc or ✕ to leave.">📺 TV mode</button>'+
     '</div>';
 
   var body="";
@@ -2877,6 +2923,118 @@ function dcConstraints(){
       (all.length?'Nothing matches that filter.':'No constraints on the tracker yet — raise the first one below.')+'</td></tr>')+
     '</tbody></table></div>'+pager+add+'</div>';
 }
+/* ---------- 📺 TV mode: full screen, one constraint at a time ----------
+   Built for the morning meeting. The table can't be read past the second
+   row of chairs (12 columns × 17 rows on a 50" TV puts the description at
+   ~15px), so this shows each LIVE constraint alone, with letters ~2" tall:
+   description, who is stuck ➜ who clears it, and the due date.
+   Past-due first (most overdue at the front), then soonest due.
+   Auto-flips every 10 seconds; ⏸ Hold pins one while the room talks it out.
+   Display only — nothing in here writes a single byte of data. */
+var TV={on:false,idx:0,paused:false,timer:null};
+function tvRows(){
+  return dcList().filter(function(r){return r.st!=="done";}).sort(function(a,b){
+    var la=dcLate(a),lb=dcLate(b);
+    if((la>0)!==(lb>0))return la>0?-1:1;          /* past due jump the line   */
+    if(la>0&&lb>0&&la!==lb)return lb-la;          /* most overdue speaks first */
+    var ua=a.due||"9999-99-99",ub=b.due||"9999-99-99";
+    if(ua!==ub)return ua<ub?-1:1;                 /* then soonest due          */
+    return dcSortNew(a,b);
+  });
+}
+function tvOpen(){
+  if(TV.on)return;
+  TV.on=true;TV.idx=0;TV.paused=false;
+  var d=document.createElement("div");d.id="tvov";
+  d.addEventListener("click",function(e){
+    var b=(e.target&&e.target.closest)?e.target.closest("[data-tv]"):null;
+    if(!b)return;
+    var k=b.getAttribute("data-tv");
+    if(k==="x")tvClose();
+    else if(k==="next"){tvStep(1);tvArm();}
+    else if(k==="prev"){tvStep(-1);tvArm();}
+    else if(k==="pp"){TV.paused=!TV.paused;tvPaint();}
+  });
+  document.body.appendChild(d);
+  document.body.classList.add("tvon");
+  tvPaint();tvArm();
+  wakeAcquire();          /* the TV must not go to sleep mid-meeting */
+}
+function tvClose(){
+  if(!TV.on)return;
+  TV.on=false;
+  if(TV.timer){clearInterval(TV.timer);TV.timer=null;}
+  var d=$("tvov");if(d&&d.parentNode)d.parentNode.removeChild(d);
+  document.body.classList.remove("tvon");
+  /* keep the screen lock only if present mode's own Stay awake still wants it */
+  if(!(document.body.classList.contains("present")&&lsGet(AWAKE_KEY)==="1"))wakeRelease();
+}
+function tvArm(){
+  if(TV.timer)clearInterval(TV.timer);
+  /* every 10s: advance — or, on Hold, just repaint so live edits still show */
+  TV.timer=setInterval(function(){ if(TV.paused)tvPaint(); else tvStep(1); },10000);
+}
+function tvStep(d){
+  var n=tvRows().length;
+  if(!n){tvPaint();return;}
+  TV.idx=((TV.idx+d)%n+n)%n;
+  tvPaint();
+}
+function tvPaint(){
+  var d=$("tvov");if(!d)return;
+  var rows=tvRows(),n=rows.length,lateN=0;
+  rows.forEach(function(x){if(dcLate(x)>0)lateN++;});
+  var W=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var t=todayISO(),day=W[new Date(t+"T12:00:00").getDay()]+" "+fmtMD(t);
+  var hd='<div class="tvhd"><div class="t">🚧 CONSTRAINTS</div>'+
+    '<div class="sub">DSM-4 · '+day+'</div>'+
+    (n?'<div class="tvpg num">'+(Math.min(TV.idx,n-1)+1)+' of '+n+'</div>':'')+
+    (lateN?'<div class="tvpd">'+lateN+' PAST DUE</div>':'<div class="tvpd none"></div>')+
+    '<button class="tvx" data-tv="x">✕ Exit</button></div>';
+  if(!n){
+    d.innerHTML=hd+'<div class="tvempty"><div class="big">🎉 Nothing is stuck</div>'+
+      '<div class="small">No live constraints on the board right now.</div></div>';
+    return;
+  }
+  if(TV.idx>=n)TV.idx=0;
+  var r=rows[TV.idx],lt=dcLate(r),age=dcAge(r);
+  var dl=(r.desc||"").length,fs=dl>90?"f3":(dl>40?"f2":"f1");
+  var where=[r.lvl,r.room].filter(Boolean).join(" · ");
+  var tag=(lt>0?'<b>PAST DUE · '+age+'d OPEN</b>':(age===null?'':age+'d OPEN'))+
+    (r.date?' · RAISED '+fmtMD(r.date):'')+
+    (r.mcc?' · <b>⛔ IMPACTS '+esc(r.gate||"A WALK")+(r.mc?' · MC '+esc(r.mc):'')+'</b>':'');
+  var dots='';rows.forEach(function(x,i){
+    dots+='<i class="'+(dcLate(x)>0?'pd':'')+(i===TV.idx?' on':'')+'"></i>';});
+  d.innerHTML=hd+
+    '<div class="tvbody'+(lt>0?' late':'')+'">'+
+      '<div class="tvtag">'+tag+'</div>'+
+      '<div class="tvdesc '+fs+'">'+esc(r.desc||"(no description)")+'</div>'+
+      (where?'<div class="tvwhere">'+esc(where)+'</div>':'')+
+      '<div class="tvchips">'+
+        '<div class="tvchip tvstuck"><span class="k">WHO IS STUCK</span><span class="v">'+esc(r.co||"—")+'</span></div>'+
+        '<div class="tvarr">➜</div>'+
+        '<div class="tvchip tvchamp"><span class="k">CHAMPION — CLEARS IT</span><span class="v">'+esc(r.ch||"—")+'</span></div>'+
+        '<div class="tvchip tvdue'+(lt>0?' over':'')+'"><span class="k">'+(lt>0?'WAS DUE':'DUE')+'</span>'+
+          '<span class="v num">'+(r.due?fmtMD(r.due):"not set")+(lt>0?' · +'+lt+'d':'')+'</span></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="tvfoot">'+
+      '<div class="tvdots">'+dots+'</div>'+
+      '<button class="tvbtn" data-tv="prev">‹ Back</button>'+
+      '<button class="tvbtn'+(TV.paused?' on':'')+'" data-tv="pp">'+(TV.paused?'▶ Resume':'⏸ Hold')+'</button>'+
+      '<button class="tvbtn" data-tv="next">Next ›</button>'+
+    '</div>';
+}
+document.addEventListener("keydown",function(e){
+  if(!TV.on)return;
+  if(e.key==="Escape")tvClose();
+  else if(e.key==="ArrowRight"){tvStep(1);tvArm();}
+  else if(e.key==="ArrowLeft"){tvStep(-1);tvArm();}
+  else if(e.key===" "&&!/INPUT|TEXTAREA|SELECT/.test((e.target&&e.target.tagName)||"")){
+    e.preventDefault();TV.paused=!TV.paused;tvPaint();
+  }
+});
+
 /* One history panel for every section. The log is folded away until the little
    log button is clicked; the owner can strike a single line out of it — or the
    whole row — from inside the panel, so nobody's email has to stay on the board. */
@@ -3521,6 +3679,7 @@ document.addEventListener("click",function(e){
   if(act==="dcMnLog"){var mk="_mn_"+manDate(),m0=DC_OPEN_LOGS[mk];DC_OPEN_LOGS={};if(!m0)DC_OPEN_LOGS[mk]=true;render();return;}
   if(act==="dcDvLog"){var dk="_dv_"+t.getAttribute("data-dv"),v0=DC_OPEN_LOGS[dk];DC_OPEN_LOGS={};if(!v0)DC_OPEN_LOGS[dk]=true;render();return;}
   if(act==="dcPrint"){dcPrint();return;}
+  if(act==="tvMode"){tvOpen();return;}
   if(act==="dcFromSys"){dcFromSys(t.getAttribute("data-mc"));return;}
   if(act==="dcGo"){
     var mc=t.getAttribute("data-mc");
