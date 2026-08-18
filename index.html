@@ -1567,11 +1567,16 @@
   #tvov .tvcaret{display:inline-block;width:.35vw;height:.9em;background:#2563eb;vertical-align:-.08em;margin-left:.3vw;border-radius:3px;animation:tvblink 1s step-end infinite}
   @keyframes tvblink{50%{opacity:0}}
   #tvov .tvrf{flex:0 0 auto;background:#0f172a;padding:1.8vh 2vw;display:flex;gap:.7vw;align-items:center;flex-wrap:wrap}
-  #tvov .tvrf input{border-radius:12px;border:none;font-size:min(1.5vw,23px);font-weight:700;padding:1.3vh 1vw;background:#1e293b;color:#e2e8f0;min-width:0;box-sizing:border-box}
+  #tvov .tvrf input{border-radius:12px;border:none;font-size:min(1.4vw,21px);font-weight:700;padding:1.3vh .9vw;background:#1e293b;color:#e2e8f0;min-width:0;box-sizing:border-box}
   #tvov .tvrf input::placeholder{color:#64748b}
-  #tvov .tvrf input.big{flex:1;min-width:22vw;background:#fff;color:#0f172a;border:4px solid #2563eb}
+  #tvov .tvrf input.big{flex:1;min-width:16vw;background:#fff;color:#0f172a;border:4px solid #2563eb}
   #tvov .tvrf .go{background:#16a34a;color:#fff;border:none;border-radius:14px;font-size:min(1.6vw,25px);font-weight:900;padding:1.4vh 1.6vw;cursor:pointer}
   #tvov .tvrf .no{background:#334155;color:#cbd5e1;border:none;border-radius:14px;font-size:min(1.5vw,23px);font-weight:800;padding:1.4vh 1.2vw;cursor:pointer}
+  #tvov .tvrf .mic{flex:0 0 auto;width:max(3.2vw,56px);height:max(3.2vw,56px);border-radius:50%;border:3px solid #2563eb;background:#fff;font-size:max(1.5vw,26px);cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;line-height:1}
+  #tvov .tvrf .mic.live{border-color:#dc2626;background:#fef2f2;animation:tvmic 1.2s ease-in-out infinite}
+  @keyframes tvmic{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,.55)}50%{box-shadow:0 0 0 14px rgba(220,38,38,0)}}
+  #tvov .tvrf .micmsg{color:#fbbf24;font-size:min(1.3vw,20px);font-weight:700;flex-basis:100%}
+  #tvov .tvrf .micmsg:empty{display:none}
   #tvov .tvempty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2vh}
   #tvov .tvempty .big{font-size:min(5vw,80px);font-weight:900}
   #tvov .tvempty .small{font-size:min(2vw,30px);color:#64748b;font-weight:700}
@@ -1742,7 +1747,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v23.1-tv-card-type-bumped";
+var MC_BUILD="v24.0-tv-dictation-mic";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2980,8 +2985,9 @@ function tvOpen(){
     else if(k==="prev")tvStep(-1);
     else if(k==="st")tvSetSt(b.getAttribute("data-st"));
     else if(k==="raise")tvRaise();
-    else if(k==="rsave")tvRaiseSave();
-    else if(k==="rcancel"){TV.mode="deck";TV.draft=null;tvPaint();}
+    else if(k==="mic")tvMicToggle();
+    else if(k==="rsave"){tvMicStop();tvRaiseSave();}
+    else if(k==="rcancel"){tvMicStop();TV.mode="deck";TV.draft=null;tvPaint();}
   });
   document.body.appendChild(d);
   document.body.classList.add("tvon");
@@ -2992,6 +2998,7 @@ function tvOpen(){
 }
 function tvClose(){
   if(!TV.on)return;
+  tvMicStop();
   TV.on=false;TV.draft=null;
   if(TV.timer){clearInterval(TV.timer);TV.timer=null;}
   var d=$("tvov");if(d&&d.parentNode)d.parentNode.removeChild(d);
@@ -3079,6 +3086,63 @@ function tvFoot(r){
     '<button class="tvbtn" data-tv="next"'+(r?'':' disabled')+'>Next ›</button>'+
     '</div>';
 }
+/* ---- 🎤 dictation for the description — the browser's own speech engine.
+   Shown only when the browser has one (Chrome/Edge do; needs mic permission
+   and internet). Tap to talk, tap again to stop; words land in the box and
+   echo huge on top exactly as if they were typed. Display/entry only —
+   nothing saves until ＋ Raise constraint is pressed. ---- */
+var TVMIC={rec:null,on:false,base:""};
+function tvMicSupported(){try{return !!(window.SpeechRecognition||window.webkitSpeechRecognition);}catch(e){return false;}}
+function tvMicUi(on){
+  var b=$("tvMic");if(!b)return;
+  b.classList.toggle("live",on);
+  b.textContent=on?"🔴":"🎤";
+  b.title=on?"Listening — tap to stop":"Dictate — tap, talk, tap again to stop";
+}
+function tvMicStop(){
+  TVMIC.on=false;
+  try{if(TVMIC.rec)TVMIC.rec.stop();}catch(e){}
+  TVMIC.rec=null;tvMicUi(false);
+}
+function tvMicToggle(){
+  if(TVMIC.on){tvMicStop();return;}
+  var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  var de=$("tvFdesc");
+  if(!SR||!de)return;
+  var rec;
+  try{rec=new SR();}catch(e){return;}
+  TVMIC.rec=rec;TVMIC.on=true;
+  /* whatever is already typed stays; dictation continues after it */
+  TVMIC.base=de.value?(de.value.replace(/\s+$/,"")+" "):"";
+  rec.lang="en-US";rec.continuous=true;rec.interimResults=true;
+  rec.onresult=function(e){
+    var fin="",inter="";
+    for(var i=0;i<e.results.length;i++){
+      var tr=(e.results[i][0]&&e.results[i][0].transcript)||"";
+      if(e.results[i].isFinal)fin+=tr;else inter+=tr;
+    }
+    var d2=$("tvFdesc");if(!d2)return;
+    d2.value=(TVMIC.base+fin+inter).replace(/^\s+/,"");
+    if(TV.draft)TV.draft.desc=d2.value;
+    tvPrevSync();
+  };
+  rec.onerror=function(e){
+    var code=(e&&e.error)||"";
+    TVMIC.on=false;TVMIC.rec=null;tvMicUi(false);
+    var m=$("tvMicMsg");
+    if(m)m.textContent=(code==="not-allowed"||code==="service-not-allowed")
+      ?"The browser blocked the microphone — hit Allow on the mic prompt (or enable it for this site in the address bar) and tap 🎤 again."
+      :(code==="no-speech"?"Didn't catch anything — tap 🎤 and try again."
+      :(code==="network"?"Dictation needs internet — check the connection and try again."
+      :"Mic stopped ("+code+") — tap 🎤 to try again."));
+  };
+  rec.onend=function(){ if(TVMIC.on){TVMIC.on=false;TVMIC.rec=null;tvMicUi(false);} };
+  try{
+    rec.start();
+    tvMicUi(true);
+    var m=$("tvMicMsg");if(m)m.textContent="";
+  }catch(err){TVMIC.on=false;TVMIC.rec=null;tvMicUi(false);}
+}
 /* ---- ＋ Raise new: the table's add-line, with a giant live echo on top ---- */
 function tvRaise(){
   if(!dcCanAdd())return;
@@ -3115,17 +3179,19 @@ function tvPaintRaise(){
       '</div>'+
     '</div>'+
     '<div class="tvrf">'+
-      '<input type="date" id="tvFdate" value="'+esc(t.date)+'" style="width:11vw">'+
+      '<input type="date" id="tvFdate" value="'+esc(t.date)+'" style="width:max(11.5vw,175px)">'+
       (isCrewUser()
-        ? '<input type="text" id="tvFco" value="'+esc(t.co)+'" readonly title="your company" style="width:10vw">'
-        : '<input type="text" id="tvFco" list="dcCoList" value="'+esc(t.co)+'" placeholder="Company" style="width:10vw">')+
-      '<input type="text" id="tvFlvl" list="dcLvlList" value="'+esc(t.lvl)+'" placeholder="Level / floor" style="width:10vw">'+
-      '<input type="text" id="tvFroom" list="'+dcRoomListId(t.lvl)+'" value="'+esc(t.room)+'" placeholder="Room" style="width:11vw">'+
+        ? '<input type="text" id="tvFco" value="'+esc(t.co)+'" readonly title="your company" style="width:max(10vw,130px)">'
+        : '<input type="text" id="tvFco" list="dcCoList" value="'+esc(t.co)+'" placeholder="Company" style="width:max(10vw,130px)">')+
+      '<input type="text" id="tvFlvl" list="dcLvlList" value="'+esc(t.lvl)+'" placeholder="Level / floor" style="width:max(12vw,160px)">'+
+      '<input type="text" id="tvFroom" list="'+dcRoomListId(t.lvl)+'" value="'+esc(t.room)+'" placeholder="Room" style="width:max(9.5vw,110px)">'+
       '<input type="text" id="tvFdesc" class="big" value="'+esc(t.desc)+'" placeholder="Description of constraint…" autocomplete="off">'+
-      '<input type="text" id="tvFch" list="dcCoList" value="'+esc(t.ch)+'" placeholder="Champion" style="width:9vw">'+
-      '<input type="date" id="tvFdue" value="'+esc(t.due)+'" style="width:11vw">'+
+      (tvMicSupported()?'<button class="mic" id="tvMic" data-tv="mic" title="Dictate — tap, talk, tap again to stop">🎤</button>':'')+
+      '<input type="text" id="tvFch" list="dcCoList" value="'+esc(t.ch)+'" placeholder="Champion" style="width:max(10.5vw,135px)">'+
+      '<input type="date" id="tvFdue" value="'+esc(t.due)+'" style="width:max(11.5vw,175px)">'+
       '<button class="go" data-tv="rsave">＋ Raise constraint</button>'+
       '<button class="no" data-tv="rcancel">Cancel</button>'+
+      '<span class="micmsg" id="tvMicMsg"></span>'+
     '</div>';
   tvPrevSync();
   /* every keystroke lands on the big screen immediately */
@@ -3159,7 +3225,7 @@ function tvRaiseSave(){
 document.addEventListener("keydown",function(e){
   if(!TV.on)return;
   if(TV.mode==="raise"){
-    if(e.key==="Escape"){TV.mode="deck";TV.draft=null;tvPaint();}
+    if(e.key==="Escape"){tvMicStop();TV.mode="deck";TV.draft=null;tvPaint();}
     return;                         /* arrows are for typing, not for the deck */
   }
   if(e.key==="Escape")tvClose();
