@@ -1541,8 +1541,8 @@
   #tvov .tvdue{background:#f8fafc;border:4px solid #cbd5e1;color:#0f172a}
   #tvov .tvdue.over{background:#dc2626;border-color:#dc2626;color:#fff}
   #tvov .tvarr{font-size:min(3.6vw,56px);color:#94a3b8;font-weight:900;align-self:center}
-  #tvov .tvfoot{flex:0 0 auto;display:flex;align-items:center;gap:.8vw;padding:0 4.5vw 2.2vh}
-  #tvov .tvdots{display:flex;gap:.5vw;flex:1;min-width:0;overflow:hidden}
+  #tvov .tvfoot{flex:0 0 auto;display:flex;align-items:center;gap:.8vw;padding:0 2vw 2vh}
+  #tvov .tvdots{display:flex;gap:.5vw;min-width:0;overflow:hidden;padding:0 2vw 1.2vh;flex:0 0 auto}
   #tvov .tvdots i{width:1.4vw;height:10px;border-radius:5px;background:#e2e8f0;flex:0 0 auto}
   #tvov .tvdots i.pd{background:#fecaca}
   #tvov .tvdots i.on{background:#2563eb}
@@ -1550,6 +1550,28 @@
   #tvov .tvbtn{background:#f1f5f9;border:2px solid #cbd5e1;border-radius:14px;color:#0f172a;
     font-size:min(1.7vw,26px);font-weight:900;padding:1.1vh 1.5vw;cursor:pointer;white-space:nowrap}
   #tvov .tvbtn.on{background:#0f172a;color:#fff;border-color:#0f172a}
+  #tvov .tvwalk{background:#fef2f2;border:4px solid #dc2626;color:#991b1b}
+  #tvov .tvwalk.no{background:#f8fafc;border-color:#cbd5e1;color:#64748b}
+  #tvov .tvst{flex:1;display:flex;border:3px solid #cbd5e1;border-radius:16px;overflow:hidden;background:#fff;min-width:0}
+  #tvov .tvst .lbl{flex:0 0 auto;background:#0f172a;color:#94a3b8;font-size:min(1.1vw,17px);font-weight:900;letter-spacing:2px;display:flex;align-items:center;padding:0 1.1vw}
+  #tvov .tvst button{flex:1;border:none;background:#fff;font-size:min(1.45vw,23px);font-weight:900;padding:1.5vh .4vw;color:#475569;border-left:3px solid #e2e8f0;cursor:pointer;white-space:nowrap;min-width:0;overflow:hidden;text-overflow:ellipsis}
+  #tvov .tvst button[disabled]{opacity:.45;cursor:not-allowed}
+  #tvov .tvst button.on-open{background:#dc2626;color:#fff}
+  #tvov .tvst button.on-prog{background:#eab308;color:#1c1917}
+  #tvov .tvst button.on-ready{background:#6366f1;color:#fff}
+  #tvov .tvst button.on-done{background:#16a34a;color:#fff}
+  #tvov .tvbtn.grn{background:#16a34a;border-color:#16a34a;color:#fff}
+  #tvov .tvbtn[disabled]{opacity:.45;cursor:not-allowed}
+  #tvov .tvnewt{font-size:min(1.9vw,30px);font-weight:900;color:#16a34a;letter-spacing:2px}
+  #tvov .tvdesc .ph{color:#94a3b8}
+  #tvov .tvcaret{display:inline-block;width:.35vw;height:.9em;background:#2563eb;vertical-align:-.08em;margin-left:.3vw;border-radius:3px;animation:tvblink 1s step-end infinite}
+  @keyframes tvblink{50%{opacity:0}}
+  #tvov .tvrf{flex:0 0 auto;background:#0f172a;padding:1.8vh 2vw;display:flex;gap:.7vw;align-items:center;flex-wrap:wrap}
+  #tvov .tvrf input{border-radius:12px;border:none;font-size:min(1.5vw,23px);font-weight:700;padding:1.3vh 1vw;background:#1e293b;color:#e2e8f0;min-width:0;box-sizing:border-box}
+  #tvov .tvrf input::placeholder{color:#64748b}
+  #tvov .tvrf input.big{flex:1;min-width:22vw;background:#fff;color:#0f172a;border:4px solid #2563eb}
+  #tvov .tvrf .go{background:#16a34a;color:#fff;border:none;border-radius:14px;font-size:min(1.6vw,25px);font-weight:900;padding:1.4vh 1.6vw;cursor:pointer}
+  #tvov .tvrf .no{background:#334155;color:#cbd5e1;border:none;border-radius:14px;font-size:min(1.5vw,23px);font-weight:800;padding:1.4vh 1.2vw;cursor:pointer}
   #tvov .tvempty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2vh}
   #tvov .tvempty .big{font-size:min(5vw,80px);font-weight:900}
   #tvov .tvempty .small{font-size:min(2vw,30px);color:#64748b;font-weight:700}
@@ -1720,7 +1742,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v22.0-tv-mode-one-at-a-time";
+var MC_BUILD="v23.0-tv-status-tabs-and-raise-live";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2924,14 +2946,17 @@ function dcConstraints(){
     '</tbody></table></div>'+pager+add+'</div>';
 }
 /* ---------- 📺 TV mode: full screen, one constraint at a time ----------
-   Built for the morning meeting. The table can't be read past the second
-   row of chairs (12 columns × 17 rows on a 50" TV puts the description at
-   ~15px), so this shows each LIVE constraint alone, with letters ~2" tall:
-   description, who is stuck ➜ who clears it, and the due date.
-   Past-due first (most overdue at the front), then soonest due.
-   Auto-flips every 10 seconds; ⏸ Hold pins one while the room talks it out.
-   Display only — nothing in here writes a single byte of data. */
-var TV={on:false,idx:0,paused:false,timer:null};
+   Built for the morning meeting. Every column of the table is on the card:
+   raised date + days open, company stuck, level · room, description, the
+   impacts-a-walk chip (red when yes, quiet grey No when answered no),
+   champion, due date — and STATUS is four big tabs at the bottom so a
+   constraint is closed right there in front of the room. Nothing moves on
+   its own: whoever runs the meeting taps Next.
+   ＋ Raise new swaps the bottom bar for the table's own add-line; the
+   description echoes to the top of the screen in giant type as it is typed.
+   All writes go through the exact same functions as the table (dcSave /
+   dcAdd) — same permission rules, same history log entries. */
+var TV={on:false,idx:0,mode:"deck",timer:null,draft:null};
 function tvRows(){
   return dcList().filter(function(r){return r.st!=="done";}).sort(function(a,b){
     var la=dcLate(a),lb=dcLate(b);
@@ -2944,35 +2969,35 @@ function tvRows(){
 }
 function tvOpen(){
   if(TV.on)return;
-  TV.on=true;TV.idx=0;TV.paused=false;
+  TV.on=true;TV.idx=0;TV.mode="deck";TV.draft=null;
   var d=document.createElement("div");d.id="tvov";
   d.addEventListener("click",function(e){
     var b=(e.target&&e.target.closest)?e.target.closest("[data-tv]"):null;
-    if(!b)return;
+    if(!b||b.disabled)return;
     var k=b.getAttribute("data-tv");
     if(k==="x")tvClose();
-    else if(k==="next"){tvStep(1);tvArm();}
-    else if(k==="prev"){tvStep(-1);tvArm();}
-    else if(k==="pp"){TV.paused=!TV.paused;tvPaint();}
+    else if(k==="next")tvStep(1);
+    else if(k==="prev")tvStep(-1);
+    else if(k==="st")tvSetSt(b.getAttribute("data-st"));
+    else if(k==="raise")tvRaise();
+    else if(k==="rsave")tvRaiseSave();
+    else if(k==="rcancel"){TV.mode="deck";TV.draft=null;tvPaint();}
   });
   document.body.appendChild(d);
   document.body.classList.add("tvon");
-  tvPaint();tvArm();
+  tvPaint();
+  /* no auto-advance — this only refreshes the card so live edits show up */
+  TV.timer=setInterval(function(){ if(TV.mode==="deck")tvPaint(); },10000);
   wakeAcquire();          /* the TV must not go to sleep mid-meeting */
 }
 function tvClose(){
   if(!TV.on)return;
-  TV.on=false;
+  TV.on=false;TV.draft=null;
   if(TV.timer){clearInterval(TV.timer);TV.timer=null;}
   var d=$("tvov");if(d&&d.parentNode)d.parentNode.removeChild(d);
   document.body.classList.remove("tvon");
   /* keep the screen lock only if present mode's own Stay awake still wants it */
   if(!(document.body.classList.contains("present")&&lsGet(AWAKE_KEY)==="1"))wakeRelease();
-}
-function tvArm(){
-  if(TV.timer)clearInterval(TV.timer);
-  /* every 10s: advance — or, on Hold, just repaint so live edits still show */
-  TV.timer=setInterval(function(){ if(TV.paused)tvPaint(); else tvStep(1); },10000);
 }
 function tvStep(d){
   var n=tvRows().length;
@@ -2980,20 +3005,37 @@ function tvStep(d){
   TV.idx=((TV.idx+d)%n+n)%n;
   tvPaint();
 }
-function tvPaint(){
-  var d=$("tvov");if(!d)return;
+/* identical rules to the table's status dropdown — same guard, same log line */
+function tvSetSt(to){
+  var rows=tvRows(),r=rows[Math.min(TV.idx,rows.length-1)];
+  if(!r)return;
+  var row=STATE.daily[r.id];
+  if(!row||!dcCanEditRow(row))return;
+  if(to==="done"&&!dcCanClose()){alert("Only Jacobs can close a constraint. Set it to Ready to verify instead.");return;}
+  if(row.st===to)return;
+  var extra=(to==="done")?{doneAt:todayISO()}:{};
+  dcSave(r.id,Object.assign({st:to},extra),{what:"Status changed <b>"+DC_LABEL[row.st]+" → "+DC_LABEL[to]+"</b>"});
+  /* closing removes it from the deck — the card that comes up next is the next constraint */
+  tvPaint();
+}
+function tvHd(pill){
   var rows=tvRows(),n=rows.length,lateN=0;
   rows.forEach(function(x){if(dcLate(x)>0)lateN++;});
   var W=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
   var t=todayISO(),day=W[new Date(t+"T12:00:00").getDay()]+" "+fmtMD(t);
-  var hd='<div class="tvhd"><div class="t">🚧 CONSTRAINTS</div>'+
+  return '<div class="tvhd"><div class="t">🚧 CONSTRAINTS</div>'+
     '<div class="sub">DSM-4 · '+day+'</div>'+
-    (n?'<div class="tvpg num">'+(Math.min(TV.idx,n-1)+1)+' of '+n+'</div>':'')+
+    (pill?pill:(n?'<div class="tvpg num">'+(Math.min(TV.idx,n-1)+1)+' of '+n+'</div>':''))+
     (lateN?'<div class="tvpd">'+lateN+' PAST DUE</div>':'<div class="tvpd none"></div>')+
     '<button class="tvx" data-tv="x">✕ Exit</button></div>';
+}
+function tvPaint(){
+  if(TV.mode==="raise"){tvPaintRaise();return;}
+  var d=$("tvov");if(!d)return;
+  var rows=tvRows(),n=rows.length;
   if(!n){
-    d.innerHTML=hd+'<div class="tvempty"><div class="big">🎉 Nothing is stuck</div>'+
-      '<div class="small">No live constraints on the board right now.</div></div>';
+    d.innerHTML=tvHd()+'<div class="tvempty"><div class="big">🎉 Nothing is stuck</div>'+
+      '<div class="small">No live constraints on the board right now.</div></div>'+tvFoot(null);
     return;
   }
   if(TV.idx>=n)TV.idx=0;
@@ -3001,11 +3043,10 @@ function tvPaint(){
   var dl=(r.desc||"").length,fs=dl>90?"f3":(dl>40?"f2":"f1");
   var where=[r.lvl,r.room].filter(Boolean).join(" · ");
   var tag=(lt>0?'<b>PAST DUE · '+age+'d OPEN</b>':(age===null?'':age+'d OPEN'))+
-    (r.date?' · RAISED '+fmtMD(r.date):'')+
-    (r.mcc?' · <b>⛔ IMPACTS '+esc(r.gate||"A WALK")+(r.mc?' · MC '+esc(r.mc):'')+'</b>':'');
+    (r.date?' · RAISED '+fmtMD(r.date):'');
   var dots='';rows.forEach(function(x,i){
     dots+='<i class="'+(dcLate(x)>0?'pd':'')+(i===TV.idx?' on':'')+'"></i>';});
-  d.innerHTML=hd+
+  d.innerHTML=tvHd()+
     '<div class="tvbody'+(lt>0?' late':'')+'">'+
       '<div class="tvtag">'+tag+'</div>'+
       '<div class="tvdesc '+fs+'">'+esc(r.desc||"(no description)")+'</div>'+
@@ -3016,23 +3057,114 @@ function tvPaint(){
         '<div class="tvchip tvchamp"><span class="k">CHAMPION — CLEARS IT</span><span class="v">'+esc(r.ch||"—")+'</span></div>'+
         '<div class="tvchip tvdue'+(lt>0?' over':'')+'"><span class="k">'+(lt>0?'WAS DUE':'DUE')+'</span>'+
           '<span class="v num">'+(r.due?fmtMD(r.due):"not set")+(lt>0?' · +'+lt+'d':'')+'</span></div>'+
+        '<div class="tvchip tvwalk'+(r.mcc?'':' no')+'"><span class="k">IMPACTS A WALK?</span>'+
+          '<span class="v">'+(r.mcc?('⛔ '+esc(r.gate||"WALK")+(r.mc?' · MC '+esc(r.mc):'')):'No')+'</span></div>'+
       '</div>'+
     '</div>'+
-    '<div class="tvfoot">'+
-      '<div class="tvdots">'+dots+'</div>'+
-      '<button class="tvbtn" data-tv="prev">‹ Back</button>'+
-      '<button class="tvbtn'+(TV.paused?' on':'')+'" data-tv="pp">'+(TV.paused?'▶ Resume':'⏸ Hold')+'</button>'+
-      '<button class="tvbtn" data-tv="next">Next ›</button>'+
+    '<div class="tvdots">'+dots+'</div>'+tvFoot(r);
+}
+function tvFoot(r){
+  var ed=r?dcCanEditRow(STATE.daily[r.id]):false;
+  var st=r?r.st:"";
+  function tab(v,lbl,onCls){
+    var dis=(!r||!ed||(v==="done"&&!dcCanClose()))?" disabled":"";
+    return '<button data-tv="st" data-st="'+v+'" class="'+(st===v?onCls:'')+'"'+dis+'>'+lbl+'</button>';
+  }
+  return '<div class="tvfoot">'+
+    '<button class="tvbtn" data-tv="prev"'+(r?'':' disabled')+'>‹ Back</button>'+
+    '<div class="tvst"><span class="lbl">STATUS</span>'+
+      tab("open","OPEN","on-open")+tab("prog","IN PROGRESS","on-prog")+
+      tab("ready","READY TO VERIFY","on-ready")+tab("done","CLOSED ✓","on-done")+'</div>'+
+    (dcCanAdd()?'<button class="tvbtn grn" data-tv="raise">＋ Raise new</button>':'')+
+    '<button class="tvbtn" data-tv="next"'+(r?'':' disabled')+'>Next ›</button>'+
     '</div>';
+}
+/* ---- ＋ Raise new: the table's add-line, with a giant live echo on top ---- */
+function tvRaise(){
+  if(!dcCanAdd())return;
+  TV.mode="raise";
+  TV.draft={date:todayISO(),co:isCrewUser()?crewCo():"",lvl:"",room:"",desc:"",ch:"",due:todayISO()};
+  tvPaintRaise();
+}
+function tvPrevSync(){
+  var t=TV.draft;if(!t)return;
+  var pd=$("tvPvDesc");
+  if(pd){
+    var dl=(t.desc||"").length,fs=dl>90?"f3":(dl>40?"f2":"f1");
+    pd.className="tvdesc "+fs;
+    pd.innerHTML=(t.desc?esc(t.desc):'<span class="ph">Start typing below…</span>')+'<span class="tvcaret"></span>';
+  }
+  var w=$("tvPvWhere");if(w){var s2=[t.lvl,t.room].filter(Boolean).join(" · ");w.textContent=s2;w.style.display=s2?"":"none";}
+  var c=$("tvPvCo");if(c)c.textContent=t.co||"—";
+  var h=$("tvPvCh");if(h)h.textContent=t.ch||"—";
+  var u=$("tvPvDue");if(u)u.textContent=t.due?fmtMD(t.due):"not set";
+}
+function tvPaintRaise(){
+  var d=$("tvov");if(!d)return;
+  var t=TV.draft;
+  d.innerHTML=tvHd('<div class="tvpg" style="background:#16a34a;color:#fff">RAISING NEW</div>')+
+    '<div class="tvbody">'+
+      '<div class="tvnewt">＋ NEW CONSTRAINT — TYPING LIVE</div>'+
+      '<div class="tvdesc f2" id="tvPvDesc"></div>'+
+      '<div class="tvwhere" id="tvPvWhere"></div>'+
+      '<div class="tvchips">'+
+        '<div class="tvchip tvstuck"><span class="k">WHO IS STUCK</span><span class="v" id="tvPvCo"></span></div>'+
+        '<div class="tvarr">➜</div>'+
+        '<div class="tvchip tvchamp"><span class="k">CHAMPION — CLEARS IT</span><span class="v" id="tvPvCh"></span></div>'+
+        '<div class="tvchip tvdue"><span class="k">DUE</span><span class="v num" id="tvPvDue"></span></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="tvrf">'+
+      '<input type="date" id="tvFdate" value="'+esc(t.date)+'" style="width:11vw">'+
+      (isCrewUser()
+        ? '<input type="text" id="tvFco" value="'+esc(t.co)+'" readonly title="your company" style="width:10vw">'
+        : '<input type="text" id="tvFco" list="dcCoList" value="'+esc(t.co)+'" placeholder="Company" style="width:10vw">')+
+      '<input type="text" id="tvFlvl" list="dcLvlList" value="'+esc(t.lvl)+'" placeholder="Level / floor" style="width:10vw">'+
+      '<input type="text" id="tvFroom" list="'+dcRoomListId(t.lvl)+'" value="'+esc(t.room)+'" placeholder="Room" style="width:11vw">'+
+      '<input type="text" id="tvFdesc" class="big" value="'+esc(t.desc)+'" placeholder="Description of constraint…" autocomplete="off">'+
+      '<input type="text" id="tvFch" list="dcCoList" value="'+esc(t.ch)+'" placeholder="Champion" style="width:9vw">'+
+      '<input type="date" id="tvFdue" value="'+esc(t.due)+'" style="width:11vw">'+
+      '<button class="go" data-tv="rsave">＋ Raise constraint</button>'+
+      '<button class="no" data-tv="rcancel">Cancel</button>'+
+    '</div>';
+  tvPrevSync();
+  /* every keystroke lands on the big screen immediately */
+  ["date","co","lvl","room","desc","ch","due"].forEach(function(k){
+    var el=$("tvF"+k);if(!el)return;
+    el.addEventListener("input",function(){
+      TV.draft[k]=el.value;
+      if(k==="lvl"){var rn=$("tvFroom");if(rn){rn.setAttribute("list",dcRoomListId(el.value));}}
+      tvPrevSync();
+    });
+  });
+  var de=$("tvFdesc");if(de)de.focus();
+}
+/* same required fields, same list bookkeeping, same dcAdd as the table */
+function tvRaiseSave(){
+  var t=TV.draft;if(!t)return;
+  var co=(t.co||"").trim(),ds=(t.desc||"").trim(),lv=(t.lvl||"").trim(),rm=(t.room||"").trim();
+  if(!co||!ds){var de=$("tvFdesc");if(de)de.focus();return;}
+  if(!isCrewUser())listAdd("companies",co);
+  var chv=(t.ch||"").trim();if(chv&&!isCrewUser())listAdd("companies",chv);
+  if(rm)listAdd("rooms",rm);
+  if(!lv&&rm)lv=dcLevelForRoom(rm);
+  var row={date:t.date||todayISO(),co:co,lvl:lv,room:rm,desc:ds,
+    mcc:false,gate:"",mc:"",ch:chv||"—",due:t.due||todayISO(),st:"open",void:false};
+  dcAdd(row);                       /* fills in row.id and saves, same as the table */
+  TV.mode="deck";TV.draft=null;
+  var rows=tvRows();TV.idx=0;
+  for(var i=0;i<rows.length;i++)if(rows[i].id===row.id){TV.idx=i;break;}
+  tvPaint();                        /* the room sees the new card land in the deck */
 }
 document.addEventListener("keydown",function(e){
   if(!TV.on)return;
-  if(e.key==="Escape")tvClose();
-  else if(e.key==="ArrowRight"){tvStep(1);tvArm();}
-  else if(e.key==="ArrowLeft"){tvStep(-1);tvArm();}
-  else if(e.key===" "&&!/INPUT|TEXTAREA|SELECT/.test((e.target&&e.target.tagName)||"")){
-    e.preventDefault();TV.paused=!TV.paused;tvPaint();
+  if(TV.mode==="raise"){
+    if(e.key==="Escape"){TV.mode="deck";TV.draft=null;tvPaint();}
+    return;                         /* arrows are for typing, not for the deck */
   }
+  if(e.key==="Escape")tvClose();
+  else if(e.key==="ArrowRight")tvStep(1);
+  else if(e.key==="ArrowLeft")tvStep(-1);
 });
 
 /* One history panel for every section. The log is folded away until the little
