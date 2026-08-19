@@ -216,6 +216,8 @@
   .cname{flex:1;min-width:0;font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rowbtn{border:1px solid var(--line);background:var(--card);border-radius:9px;width:31px;height:31px;display:grid;place-items:center;cursor:pointer;font-size:13px;color:var(--mut);flex:0 0 auto;transition:.13s}
   .rowbtn:hover{border-color:var(--line2);color:var(--txt)}
+  .rowbtn.key{width:auto;padding:0 9px;font-size:12px;white-space:nowrap}
+  .rowbtn.key.on{background:var(--yelbg);border-color:rgba(166,116,0,.5);color:var(--yelg);font-weight:800}
   .rowbtn.del{color:var(--red);border-color:rgba(255,77,94,.35)}
   .rowbtn.del:hover{background:var(--redbg);border-color:var(--red)}
   .crow .tradein{flex:1;min-width:90px;max-width:190px;background:var(--bg);border:1px solid var(--line2);border-radius:9px;padding:6px 10px;color:var(--txt);font-weight:700;font-size:12px}
@@ -1780,7 +1782,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v25.2-tv-move-due-date";
+var MC_BUILD="v26.0-account-reset-queue";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -5182,7 +5184,11 @@ function openOwner(){
     var sel=locked?'<span class="num" style="'+badge+';font-weight:800;white-space:nowrap">owner · permanent</span>'
       :'<select data-prole="'+esc(email)+'">'+
         ['viewer','editor','owner'].map(function(r){return '<option value="'+r+'"'+(r===role?' selected':'')+'>'+(r==="viewer"?"Viewer":r==="editor"?"Editor":"Owner")+'</option>';}).join('')+
-        '</select><button class="rowbtn del" title="Remove access" data-pdel="'+esc(email)+'">🗑</button>';
+        '</select>'+
+        (resetQueued(email)
+          ?'<button class="rowbtn key on" title="Account reset queued — tap to cancel it" data-preset="'+esc(email)+'">🔑 queued</button>'
+          :'<button class="rowbtn key" title="Forgot their password? Queue an account reset — they keep their role and history, and choose a new password once it runs." data-preset="'+esc(email)+'">🔑</button>')+
+        '<button class="rowbtn del" title="Remove access" data-pdel="'+esc(email)+'">🗑</button>';
     return '<div class="prow"><span class="pmail" title="'+esc(email)+'">'+esc(email)+'</span>'+sel+'</div>';
   }
   function renderPList(){
@@ -5192,11 +5198,26 @@ function openOwner(){
     cfgOwnerEmails().forEach(function(e){if(!isPermanentOwner(e))addRow(e,"owner",false);});
     editorEmails().forEach(function(e){addRow(e,"editor",false);});
     viewerEmails().forEach(function(e){addRow(e,"viewer",false);});
-    $("o_plist").innerHTML=rows+'<div class="hint" style="margin:6px 0 0">Everyone here can view. Editors can also change board data &amp; settings. Owners can also manage people, reset and re-sync. Anyone not listed can\'t open the board at all.</div>';
+    $("o_plist").innerHTML=rows+'<div class="hint" style="margin:6px 0 0">Everyone here can view. Editors can also change board data &amp; settings. Owners can also manage people, reset and re-sync. Anyone not listed can\'t open the board at all. 🔑 queues an account reset for someone who forgot their password — they keep everything, and once BDiaz runs it they sign up again with the same email and a new password.</div>';
     [].forEach.call($("o_plist").querySelectorAll("select[data-prole]"),function(s){s.onchange=function(){setRole(s.getAttribute("data-prole"),s.value);renderPList();};});
     [].forEach.call($("o_plist").querySelectorAll("[data-pdel]"),function(b){b.onclick=function(){var em=b.getAttribute("data-pdel");
       if(!confirm("Remove "+em+" from the board?\n\nThey lose all access the moment you Save."))return;
       removePerson(em);renderPList();};});
+    [].forEach.call($("o_plist").querySelectorAll("[data-preset]"),function(b){b.onclick=function(){
+      var em=String(b.getAttribute("data-preset")).toLowerCase();
+      var q=resetQueueList().slice(),i=-1;
+      for(var j=0;j<q.length;j++)if(String(q[j].e||"").toLowerCase()===em)i=j;
+      if(i>=0){
+        if(!confirm("Cancel the queued account reset for "+em+"?"))return;
+        q.splice(i,1);
+      }else{
+        if(!confirm("Queue an account reset for "+em+"?\n\nFor someone who forgot their password. They keep their role and everything they've done. Once the reset is run they go back to the sign-in screen, enter this same email, choose a NEW password, and they're in.\n\nThe reset itself runs from BDiaz's machine — this puts it on that list. No email is ever sent."))return;
+        q.push({e:em,by:dcWho(),at:dcNow()});
+      }
+      META_DOC.set({resetQueue:q},{merge:true}).then(function(){
+        STATE.meta=Object.assign({},STATE.meta,{resetQueue:q});renderPList();
+      }).catch(function(e){alert("Could not save the reset request: "+((e&&e.message)||e));});
+    };});
   }
   /* ---- Save (editors: settings only; owner: also writes the access lists) ---- */
   $("o_save").onclick=function(){
@@ -5262,6 +5283,14 @@ var CURRENT_USER=null, booted=false;
    Anyone signed in but not on any list gets the "No access" screen.          */
 function metaList(key){var m=STATE.meta&&STATE.meta[key];return (m||[]).map(function(x){return String(x).toLowerCase();});}
 function cfgOwnerEmails(){return metaList("ownerEmails");}
+/* Account-reset queue. The board cannot touch anyone's password itself (a public
+   webpage must never hold that power) — an owner queues the request here, and a
+   one-command tool on the project owner's machine runs it. The person keeps
+   their role and history; they just sign up again with the same email and a
+   new password of their own. No reset emails — the board stays email-free. */
+function resetQueueList(){var q=(STATE.meta&&STATE.meta.resetQueue);return Array.isArray(q)?q:[];}
+function resetQueued(email){email=String(email).toLowerCase();
+  return resetQueueList().some(function(x){return String(x.e||"").toLowerCase()===email;});}
 function editorEmails(){return metaList("editorEmails");}
 function viewerEmails(){return metaList("viewerEmails");}
 function ownerEmailsAll(){var o=OWNER_EMAILS.map(function(x){return String(x).toLowerCase();});cfgOwnerEmails().forEach(function(e){if(o.indexOf(e)<0)o.push(e);});return o;}
@@ -5442,11 +5471,14 @@ function doCreateNow(f){
   });
 }
 function doForgot(){
-  var email=($("authEmail").value||"").trim().toLowerCase();
-  if(!email||email.indexOf("@")<1){showLogin("Type your email in the box above first, then tap Forgot password.","err");return;}
-  auth.sendPasswordResetEmail(email).then(function(){
-    showLogin("Reset link sent to <b>"+esc(email)+"</b>. Check your inbox and spam. Open it, set a new password, then come back and sign in.","ok");
-  }).catch(function(e){showLogin(esc(authErr(e)),"err");});
+  /* This board sends no emails — by design. The old reset-link path promised a
+     mail that never arrived and stranded people. The honest path: an owner
+     queues an account reset (Settings → People & roles → 🔑); once it runs,
+     the person signs up again with the SAME email and a NEW password. */
+  showLogin("This board doesn\'t send emails, so there\'s no reset link. "+
+    "Ask any <b>owner</b> to queue an account reset for you — Settings → People &amp; roles → 🔑 next to your name. "+
+    "Once it\'s run, come back here, enter this <b>same email</b>, choose a <b>new password</b>, and you\'re in. "+
+    "Everything you\'ve done stays under your name.","ok");
 }
 /* signed-in user changes their own password */
 function openChangePw(){
