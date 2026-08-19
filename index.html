@@ -1563,6 +1563,8 @@
   #tvov .tvstuck{background:#fff7ed;border:4px solid #fb923c;color:#9a3412}
   #tvov .tvchamp{background:#eff6ff;border:4px solid #2563eb;color:#1e3a8a}
   #tvov .tvdue{background:#f8fafc;border:4px solid #cbd5e1;color:#0f172a}
+  #tvov button.tvchip{font:inherit;text-align:left;cursor:pointer}
+  #tvov .tvdue.tap:hover{box-shadow:0 0 0 4px rgba(37,99,235,.25)}
   #tvov .tvdue.over{background:#dc2626;border-color:#dc2626;color:#fff}
   #tvov .tvarr{font-size:min(4vw,62px);color:#94a3b8;font-weight:900;align-self:center}
   #tvov .tvfoot{flex:0 0 auto;display:flex;align-items:center;gap:.8vw;padding:0 2vw 2vh}
@@ -1778,7 +1780,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v25.1-tv-live-work-only";
+var MC_BUILD="v25.2-tv-move-due-date";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -3022,7 +3024,7 @@ function dcConstraints(){
    description echoes to the top of the screen in giant type as it is typed.
    All writes go through the exact same functions as the table (dcSave /
    dcAdd) — same permission rules, same history log entries. */
-var TV={on:false,idx:0,mode:"deck",timer:null,draft:null,flash:"",flashT:null};
+var TV={on:false,idx:0,mode:"deck",timer:null,draft:null,flash:"",flashT:null,holdId:null};
 function tvRows(){
   /* The TV shows LIVE work only. Closed constraints are never deleted — they
      drop to the bottom of the table and keep their whole history — but a wall
@@ -3048,6 +3050,13 @@ function tvOpen(){
     else if(k==="next")tvStep(1);
     else if(k==="prev")tvStep(-1);
     else if(k==="st")tvSetSt(b.getAttribute("data-st"));
+    else if(k==="due"){
+      var rd=tvRows()[TV.idx];
+      if(rd){
+        TV.holdId=rd.id;          /* stay on this card through the dialog + resort */
+        dcDueDlg(rd.id);          /* the table's own dialog — same log, same rules */
+      }
+    }
     else if(k==="close"){
       var rr=tvRows()[TV.idx];
       if(rr){
@@ -3078,6 +3087,7 @@ function tvClose(){
   if(!TV.on)return;
   tvMicStop();
   TV.flash="";if(TV.flashT){clearTimeout(TV.flashT);TV.flashT=null;}
+  TV.holdId=null;
   TV.on=false;TV.draft=null;
   if(TV.timer){clearInterval(TV.timer);TV.timer=null;}
   var d=$("tvov");if(d&&d.parentNode)d.parentNode.removeChild(d);
@@ -3101,7 +3111,7 @@ function tvFollow(id){
   for(var i=0;i<rows.length;i++)if(rows[i].id===id){TV.idx=i;return;}
 }
 function tvStep(d){
-  TV.flash="";
+  TV.flash="";TV.holdId=null;
   var n=tvRows().length;
   if(!n){tvPaint();return;}
   TV.idx=((TV.idx+d)%n+n)%n;
@@ -3139,6 +3149,9 @@ function tvPaint(){
   if(TV.mode==="raise"){tvPaintRaise();return;}
   var d=$("tvov");if(!d)return;
   var rows=tvRows(),n=rows.length;
+  if(TV.holdId){                 /* a dialog is (or just was) open on this card — follow it */
+    for(var hi=0;hi<n;hi++)if(rows[hi].id===TV.holdId){TV.idx=hi;break;}
+  }
   if(!n){
     d.innerHTML=tvHd()+'<div class="tvempty">'+(TV.flash?'<div class="tvflash">'+esc(TV.flash)+'</div>':'')+
       '<div class="big">🎉 Nothing is stuck</div>'+
@@ -3165,8 +3178,12 @@ function tvPaint(){
         '<div class="tvchip tvstuck"><span class="k">WHO IS STUCK</span><span class="v">'+esc(r.co||"—")+'</span></div>'+
         '<div class="tvarr">➜</div>'+
         '<div class="tvchip tvchamp"><span class="k">CHAMPION — CLEARS IT</span><span class="v">'+esc(r.ch||"—")+'</span></div>'+
-        '<div class="tvchip tvdue'+(lt>0?' over':'')+'"><span class="k">'+(lt>0?'WAS DUE':'DUE')+'</span>'+
-          '<span class="v num">'+(r.due?fmtMD(r.due):"not set")+(lt>0?' · +'+lt+'d':'')+'</span></div>'+
+        (dcCanEditRow(STATE.daily[r.id])
+          ? '<button class="tvchip tvdue tap'+(lt>0?' over':'')+'" data-tv="due" title="Tap to move this due date — a reason is required and everything lands in the log">'+
+            '<span class="k">'+(lt>0?'WAS DUE':'DUE')+' ✎</span>'+
+            '<span class="v num">'+(r.due?fmtMD(r.due):"not set")+(lt>0?' · +'+lt+'d':'')+'</span></button>'
+          : '<div class="tvchip tvdue'+(lt>0?' over':'')+'"><span class="k">'+(lt>0?'WAS DUE':'DUE')+'</span>'+
+            '<span class="v num">'+(r.due?fmtMD(r.due):"not set")+(lt>0?' · +'+lt+'d':'')+'</span></div>')+
         '<div class="tvchip tvwalk'+(r.mcc?'':' no')+'"><span class="k">IMPACTS A WALK?</span>'+
           '<span class="v">'+(r.mcc?('⛔ '+esc(r.gate||"WALK")+(r.mc?' · MC '+esc(r.mc):'')):'No')+'</span></div>'+
       '</div>'+
@@ -3264,6 +3281,7 @@ function tvMicToggle(){
 /* ---- ＋ Raise new: the table's add-line, with a giant live echo on top ---- */
 function tvRaise(){
   if(!dcCanAdd())return;
+  TV.holdId=null;
   TV.mode="raise";
   TV.draft={date:todayISO(),co:isCrewUser()?crewCo():"",lvl:"",room:"",desc:"",ch:"",due:todayISO()};
   tvPaintRaise();
@@ -3342,6 +3360,9 @@ function tvRaiseSave(){
 }
 document.addEventListener("keydown",function(e){
   if(!TV.on)return;
+  /* a dialog (Move a due date, etc.) owns the keyboard while it is open —
+     Esc must close IT, not throw the room out of TV mode */
+  if(document.querySelector("dialog[open]"))return;
   if(TV.mode==="raise"){
     if(e.key==="Escape"){tvMicStop();TV.mode="deck";TV.draft=null;tvPaint();}
     return;                         /* arrows are for typing, not for the deck */
