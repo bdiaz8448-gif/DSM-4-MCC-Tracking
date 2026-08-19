@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="theme-color" content="#04060a">
 <title>DSM4 MC Tracker Board</title>
+<!-- Windows has no Apple system font; Inter is its closest twin. Listed AFTER
+     -apple-system so a Mac keeps rendering exactly as before, and with
+     display=swap so a blocked font server just falls back — never a blank page. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
@@ -76,7 +82,7 @@
     radial-gradient(1000px 520px at 0% -5%, var(--glowB), transparent 55%),
     radial-gradient(900px 700px at 50% 120%, var(--glowC), transparent 60%),
     var(--page);
-    color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+    color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,Inter,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
   body{min-height:100vh}
   .num{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
   .wrap{max-width:1580px;margin:0 auto;padding:0 18px 70px}
@@ -216,6 +222,14 @@
   .cname{flex:1;min-width:0;font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rowbtn{border:1px solid var(--line);background:var(--card);border-radius:9px;width:31px;height:31px;display:grid;place-items:center;cursor:pointer;font-size:13px;color:var(--mut);flex:0 0 auto;transition:.13s}
   .rowbtn:hover{border-color:var(--line2);color:var(--txt)}
+  /* Windows paints a fat white scrollbar the Mac never shows — draw our own,
+     thin and themed, so both machines look the same */
+  *{scrollbar-width:thin;scrollbar-color:var(--line2) transparent}
+  ::-webkit-scrollbar{width:9px;height:9px}
+  ::-webkit-scrollbar-track{background:transparent}
+  ::-webkit-scrollbar-thumb{background:var(--line2);border-radius:8px;border:2px solid transparent;background-clip:content-box}
+  ::-webkit-scrollbar-thumb:hover{background:var(--mut2);border:2px solid transparent;background-clip:content-box}
+  ::-webkit-scrollbar-corner{background:transparent}
   .rowbtn.key{width:auto;padding:0 9px;font-size:12px;white-space:nowrap}
   .rowbtn.key.on{background:var(--yelbg);border-color:rgba(166,116,0,.5);color:var(--yelg);font-weight:800}
   .rowbtn.del{color:var(--red);border-color:rgba(255,77,94,.35)}
@@ -1519,6 +1533,16 @@
     body.present #presentDock{right:10px;bottom:10px;flex-wrap:wrap;justify-content:flex-end}
     body.present #presentDock button{padding:10px 15px;font-size:12.5px}
   }
+  /* Short desktop viewports (a scaled Windows laptop): tighten the hero stack
+     so systems appear above the fold instead of a full screen of tiles. */
+  @media (min-width:1000px) and (max-height:800px){
+    .kpi .kn{font-size:24px}
+    .kpi{padding:9px 12px 7px}
+    .kpi .ksub{font-size:9px}
+    .kpi .kl{font-size:9.5px}
+    .chips button{padding:7px 10px;font-size:11px}
+    .seg button{padding:8px 6px;font-size:12px}
+  }
 
   /* ---------- 📺 TV mode: one constraint at a time, readable from the back wall ----------
      Sizes are in vw/vh so the same layout fills a 43" or a 75" TV. The rule used
@@ -1567,6 +1591,7 @@
   #tvov .tvdue{background:#f8fafc;border:4px solid #cbd5e1;color:#0f172a}
   #tvov button.tvchip{font:inherit;text-align:left;cursor:pointer}
   #tvov .tvdue.tap:hover{box-shadow:0 0 0 4px rgba(37,99,235,.25)}
+  #tvov .tvwalk.tap:hover{box-shadow:0 0 0 4px rgba(220,38,38,.22)}
   #tvov .tvdue.over{background:#dc2626;border-color:#dc2626;color:#fff}
   #tvov .tvarr{font-size:min(4vw,62px);color:#94a3b8;font-weight:900;align-self:center}
   #tvov .tvfoot{flex:0 0 auto;display:flex;align-items:center;gap:.8vw;padding:0 2vw 2vh}
@@ -1782,7 +1807,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v26.0-account-reset-queue";
+var MC_BUILD="v27.0-tv-walk-chip-and-windows-polish";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -3059,6 +3084,13 @@ function tvOpen(){
         dcDueDlg(rd.id);          /* the table's own dialog — same log, same rules */
       }
     }
+    else if(k==="walk"){
+      var rw=tvRows()[TV.idx];
+      if(rw){
+        TV.holdId=rw.id;          /* the dialog-open keyboard guard covers this too */
+        dcMccDlg(rw.id);          /* "Does this hold up a walk?" — never leaves the TV */
+      }
+    }
     else if(k==="close"){
       var rr=tvRows()[TV.idx];
       if(rr){
@@ -3168,6 +3200,7 @@ function tvPaint(){
     ? ('<span class="ok">✓ CLOSED'+(r.doneAt?' '+fmtMD(r.doneAt):'')+'</span>'+(age===null?'':' · '+age+'d TO CLOSE'))
     : ((lt>0?'<b>PAST DUE · '+age+'d OPEN</b>':(age===null?'':age+'d OPEN')));
   tag+=(r.date?' · RAISED '+fmtMD(r.date):'');
+  if(r.mcc)tag+=' · <b>⛔ IMPACTS '+esc(r.gate||"A WALK")+(r.mc?' · MC '+esc(r.mc):'')+'</b>';
   var dots='';rows.forEach(function(x,i){
     dots+='<i class="'+(x.st==="done"?'cl':(dcLate(x)>0?'pd':''))+(i===TV.idx?' on':'')+'"></i>';});
   d.innerHTML=tvHd()+
@@ -3186,8 +3219,12 @@ function tvPaint(){
             '<span class="v num">'+(r.due?fmtMD(r.due):"not set")+(lt>0?' · +'+lt+'d':'')+'</span></button>'
           : '<div class="tvchip tvdue'+(lt>0?' over':'')+'"><span class="k">'+(lt>0?'WAS DUE':'DUE')+'</span>'+
             '<span class="v num">'+(r.due?fmtMD(r.due):"not set")+(lt>0?' · +'+lt+'d':'')+'</span></div>')+
-        '<div class="tvchip tvwalk'+(r.mcc?'':' no')+'"><span class="k">IMPACTS A WALK?</span>'+
-          '<span class="v">'+(r.mcc?('⛔ '+esc(r.gate||"WALK")+(r.mc?' · MC '+esc(r.mc):'')):'No')+'</span></div>'+
+        (dcCanEditRow(STATE.daily[r.id])
+          ? '<button class="tvchip tvwalk tap'+(r.mcc?'':' no')+'" data-tv="walk" title="Tap to change — does this constraint hold up a walk? Same dialog as the table; you stay right here.">'+
+            '<span class="k">IMPACTS A WALK? ✎</span>'+
+            '<span class="v">'+(r.mcc?('⛔ '+esc(r.gate||"WALK")+(r.mc?' · MC '+esc(r.mc):'')):'No')+'</span></button>'
+          : '<div class="tvchip tvwalk'+(r.mcc?'':' no')+'"><span class="k">IMPACTS A WALK?</span>'+
+            '<span class="v">'+(r.mcc?('⛔ '+esc(r.gate||"WALK")+(r.mc?' · MC '+esc(r.mc):'')):'No')+'</span></div>')+
       '</div>'+
     '</div>'+
     '<div class="tvdots">'+dots+'</div>'+tvFoot(r);
