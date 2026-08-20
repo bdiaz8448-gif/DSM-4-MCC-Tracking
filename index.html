@@ -804,8 +804,19 @@
     display:inline-flex;align-items:center;justify-content:center;padding:0}
   .dcbx.on{background:var(--grn);color:#fff}
   .dcbx[disabled]{opacity:.4;cursor:not-allowed}
-  .dcdiv td{background:var(--ink,#0f172a);color:#94a3b8;font-size:10px;font-weight:900;letter-spacing:2px;
-    text-transform:uppercase;padding:7px 12px}
+  /* ---- v28: the closed constraints live in a collapsible section of their own ---- */
+  .dcdone{border-top:1px solid var(--line)}
+  .dcdonehead{display:flex;align-items:center;gap:10px;width:100%;border:0;cursor:pointer;text-align:left;
+    background:var(--ink,#0f172a);color:#94a3b8;font-size:10px;font-weight:900;letter-spacing:2px;
+    text-transform:uppercase;padding:9px 14px;font-family:inherit}
+  .dcdonehead:hover{color:#e2e8f0}
+  .dcdonehead .tri{font-size:12px;letter-spacing:0;width:14px;flex:none}
+  .dcdonehead .ttl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dcdonehead .cnt{flex:none;background:var(--grn);color:#fff;border-radius:99px;padding:2px 9px;
+    font-size:10.5px;letter-spacing:.5px}
+  .dcdonehead .hint{margin-left:auto;flex:none;letter-spacing:.5px;font-size:9px;color:#64748b}
+  .dcdone.open .dcdonehead .hint{color:#94a3b8}
+  .dcdone .dctbl{border-top:1px solid var(--line)}
   .dclog{border:1px solid var(--line2);background:#fff;border-radius:9px;width:29px;height:29px;cursor:pointer;
     font-size:11px;font-weight:900;color:var(--mut);display:grid;place-items:center}
   .dclog:hover{border-color:var(--acc);color:var(--acc)}
@@ -891,6 +902,7 @@
     @page{size:letter landscape;margin:8mm}
     html,body{background:#fff!important;width:auto!important;overflow:visible!important}
     .bar,#views,.dcbar,.dcadd,.dcpg,.dckpis,.dchbox,#intro,.fab,footer,.foot,.dcsech .btn,
+    .dcdone:not(.open),.dcdonehead .hint,
     .iconbtn,.acct,.hsearch,#searchBtn,.dclog,.dact,.dcsech .chev,.dcwk,
     .dcsec:not(.on){display:none!important}
     /* the date pickers print their little calendar glyph otherwise */
@@ -1807,7 +1819,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v27.0-tv-walk-chip-and-windows-polish";
+var MC_BUILD="v28.0-closed-constraints-tucked-away";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2561,7 +2573,8 @@ var DC_STATES=["open","ready","done"];
 var DC_LABEL={open:"Open",prog:"In progress",ready:"Ready to verify",done:"Closed",late:"Past due"};
 /* which walk a constraint holds up — same order as the board's own gates */
 var DC_GATES=["W0","W1","MC","MCC"];
-var DC_PAGE=20;                       /* rows per page; everything stays saved */
+var DC_PAGE=20;                       /* open rows per page; everything stays saved */
+var DC_DONE_PAGE=10;                  /* closed rows per page, inside the tucked-away section */
 
 /* ---------------------------------------------------------------------------
    DSM4 ROOMS — taken straight off the issued-for-construction floor plans
@@ -2711,6 +2724,8 @@ STATE.goals={}; STATE.deliv={}; STATE.man={}; STATE.lists={}; STATE.crewList={};
 STATE.crew=null;                       /* set when the signed-in email is a crew account */
 STATE.df={f:"ALL",lvl:"ALL",room:"ALL",co:"ALL",mcc:"ALL",q:"",sort:"new"};
 STATE.dcPage=0;
+STATE.dcDoneOpen=false;               /* the closed section starts tucked away */
+STATE.dcDonePage=0;
 STATE.manDate=""; STATE.goalWeek="";
 
 /* ---- crew (contractor) accounts ---- */
@@ -2925,10 +2940,14 @@ function dcAutoGrow(scope){
 /* ===================== 1. CONSTRAINTS ===================== */
 function dcConstraints(){
   var all=dcList(),hits=all.filter(dcPass).sort(dcSort);
-  var pages=Math.max(1,Math.ceil(hits.length/DC_PAGE));
+  /* v28: the main table carries ONLY the live constraints — closed ones are
+     tucked into a collapsible section of their own below the pager */
+  var live=[],closed=[];
+  hits.forEach(function(r){(r.st==="done"?closed:live).push(r);});
+  var pages=Math.max(1,Math.ceil(live.length/DC_PAGE));
   if(STATE.dcPage>=pages)STATE.dcPage=pages-1;
   if(STATE.dcPage<0)STATE.dcPage=0;
-  var from=STATE.dcPage*DC_PAGE, rows=hits.slice(from,from+DC_PAGE);
+  var from=STATE.dcPage*DC_PAGE, rows=live.slice(from,from+DC_PAGE);
 
   var n={ALL:all.length,open:0,ready:0,done:0,late:0,mcc:0};
   all.forEach(function(r){n[dcState(r)]++;if(r.mcc&&r.st!=="done")n.mcc++;});
@@ -2967,14 +2986,12 @@ function dcConstraints(){
     '<button class="btn sm" data-act="tvMode" title="Full screen, one constraint at a time — big enough to read from the back of the room. Esc or ✕ to leave.">📺 TV mode</button>'+
     '</div>';
 
-  var body="",sawDone=false;
-  rows.forEach(function(r,i){
+  /* one row builder, shared by the live table and the closed section */
+  function rowHTML(r,num){
     var s=dcState(r),lt=dcLate(r),ed=dcCanEditRow(r),ro=ed?"":" readonly",dis=ed?"":" disabled";
-    if(r.st==="done"&&!sawDone){sawDone=true;
-      body+='<tr class="dcdiv"><td colspan="11">Closed — kept on the board, out of the way</td></tr>';}
     var age=dcAge(r);
-    body+='<tr class="s-'+s+'" data-dc="'+esc(r.id)+'">'+
-      '<td class="dcn">'+(from+i+1)+'</td>'+
+    var body='<tr class="s-'+s+'" data-dc="'+esc(r.id)+'">'+
+      '<td class="dcn">'+num+'</td>'+
       '<td class="dt" data-l="Raised">'+fmtMD(r.date)+
         (age===null?'':'<span class="dcage '+dcAgeBand(age)+'">'+age+'d '+(r.st==="done"?"to close":"open")+'</span>')+'</td>'+
       '<td class="dco" data-l="Company"><input class="dcin" list="dcCoList" value="'+esc(r.co||"")+'" data-dcf="co" data-dc="'+esc(r.id)+'"'+ro+'></td>'+
@@ -2999,16 +3016,58 @@ function dcConstraints(){
       '<td class="dact" data-l="History"><button class="dclog" data-act="dcLog" data-dc="'+esc(r.id)+'" title="open the history for this row">'+((r.log&&r.log.length)?r.log.length:'☰')+'</button></td>'+
       '</tr>';
     if(DC_OPEN_LOGS[r.id])body+=dcHistRow(r,11);
-  });
+    return body;
+  }
+
+  var body="";
+  rows.forEach(function(r,i){body+=rowHTML(r,from+i+1);});
 
   var cols=11;
+  var thead='<thead><tr>'+
+      '<th class="dcn">#</th><th>Date<span class="h2">raised · days open</span></th>'+
+      '<th>Company<span class="h2">who is stuck</span></th>'+
+      '<th>Level<span class="h2">floor</span></th>'+
+      '<th>Room<span class="h2">on that floor</span></th>'+
+      '<th>Description of constraint</th>'+
+      '<th>Impacts<br>a walk?<span class="h2">W0 · W1 · MC · MCC</span></th>'+
+      '<th>Champion<span class="h2">who clears it</span></th><th>Due date</th>'+
+      '<th>Status<span class="h2">tick the box to close</span></th>'+
+      '<th class="dact">Log</th>'+
+    '</tr></thead>';
   var pager=(pages>1)?('<div class="dcpg">'+
       '<button class="btn sm" data-act="dcPg" data-p="first"'+(STATE.dcPage?"":" disabled")+'>« first</button>'+
       '<button class="btn sm" data-act="dcPg" data-p="prev"'+(STATE.dcPage?"":" disabled")+'>‹ back</button>'+
-      '<span class="pgl">page <b>'+(STATE.dcPage+1)+'</b> of <b>'+pages+'</b> · showing '+(from+1)+'–'+(from+rows.length)+' of '+hits.length+'</span>'+
+      '<span class="pgl">page <b>'+(STATE.dcPage+1)+'</b> of <b>'+pages+'</b> · showing '+(from+1)+'–'+(from+rows.length)+' of '+live.length+' open</span>'+
       '<button class="btn sm" data-act="dcPg" data-p="next"'+(STATE.dcPage<pages-1?"":" disabled")+'>next ›</button>'+
       '<button class="btn sm" data-act="dcPg" data-p="last"'+(STATE.dcPage<pages-1?"":" disabled")+'>last »</button>'+
       '<span class="pgn">every page is saved — nothing rolls off</span></div>'):'';
+
+  /* ---- v28: the closed constraints, tucked away until someone opens the tab ---- */
+  var dOpen=!!STATE.dcDoneOpen;
+  var dPages=Math.max(1,Math.ceil(closed.length/DC_DONE_PAGE));
+  if(STATE.dcDonePage>=dPages)STATE.dcDonePage=dPages-1;
+  if(STATE.dcDonePage<0)STATE.dcDonePage=0;
+  var dFrom=STATE.dcDonePage*DC_DONE_PAGE, dRows=closed.slice(dFrom,dFrom+DC_DONE_PAGE);
+  var dBody="";
+  dRows.forEach(function(r,i){dBody+=rowHTML(r,dFrom+i+1);});
+  var dPager=(dOpen&&dPages>1)?('<div class="dcpg dcdonepg">'+
+      '<button class="btn sm" data-act="dcDonePg" data-p="first"'+(STATE.dcDonePage?"":" disabled")+'>« first</button>'+
+      '<button class="btn sm" data-act="dcDonePg" data-p="prev"'+(STATE.dcDonePage?"":" disabled")+'>‹ back</button>'+
+      '<span class="pgl">page <b>'+(STATE.dcDonePage+1)+'</b> of <b>'+dPages+'</b> · showing '+(dFrom+1)+'–'+(dFrom+dRows.length)+' of '+closed.length+' closed</span>'+
+      '<button class="btn sm" data-act="dcDonePg" data-p="next"'+(STATE.dcDonePage<dPages-1?"":" disabled")+'>view more ›</button>'+
+      '<button class="btn sm" data-act="dcDonePg" data-p="last"'+(STATE.dcDonePage<dPages-1?"":" disabled")+'>last »</button>'+
+      '<span class="pgn">every closed constraint is saved — nothing is ever deleted</span></div>'):'';
+  var doneSec='<div class="dcdone'+(dOpen?" open":"")+'">'+
+      '<button class="dcdonehead" data-act="dcDoneTog" title="'+(dOpen?"tuck the closed constraints back away":"look through the closed constraints — they are all still saved")+'">'+
+        '<span class="tri">'+(dOpen?"▾":"▸")+'</span>'+
+        '<span class="ttl">Closed — kept on the board, out of the way</span>'+
+        '<span class="cnt">'+closed.length+'</span>'+
+        '<span class="hint">'+(dOpen?"tap to tuck them away":"tap to view")+'</span></button>'+
+      (dOpen?('<div class="dctbl dcmainwrap"><table class="dcmain">'+thead+'<tbody>'+
+        (dBody||'<tr><td colspan="'+cols+'" class="dcempty">'+
+          (all.length?'No closed constraints match that filter.':'Nothing has been closed yet.')+'</td></tr>')+
+        '</tbody></table></div>'+dPager):'')+
+    '</div>';
 
   var add=dcCanAdd()?('<div class="dcadd">'+
       '<input type="date" id="dcNDate" value="'+todayISO()+'">'+
@@ -3024,21 +3083,13 @@ function dcConstraints(){
 
   return kh+bar+
     '<div class="dcwrap"><div class="dchead"><h2>Constraints</h2>'+
-      '<span class="sub">'+hits.length+' of '+all.length+' shown</span><span style="flex:1"></span>'+
-      '<span class="sub">newest first · red past due · indigo ready to verify · green closed, kept at the bottom</span></div>'+
-    '<div class="dctbl dcmainwrap"><table class="dcmain"><thead><tr>'+
-      '<th class="dcn">#</th><th>Date<span class="h2">raised · days open</span></th>'+
-      '<th>Company<span class="h2">who is stuck</span></th>'+
-      '<th>Level<span class="h2">floor</span></th>'+
-      '<th>Room<span class="h2">on that floor</span></th>'+
-      '<th>Description of constraint</th>'+
-      '<th>Impacts<br>a walk?<span class="h2">W0 · W1 · MC · MCC</span></th>'+
-      '<th>Champion<span class="h2">who clears it</span></th><th>Due date</th>'+
-      '<th>Status<span class="h2">tick the box to close</span></th>'+
-      '<th class="dact">Log</th>'+
-    '</tr></thead><tbody>'+(body||'<tr><td colspan="'+cols+'" class="dcempty">'+
-      (all.length?'Nothing matches that filter.':'No constraints on the tracker yet — raise the first one below.')+'</td></tr>')+
-    '</tbody></table></div>'+pager+add+'</div>';
+      '<span class="sub">'+live.length+' open shown · '+closed.length+' closed tucked below</span><span style="flex:1"></span>'+
+      '<span class="sub">newest first · red past due · indigo ready to verify · closed kept below, out of the way</span></div>'+
+    '<div class="dctbl dcmainwrap"><table class="dcmain">'+thead+'<tbody>'+
+      (body||'<tr><td colspan="'+cols+'" class="dcempty">'+
+      (all.length?(closed.length?'No open constraints here — the closed ones are tucked just below.':'Nothing matches that filter.')
+        :'No constraints on the tracker yet — raise the first one below.')+'</td></tr>')+
+    '</tbody></table></div>'+pager+doneSec+add+'</div>';
 }
 /* ---------- 📺 TV mode: full screen, one constraint at a time ----------
    Built for the morning meeting. Every column of the table is on the card:
@@ -3797,7 +3848,7 @@ function renderDaily(v){
   dcAutoGrow(v);
   if(window.requestAnimationFrame)requestAnimationFrame(function(){dcAutoGrow(v);});
   var q=$("dcQ");
-  if(q)q.addEventListener("input",function(){STATE.df.q=this.value;STATE.dcPage=0;var p=this.selectionStart;renderDaily($("view"));
+  if(q)q.addEventListener("input",function(){STATE.df.q=this.value;STATE.dcPage=0;STATE.dcDonePage=0;var p=this.selectionStart;renderDaily($("view"));
     var q2=$("dcQ");if(q2){q2.focus();try{q2.setSelectionRange(p,p);}catch(e){}}});
 }
 
@@ -4038,16 +4089,33 @@ document.addEventListener("click",function(e){
       var same=(STATE.df.f===k);
       STATE.df.f=same?"ALL":k;
       STATE.df.mcc="ALL";
+      /* tapping the Closed counter opens the tucked-away section so the rows are visible */
+      if(k==="done"&&!same){STATE.dcDoneOpen=true;STATE.dcDonePage=0;}
     }
     STATE.dcPage=0;render();return;
   }
   if(act==="dcPg"){
-    var p=t.getAttribute("data-p"),hits=dcList().filter(dcPass).length;
+    /* v28: the main table pages over the LIVE constraints only */
+    var p=t.getAttribute("data-p"),hits=dcList().filter(dcPass).filter(function(r){return r.st!=="done";}).length;
     var pages=Math.max(1,Math.ceil(hits/DC_PAGE));
     if(p==="first")STATE.dcPage=0;
     else if(p==="prev")STATE.dcPage=Math.max(0,STATE.dcPage-1);
     else if(p==="next")STATE.dcPage=Math.min(pages-1,STATE.dcPage+1);
     else STATE.dcPage=pages-1;
+    render();return;
+  }
+  if(act==="dcDoneTog"){
+    STATE.dcDoneOpen=!STATE.dcDoneOpen;
+    if(STATE.dcDoneOpen)STATE.dcDonePage=0;
+    render();return;
+  }
+  if(act==="dcDonePg"){
+    var dp=t.getAttribute("data-p"),dHits=dcList().filter(dcPass).filter(function(r){return r.st==="done";}).length;
+    var dPgs=Math.max(1,Math.ceil(dHits/DC_DONE_PAGE));
+    if(dp==="first")STATE.dcDonePage=0;
+    else if(dp==="prev")STATE.dcDonePage=Math.max(0,STATE.dcDonePage-1);
+    else if(dp==="next")STATE.dcDonePage=Math.min(dPgs-1,STATE.dcDonePage+1);
+    else STATE.dcDonePage=dPgs-1;
     render();return;
   }
   if(act==="dcLog"){var was=DC_OPEN_LOGS[id];DC_OPEN_LOGS={};if(!was)DC_OPEN_LOGS[id]=true;render();return;}
@@ -4275,7 +4343,7 @@ document.addEventListener("change",function(e){
     return;
   }
   if(el.getAttribute&&el.getAttribute("data-act")==="dcF"){
-    STATE.df[el.getAttribute("data-f")]=el.value;STATE.dcPage=0;render();return;
+    STATE.df[el.getAttribute("data-f")]=el.value;STATE.dcPage=0;STATE.dcDonePage=0;render();return;
   }
 });
 /* Lay the whole board out and hand it to the printer. Everything is opened
