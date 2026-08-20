@@ -690,13 +690,22 @@
   #searchBtn{display:none}
   #searchBtn svg{width:19px;height:19px}
   .acct{position:relative}
-  .avbtn{width:42px;height:42px;border-radius:50%;cursor:pointer;border:2px solid transparent;padding:0;
-    background:linear-gradient(135deg,#1b2634,#0d151e) padding-box,var(--edge) border-box;
-    box-shadow:0 4px 14px rgba(0,0,0,.4);display:grid;place-items:center}
-  .avbtn.owner{background:linear-gradient(135deg,#1b2634,#0d151e) padding-box,var(--edgeGold) border-box}
-  .avin{font-size:13.5px;font-weight:900;letter-spacing:.3px;color:var(--acc)}
-  .avbtn.owner .avin{background:linear-gradient(180deg,var(--goldg),var(--gold));-webkit-background-clip:text;
-    background-clip:text;-webkit-text-fill-color:transparent}
+  /* v28.1: the account circle wears the SAME bright ring as the lock button —
+     cyan for everyone, the lock's gold for the owner — so the two match */
+  .avbtn{width:42px;height:42px;border-radius:50%;cursor:pointer;border:0;padding:0;position:relative;
+    background:linear-gradient(135deg,#1b2634,#0d151e);
+    box-shadow:0 0 14px rgba(56,189,248,.22),0 4px 14px rgba(0,0,0,.4),inset 0 0 10px rgba(56,189,248,.10);
+    display:grid;place-items:center}
+  .avbtn::before{content:"";position:absolute;inset:-2px;border-radius:50%;padding:2px;pointer-events:none;opacity:.9;
+    background:conic-gradient(from 215deg,rgba(56,189,248,.95),rgba(34,211,238,.18) 30%,rgba(56,189,248,.55) 52%,rgba(124,58,237,.45) 74%,rgba(120,220,255,.9) 92%,rgba(56,189,248,.95));
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+    mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude}
+  .avbtn.owner{background:linear-gradient(135deg,#1b2432,#0a0f16);
+    box-shadow:0 0 15px rgba(255,190,50,.32),0 4px 14px rgba(0,0,0,.42),inset 0 1px 0 rgba(255,255,255,.10)}
+  .avbtn.owner::before{background:conic-gradient(from 215deg,rgba(255,214,102,1),rgba(255,214,102,.28) 38%,rgba(255,236,175,.95) 68%,rgba(255,214,102,1));opacity:1}
+  .avin{font-size:13.5px;font-weight:900;letter-spacing:.3px;color:var(--acc);position:relative;z-index:1}
+  .avbtn.owner .avin{background:linear-gradient(180deg,#ffe8a3,#ffc93c);-webkit-background-clip:text;
+    background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 5px rgba(255,190,50,.45))}
   .acmenu{display:none;position:absolute;top:54px;right:0;width:268px;z-index:60;overflow:hidden;
     border:2px solid transparent;border-radius:18px;
     background:linear-gradient(var(--card),var(--card)) padding-box,var(--edge) border-box;box-shadow:0 24px 64px rgba(0,0,0,.6)}
@@ -1819,7 +1828,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v28.0-closed-constraints-tucked-away";
+var MC_BUILD="v28.1-open-counts-all-open-and-matching-account-ring";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2797,8 +2806,14 @@ function dcCanAdd(){return canEdit()||isCrewUser();}
 function dcCanDelete(){return isOwnerUser();}   /* owner only, and it is permanent */
 
 function dcPass(r){
-  var f=STATE.df,s=dcState(r);
-  if(f.f!=="ALL"&&f.f!==s)return false;
+  var f=STATE.df;
+  /* v28.1: past due is a subset of Open — the Open counter shows every open row,
+     the Past-due counter narrows to the late ones */
+  if(f.f==="late"){if(r.st==="done"||!dcLate(r))return false;}
+  else if(f.f!=="ALL"){
+    var b=(r.st==="done")?"done":((r.st==="ready")?"ready":"open");
+    if(f.f!==b)return false;
+  }
   if(f.lvl!=="ALL"&&(r.lvl||"")!==f.lvl)return false;
   if(f.room!=="ALL"&&r.room!==f.room)return false;
   if(f.co!=="ALL"&&r.co!==f.co)return false;
@@ -2949,11 +2964,18 @@ function dcConstraints(){
   if(STATE.dcPage<0)STATE.dcPage=0;
   var from=STATE.dcPage*DC_PAGE, rows=live.slice(from,from+DC_PAGE);
 
+  /* v28.1: "Open" counts EVERY open constraint, past due included — past due is
+     a subset of open, not a separate bucket, and the tile says so */
   var n={ALL:all.length,open:0,ready:0,done:0,late:0,mcc:0};
-  all.forEach(function(r){n[dcState(r)]++;if(r.mcc&&r.st!=="done")n.mcc++;});
+  all.forEach(function(r){
+    if(r.st==="done"){n.done++;return;}
+    if(r.st==="ready")n.ready++;else n.open++;
+    if(dcLate(r))n.late++;
+    if(r.mcc)n.mcc++;});
 
   var kp=[["ALL",n.ALL,"All"],["open",n.open,"Open"],
-          ["ready",n.ready,"Ready to verify"],["done",n.done,"Closed"],["late",n.late,"⚠ Past due"]];
+          ["ready",n.ready,"Ready to verify"],["done",n.done,"Closed"],
+          ["late",n.late,"⚠ Past due · of "+(n.open+n.ready)+" open"]];
   /* exactly one counter is ever lit — "All" only when nothing is filtered at all */
   var mccOn=(STATE.df.mcc==="Y");
   var kh='<div class="dckpis">'+kp.map(function(x){
