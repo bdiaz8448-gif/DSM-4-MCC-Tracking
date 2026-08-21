@@ -1828,7 +1828,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v28.1-open-counts-all-open-and-matching-account-ring";
+var MC_BUILD="v28.2-walk-system-search-by-number-name-or-code";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -3893,10 +3893,47 @@ function dcDueDlg(id){
     '<div class="dlgrow" style="margin-top:12px"><button class="btn" data-act="dcClose">Cancel</button>'+
     '<button class="btn pri" data-act="dcDueSave" data-dc="'+esc(id)+'">Save change</button></div>');
 }
+/* v28.2: one line that carries all three ways people know a system —
+   "0038 — Carbon Dioxide Distribution — AD-DS51U01" — so the picker can be
+   searched by the MC number, the name, OR the AD- number, and the whole
+   line shows in the field once picked. */
+function dcSysLabel(s){
+  var p=[];if(s.mc)p.push(String(s.mc));if(s.desc)p.push(String(s.desc));
+  if(s.code)p.push(String(s.code));return p.join(' — ');
+}
+/* whatever landed in the box — a picked full line, a bare MC number, an AD-
+   number, or a system name — resolve it back to just the MC number the two
+   boards tie on. Anything unrecognised is kept as typed, same as before. */
+function dcParseMc(v){
+  v=(v||"").trim();if(!v)return "";
+  var list=sysList(),i,s,lv=v.toLowerCase();
+  /* the MC number, the full picked line and the AD- number are unique — safe to return */
+  for(i=0;i<list.length;i++){s=list[i];if(!s.mc)continue;
+    if(v===String(s.mc)||lv===dcSysLabel(s).toLowerCase()||
+       (s.code&&lv===String(s.code).toLowerCase()))return String(s.mc);}
+  var m=v.match(/^\s*(\d{1,6})\s*(?:—|-|·|$)/);if(m)return m[1];
+  /* names can be shared by several systems — only resolve when exactly ONE fits,
+     never a silent wrong pick */
+  var exact=[],part=[];
+  for(i=0;i<list.length;i++){s=list[i];if(!s.mc)continue;
+    if(s.desc&&lv===String(s.desc).toLowerCase()){
+      if(exact.indexOf(String(s.mc))<0)exact.push(String(s.mc));}
+    if((s.code&&String(s.code).toLowerCase().indexOf(lv)>=0)||
+       (s.desc&&String(s.desc).toLowerCase().indexOf(lv)>=0)){
+      if(part.indexOf(String(s.mc))<0)part.push(String(s.mc));}}
+  if(exact.length===1)return exact[0];
+  if(exact.length===0&&part.length===1)return part[0];
+  return v;
+}
 function dcMccDlg(id){
   var r=STATE.daily[id];if(!r||!dcCanEditRow(r))return;
   var opts=sysList().slice().sort(function(a,b){return (a.mc||"")<(b.mc||"")?-1:1;})
-    .map(function(s){return '<option value="'+esc(s.mc)+'">'+esc(s.mc)+' · '+esc(s.desc||"")+'</option>';}).join('');
+    .filter(function(s){return s.mc;})
+    .map(function(s){var L=dcSysLabel(s);return '<option value="'+esc(L)+'">'+esc(L)+'</option>';}).join('');
+  /* if the row already ties to a system, show the whole line, not just the number */
+  var cur=r.mc||"";
+  if(cur){var hit=sysList().filter(function(s2){return String(s2.mc)===String(cur);})[0];
+    if(hit)cur=dcSysLabel(hit);}
   dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">Does this hold up a walk?</h3>'+
     '<p style="margin:0 0 14px;font-size:12.5px;font-weight:700;color:var(--mut)">'+esc(r.co||"")+' · '+esc((r.desc||"").slice(0,70))+'</p>'+
     '<label>Impacts a walk</label><select id="dcYN"><option value="N"'+(!r.mcc?" selected":"")+'>No — site work only</option>'+
@@ -3904,8 +3941,8 @@ function dcMccDlg(id){
     '<label>Which walk?</label><select id="dcGate">'+
       DC_GATES.map(function(g){return '<option value="'+g+'"'+(((r.gate||"MCC")===g)?" selected":"")+'>'+g+'</option>';}).join('')+
       '</select>'+
-    '<label>Which system? — MC number, so the two boards tie together</label>'+
-    '<input type="text" id="dcMcNo" value="'+esc(r.mc||"")+'" placeholder="e.g. 1427" list="dcMcList">'+
+    '<label>Which system? — search by MC number, system name, or AD- number</label>'+
+    '<input type="text" id="dcMcNo" value="'+esc(cur)+'" placeholder="e.g. 0038, Carbon Dioxide, or AD-DS51U01" list="dcMcList">'+
     '<datalist id="dcMcList">'+opts+'</datalist>'+
     '<div class="dlgrow" style="margin-top:12px"><button class="btn" data-act="dcClose">Cancel</button>'+
     '<button class="btn pri" data-act="dcMccSave" data-dc="'+esc(id)+'">Save</button></div>');
@@ -4219,7 +4256,7 @@ document.addEventListener("click",function(e){
   }
   if(act==="dcMccSave"){
     var r3=STATE.daily[id];if(!r3)return;
-    var yes=$("dcYN").value==="Y",gt=$("dcGate").value,mcno=yes?($("dcMcNo").value||"").trim():"";
+    var yes=$("dcYN").value==="Y",gt=$("dcGate").value,mcno=yes?dcParseMc($("dcMcNo").value):"";
     if(yes!==!!r3.mcc||mcno!==(r3.mc||"")||(yes&&gt!==(r3.gate||"MCC")))
       dcSave(id,{mcc:yes,gate:yes?gt:"",mc:mcno},
         {what:"Walk impact set to <b>"+(yes?(gt+(mcno?" — MC "+esc(mcno):"")):"none")+"</b>"});
