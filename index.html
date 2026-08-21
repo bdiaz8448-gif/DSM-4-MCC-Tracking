@@ -1197,8 +1197,11 @@
   .crewl{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
   .crewr{display:flex;align-items:center;gap:10px;padding:7px 11px;background:var(--card);
     border:1px solid var(--line2);border-radius:11px;font-size:12.5px;font-weight:800}
-  .crewr .cem{flex:1;color:var(--txt)}
+  .crewr .cnm{font-weight:900;color:var(--txt);flex:none}
+  .crewr .cem{flex:1;color:var(--mut);min-width:140px;word-break:break-all}
+  .crewr .cph{flex:none;color:var(--mut);font-weight:800;white-space:nowrap}
   .crewr .cco{color:var(--acc);font-weight:900}
+  @media(max-width:700px){.crewr{flex-wrap:wrap}.crewr .cem{flex:1 1 100%}}
   .crewr i{color:var(--mut2);font-weight:700}
   /* ---- manpower: room to breathe, and a rule between each block ---- */
   .mntbl{min-width:1120px}
@@ -1828,7 +1831,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v28.2-walk-system-search-by-number-name-or-code";
+var MC_BUILD="v28.3-crew-accounts-carry-name-and-phone";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -3491,7 +3494,7 @@ function histLines(kind,id,lg){
   var own=isOwnerUser();
   return (lg.length?lg.map(function(h,i){
       return '<div class="dchl"><span class="ts">'+esc(String(h.ts||"").replace("T"," ").slice(0,16))+'</span>'+
-        '<span class="who">'+esc(h.who||"")+'</span><span class="what">'+h.what+
+        '<span class="who">'+esc(crewWho(h.who||""))+'</span><span class="what">'+h.what+
         (h.why?'<span class="why">Reason: '+esc(h.why)+'</span>':'')+'</span>'+
         (own?'<button class="hdel" data-act="histDel" data-hk="'+kind+'" data-hi="'+esc(id)+'" data-i="'+(h._i===undefined?i:h._i)+'"'+
           (h._src?' data-hs="'+h._src+'"':'')+' title="remove this line — owner only">×</button>':'')+
@@ -3814,14 +3817,21 @@ function dcAccess(){
       '</div>'+
       '<div class="acbox"><h4>Contractor crew accounts</h4>'+
       '<div class="crewl">'+(crew.length?crew.map(function(e){
-        return '<div class="crewr"><span class="cem">'+esc(e)+'</span><span class="cco">'+esc(STATE.crewList[e].co||"—")+'</span>'+
+        var c=STATE.crewList[e]||{};
+        return '<div class="crewr">'+
+          (c.name?'<span class="cnm">'+esc(c.name)+'</span>':'')+
+          '<span class="cem">'+esc(e)+'</span>'+
+          (c.ph?'<span class="cph">📞 '+esc(c.ph)+'</span>':'')+
+          '<span class="cco">'+esc(c.co||"—")+'</span>'+
           '<button class="btn sm" data-act="crewDel" data-e="'+esc(e)+'">remove</button></div>';}).join('')
         :'<div class="crewr"><i>No crew accounts yet.</i></div>')+'</div>'+
       '<div class="dcadd" style="border-radius:12px;margin-top:9px">'+
-        '<input type="email" id="crewEm" placeholder="foreman@company.com" class="grow">'+
-        '<input type="text" id="crewCo" list="dcCoList" placeholder="Their company" style="width:190px">'+
+        '<input type="email" id="crewEm" placeholder="foreman@company.com — their login" class="grow" style="min-width:200px">'+
+        '<input type="text" id="crewNm" placeholder="Foreman’s name" style="width:170px">'+
+        '<input type="tel" id="crewPh" placeholder="Phone — contact only" style="width:170px">'+
+        '<input type="text" id="crewCo" list="dcCoList" placeholder="Their company" style="width:170px">'+
         '<button class="btn pri" data-act="crewAdd">+ Add crew account</button></div>'+
-      '<p class="acnote">They create their own password on the sign-in screen with this email. Do not add someone who is already an editor — the crew limits would take over.</p>'+
+      '<p class="acnote">The <b>email is the login</b> — they create their own password on the sign-in screen with it. The phone number is contact info only and is never used to sign in. Do not add someone who is already an editor — the crew limits would take over.</p>'+
       '</div>';
   }
   return '<div class="dcwrap"><div class="dchead"><h2>Who can do what</h2>'+
@@ -4111,15 +4121,28 @@ function histClear(kind,id){
 }
 
 /* owner only: hand out / take back a contractor crew account */
-function crewAdd(email,co){
+/* v28.3: a crew account carries the foreman's name and phone number too.
+   The EMAIL stays the one and only login — the phone is contact info, never
+   used to sign in, so the sealed sign-in path is untouched. */
+function crewAdd(email,name,ph,co){
   email=String(email||"").trim().toLowerCase();co=String(co||"").trim();
-  if(!isOwnerUser()||email.indexOf("@")<0||!co){alert("A crew account needs a valid email and a company.");return;}
+  name=String(name||"").trim();ph=String(ph||"").trim();
+  if(!isOwnerUser()||email.indexOf("@")<0||!name||!co){
+    alert("A crew account needs a valid email (their login), the foreman's name, and their company.\n\nThe phone number is optional — contact info only.");return;}
   if(isEditorEmail(email)){alert(email+" is already an editor or owner.\n\nA crew account would only take capability away. Leave them as they are.");return;}
-  STATE.crewList[email]={co:co,at:dcNow(),by:dcWho()};
+  var doc={co:co,name:name,ph:ph,at:dcNow(),by:dcWho()};
+  STATE.crewList[email]=doc;
   render();
-  db.collection(CREW_COL).doc(email).set({co:co,at:dcNow(),by:dcWho()})
+  db.collection(CREW_COL).doc(email).set(doc)
     .then(writeGate)
     .catch(function(e){alert("Could not add: "+e.message);});
+}
+/* where the board shows who did something, put the foreman's name in front of
+   the email when we know it — display only, the data underneath never changes */
+function crewWho(em){
+  em=String(em||"");
+  var c=STATE.crewList&&STATE.crewList[em.toLowerCase()];
+  return (c&&c.name)?(c.name+" ("+em+")"):em;
 }
 function crewDel(email){
   if(!isOwnerUser())return;
@@ -4220,7 +4243,7 @@ document.addEventListener("click",function(e){
     goalSave(its,"Goal "+(gi+1)+" <b>"+(its[gi].done?"met":"re-opened")+"</b> — "+esc(its[gi].t),gw);
     return;
   }
-  if(act==="crewAdd"){crewAdd($("crewEm").value,$("crewCo").value);return;}
+  if(act==="crewAdd"){crewAdd($("crewEm").value,$("crewNm").value,$("crewPh").value,$("crewCo").value);return;}
   if(act==="crewDel"){
     var ce=t.getAttribute("data-e");
     if(confirm("Remove crew access for "+ce+"?\n\nTheir rows stay on the tracker; they just cannot sign in any more."))crewDel(ce);
