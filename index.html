@@ -838,6 +838,8 @@
   .dchl .who{font-weight:900;font-size:11.5px;word-break:break-all}
   .dchl .why{display:block;margin-top:2px;color:var(--orgg);font-weight:700;font-size:11.5px}
   .dckeep{margin-top:11px;font-size:10.5px;font-weight:800;color:var(--mut2);display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+  .dckeep .hkey{margin-left:auto;font-size:10px;font-weight:900;letter-spacing:.6px;text-transform:uppercase;color:var(--mut2)}
+  .dckeep .hkey:hover{color:var(--txt)}
   .dckeep i{font-style:normal;background:var(--card2);border:1px solid var(--line);border-radius:99px;padding:2px 8px}
   .dcadd{display:flex;gap:8px;flex-wrap:wrap;align-items:center;padding:12px 16px;background:var(--card2);border-top:1px solid var(--line)}
   .dcadd input,.dcadd select{padding:9px 11px;font-size:12.5px;border:2px solid transparent;border-radius:12px;
@@ -1581,6 +1583,12 @@
   #tvov .tvpd{margin-left:auto;background:#dc2626;color:#fff;font-size:min(1.7vw,27px);font-weight:900;padding:.8vh 1.4vw;border-radius:999px;white-space:nowrap}
   #tvov .tvpd.none{margin-left:auto;background:transparent}
   #tvov .tvx{background:#1e293b;border:none;color:#e2e8f0;font-size:min(1.6vw,24px);font-weight:800;padding:.9vh 1.3vw;border-radius:12px;cursor:pointer}
+  #tvov .tvhb{color:#94a3b8}
+  #tvov .tvhb:hover{color:#e2e8f0}
+  /* the TV log dialog: read-only history, scrolls if it is long */
+  .tvlg{max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:12px;padding:4px 12px;background:var(--card2)}
+  .tvlg .dchl.tvlgl{grid-template-columns:118px 1fr;row-gap:2px}
+  .tvlg .dchl.tvlgl .what{grid-column:1 / -1}
   #tvov .tvbody{flex:1;display:flex;flex-direction:column;justify-content:center;gap:3.2vh;padding:2vh 4.5vw;min-height:0}
   #tvov .tvbody.late{background:linear-gradient(180deg,#fff 0%,#fef2f2 100%)}
   #tvov .tvbody.done{background:linear-gradient(180deg,#fff 0%,#f0fdf4 100%)}
@@ -1831,7 +1839,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v28.3-crew-accounts-carry-name-and-phone";
+var MC_BUILD="v28.4-crew-manpower-owner-tools-tucked-tv-log-and-edit";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2154,6 +2162,13 @@ function bootCrew(){
   crewCol(DELIV_COL,function(snap){
     var d={};snap.forEach(function(doc){var x=doc.data();x.id=doc.id;d[doc.id]=x;});
     STATE.deliv=d;STATE.delivLoaded=true;
+  });
+  /* v28.4: foremen keep the manpower grid current — they are the ones who know
+     how many people they have. The server rules let them touch ONLY their own
+     company's row. */
+  crewCol(MAN_COL,function(snap){
+    var d={};snap.forEach(function(doc){var x=doc.data();x.date=x.date||doc.id;d[doc.id]=x;});
+    STATE.man=d;STATE.manLoaded=true;
   });
   db.collection(META_COL).doc("lists").onSnapshot({includeMetadataChanges:true},function(doc){
     STATE.lists=(doc.exists?doc.data():{})||{};render();
@@ -2728,6 +2743,10 @@ var MAN_COLS=[["gs","GRND","S","g"],["gp","GRND","P","g"],["l1s","LVL 1","S","1"
 var MAN_WK=[["fri","Fri",4],["sat","Sat",5],["sun","Sun",6]];
 
 var DC_OPEN_LOGS={};
+/* v28.4: the owner's history tools (clear / delete / strike a line) sit behind
+   a collapsed "Owner only" tab, so a log opened on the big screen shows the
+   room WHO raised it — never the delete buttons. Resets whenever a log opens. */
+var HIST_TOOLS=false;
 /* which sections are open. Constraints stays open; the rest start folded away
    so the page is never crowded. */
 var DC_SEC={con:true,goals:false,deliv:false,man:false,acc:false};
@@ -3167,6 +3186,14 @@ function tvOpen(){
         dcMccDlg(rw.id);          /* "Does this hold up a walk?" — never leaves the TV */
       }
     }
+    else if(k==="log"){
+      var rlg=tvRows()[TV.idx];
+      if(rlg){TV.holdId=rlg.id;dcTvLogDlg(rlg.id);}
+    }
+    else if(k==="edit"){
+      var rev=tvRows()[TV.idx];
+      if(rev){TV.holdId=rev.id;dcEditDlg(rev.id);}
+    }
     else if(k==="close"){
       var rr=tvRows()[TV.idx];
       if(rr){
@@ -3253,6 +3280,10 @@ function tvHd(pill){
     '<div class="sub">DSM-4 · '+day+'</div>'+
     (pill?pill:(n?'<div class="tvpg num">'+(Math.min(TV.idx,n-1)+1)+' of '+n+'</div>':''))+
     (lateN?'<div class="tvpd">'+lateN+' PAST DUE</div>':'<div class="tvpd none"></div>')+
+    /* v28.4: the log and an edit pencil live up here too — view the history or
+       fix a card without ever leaving the TV */
+    ((!pill&&n&&TV.mode==="deck")?('<button class="tvx tvhb" data-tv="log" title="Every change on this constraint — who raised it, who moved what">☰ Log</button>'+
+      (dcCanEditRow(rows[Math.min(TV.idx,n-1)])?'<button class="tvx tvhb" data-tv="edit" title="Change the description, company, room or champion — you stay right here">✎ Edit</button>':'')):'')+
     '<button class="tvx" data-tv="x">✕ Exit</button></div>';
 }
 function tvPaint(){
@@ -3496,18 +3527,21 @@ function histLines(kind,id,lg){
       return '<div class="dchl"><span class="ts">'+esc(String(h.ts||"").replace("T"," ").slice(0,16))+'</span>'+
         '<span class="who">'+esc(crewWho(h.who||""))+'</span><span class="what">'+h.what+
         (h.why?'<span class="why">Reason: '+esc(h.why)+'</span>':'')+'</span>'+
-        (own?'<button class="hdel" data-act="histDel" data-hk="'+kind+'" data-hi="'+esc(id)+'" data-i="'+(h._i===undefined?i:h._i)+'"'+
+        ((own&&HIST_TOOLS)?'<button class="hdel" data-act="histDel" data-hk="'+kind+'" data-hi="'+esc(id)+'" data-i="'+(h._i===undefined?i:h._i)+'"'+
           (h._src?' data-hs="'+h._src+'"':'')+' title="remove this line — owner only">×</button>':'')+
         '</div>';}).join('')
     :'<div class="dchl"><span class="ts">—</span><span class="who">—</span><span class="what">Nothing changed yet.</span></div>');
 }
 function histFoot(kind,id,lg,extra){
   var own=isOwnerUser();
+  /* the owner's tools stay tucked behind this tab until the owner opens it —
+     nobody looking over a shoulder sees Clear or Delete as an option */
   return '<div class="dckeep"><i>kept</i> every change stays here for the life of the job'+
-    (own?'</div><div class="hown">'+
-      (lg.length?'<button class="btn sm" data-act="histClear" data-hk="'+kind+'" data-hi="'+esc(id)+'">Clear this history</button>':'')+
-      (extra||'')+
-      '<span class="hnote">owner only</span></div>'
+    (own?('<button class="btn sm hkey" data-act="histTools">'+(HIST_TOOLS?'▾':'▸')+' Owner only</button></div>'+
+      (HIST_TOOLS?('<div class="hown">'+
+        (lg.length?'<button class="btn sm" data-act="histClear" data-hk="'+kind+'" data-hi="'+esc(id)+'">Clear this history</button>':'')+
+        (extra||'')+
+        '<span class="hnote">owner only · × on a line removes it</span></div>'):''))
     :'</div>');
 }
 function dcHistRow(r,span){
@@ -3690,6 +3724,10 @@ function manRows(){
 }
 function dcMan(){
   var ed=canEdit(),d=manDate(),doc=manDoc(),wk=manWeekDoc(),cos=manRows(),mon=mondayOf(d);
+  /* v28.4: a foreman types in his own company's row and nothing else — and his
+     row is always on the grid for him, even before the first count is saved */
+  var crew=isCrewUser(),myco=crewCo();
+  if(crew&&myco&&cos.indexOf(myco)<0)cos=cos.concat([myco]);
   var tot={},grand=0,wt={fri:0,sat:0,sun:0};
   MAN_COLS.forEach(function(c){tot[c[0]]=0;});
   cos.forEach(function(c){
@@ -3699,8 +3737,9 @@ function dcMan(){
     grand+=manRowTotal(o);
   });
   function cell(c,f,v,cls){
+    var can=ed||(crew&&c===myco);
     return '<td class="mnc'+(cls?" "+cls:"")+'"><input class="mnin" inputmode="numeric" data-mnc="'+esc(c)+'" data-mnf="'+f+'" value="'+
-      (v===0||v?esc(String(v)):"")+'"'+(ed?"":" readonly")+'></td>';
+      (v===0||v?esc(String(v)):"")+'"'+(can?"":" readonly")+'></td>';
   }
   var body="";
   cos.forEach(function(c){
@@ -3872,9 +3911,11 @@ function renderDaily(v){
     dcSec("con","🚧","Constraints",openN+" still live"+(lateN?" · "+lateN+" past due":""),dcConstraints())+
     dcSec("goals","🎯","Weekly Goals",gd+" of "+gf+" met this week",dcGoals())+
     dcSec("deliv","🚚","Deliveries",dvN+" logged",dcDeliv());
+  /* v28.4: crew get Manpower (their own row is editable); the access-rules
+     panel is dropped from their page — nothing there is theirs to use */
+  html+=dcSec("man","👷","Manpower",(mtot||0)+" on site "+fmtMD(manDate()),dcMan());
   if(!isCrewUser())
-    html+=dcSec("man","👷","Manpower",(mtot||0)+" on site "+fmtMD(manDate()),dcMan());
-  html+=dcSec("acc","🔒","Who can do what","owner · editor · viewer · crew",dcAccess());
+    html+=dcSec("acc","🔒","Who can do what","owner · editor · viewer · crew",dcAccess());
   v.innerHTML=html;
 
   dcAutoGrow(v);
@@ -3956,6 +3997,38 @@ function dcMccDlg(id){
     '<datalist id="dcMcList">'+opts+'</datalist>'+
     '<div class="dlgrow" style="margin-top:12px"><button class="btn" data-act="dcClose">Cancel</button>'+
     '<button class="btn pri" data-act="dcMccSave" data-dc="'+esc(id)+'">Save</button></div>');
+}
+/* v28.4: the history, viewable from the TV — read only, so the big screen
+   shows WHO raised it and every move, never a delete button. */
+function dcTvLogDlg(id){
+  var r=STATE.daily[id];if(!r)return;
+  var lg=(r.log||[]);
+  var lines=lg.length?lg.map(function(h){
+      return '<div class="dchl tvlgl"><span class="ts">'+esc(String(h.ts||"").replace("T"," ").slice(0,16))+'</span>'+
+        '<span class="who">'+esc(crewWho(h.who||""))+'</span><span class="what">'+h.what+
+        (h.why?'<span class="why">Reason: '+esc(h.why)+'</span>':'')+'</span></div>';}).join('')
+    :'<div class="dchl tvlgl"><span class="ts">—</span><span class="who">—</span><span class="what">Nothing changed yet.</span></div>';
+  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">History — every change on this row</h3>'+
+    '<p style="margin:0 0 12px;font-size:12.5px;font-weight:700;color:var(--mut)">'+esc(r.co||"")+' · '+esc((r.desc||"").slice(0,70))+'</p>'+
+    '<div class="tvlg">'+lines+'</div>'+
+    '<div class="dlgrow" style="margin-top:12px"><button class="btn pri" data-act="dcClose">Close</button></div>');
+}
+/* v28.4: fix a card from the TV — description, company, level, room, champion.
+   Same write path and log as the table; a crew account cannot hand the row to
+   another company, so for them the company is fixed. */
+function dcEditDlg(id){
+  var r=STATE.daily[id];if(!r||!dcCanEditRow(r))return;
+  var crewLock=isCrewUser();
+  dcDlg('<h3 style="margin:0 0 4px;font-size:17px;font-weight:900">Edit this constraint</h3>'+
+    '<p style="margin:0 0 14px;font-size:12.5px;font-weight:700;color:var(--mut)">every change lands in the log with your name on it</p>'+
+    '<label>Description of constraint</label><textarea id="dcEDesc" rows="3">'+esc(r.desc||"")+'</textarea>'+
+    '<label>Company — who is stuck</label><input type="text" id="dcECo" list="dcCoList" value="'+esc(r.co||"")+'"'+(crewLock?' readonly title="your company"':'')+'>'+
+    '<label>Level / floor</label><input type="text" id="dcELvl" list="dcLvlList" value="'+esc(r.lvl||"")+'">'+
+    '<label>Room</label><input type="text" id="dcERoom" list="dcRoomAll" value="'+esc(r.room||"")+'">'+
+    '<label>Champion — clears it</label><input type="text" id="dcECh" list="dcCoList" value="'+esc(r.ch||"")+'">'+
+    '<div id="dcEErr" style="display:none;color:var(--redg);font-size:11.5px;font-weight:800;margin-top:5px">The description cannot be empty.</div>'+
+    '<div class="dlgrow" style="margin-top:12px"><button class="btn" data-act="dcClose">Cancel</button>'+
+    '<button class="btn pri" data-act="dcEditSave" data-dc="'+esc(id)+'">Save changes</button></div>');
 }
 function dcDelDlg(id){
   var r=STATE.daily[id];if(!r||!dcCanDelete())return;
@@ -4200,10 +4273,11 @@ document.addEventListener("click",function(e){
     else STATE.dcDonePage=dPgs-1;
     render();return;
   }
-  if(act==="dcLog"){var was=DC_OPEN_LOGS[id];DC_OPEN_LOGS={};if(!was)DC_OPEN_LOGS[id]=true;render();return;}
-  if(act==="dcGoalLog"){var gk="_goals_"+goalWeek(),w0=DC_OPEN_LOGS[gk];DC_OPEN_LOGS={};if(!w0)DC_OPEN_LOGS[gk]=true;render();return;}
-  if(act==="dcMnLog"){var mk="_mn_"+manDate(),m0=DC_OPEN_LOGS[mk];DC_OPEN_LOGS={};if(!m0)DC_OPEN_LOGS[mk]=true;render();return;}
-  if(act==="dcDvLog"){var dk="_dv_"+t.getAttribute("data-dv"),v0=DC_OPEN_LOGS[dk];DC_OPEN_LOGS={};if(!v0)DC_OPEN_LOGS[dk]=true;render();return;}
+  if(act==="dcLog"){var was=DC_OPEN_LOGS[id];DC_OPEN_LOGS={};HIST_TOOLS=false;if(!was)DC_OPEN_LOGS[id]=true;render();return;}
+  if(act==="dcGoalLog"){var gk="_goals_"+goalWeek(),w0=DC_OPEN_LOGS[gk];DC_OPEN_LOGS={};HIST_TOOLS=false;if(!w0)DC_OPEN_LOGS[gk]=true;render();return;}
+  if(act==="dcMnLog"){var mk="_mn_"+manDate(),m0=DC_OPEN_LOGS[mk];DC_OPEN_LOGS={};HIST_TOOLS=false;if(!m0)DC_OPEN_LOGS[mk]=true;render();return;}
+  if(act==="dcDvLog"){var dk="_dv_"+t.getAttribute("data-dv"),v0=DC_OPEN_LOGS[dk];DC_OPEN_LOGS={};HIST_TOOLS=false;if(!v0)DC_OPEN_LOGS[dk]=true;render();return;}
+  if(act==="histTools"){HIST_TOOLS=!HIST_TOOLS;render();return;}
   if(act==="dcTick"){dcToggleClose(id);return;}   /* NOT "dcClose" — that name belongs to the dialog's Cancel button */
   if(act==="dcPrint"){dcPrint();return;}
   if(act==="tvMode"){tvOpen();return;}
@@ -4264,7 +4338,7 @@ document.addEventListener("click",function(e){
     if(confirm("Delete this delivery for good? There is no undo."))hardDelete(DELIV_COL,vd,STATE.deliv);
     return;
   }
-  if(act==="dcMnLog2"){var mk2="_mn_"+manDate();DC_OPEN_LOGS[mk2]=!DC_OPEN_LOGS[mk2];render();return;}
+  if(act==="dcMnLog2"){var mk2="_mn_"+manDate();DC_OPEN_LOGS[mk2]=!DC_OPEN_LOGS[mk2];HIST_TOOLS=false;render();return;}
   if(act==="dcClose"){var d3=$("dcDlg");if(d3&&d3.open)d3.close();return;}
   if(act==="dcDueSave"){
     var r=STATE.daily[id];if(!r)return;
@@ -4275,6 +4349,28 @@ document.addEventListener("click",function(e){
     if(!r.origDue&&old)patch.origDue=old;
     dcSave(id,patch,{what:"Due date moved from <b>"+(old?fmtMD(old):"not set")+"</b> to <b>"+fmtMD(nd)+"</b>"+
       (old?" ("+(daysBetween(old,nd)>0?"+":"")+daysBetween(old,nd)+" days)":""),why:why});
+    $("dcDlg").close();return;
+  }
+  if(act==="dcEditSave"){
+    var rE=STATE.daily[id];if(!rE||!dcCanEditRow(rE))return;
+    var eds=[["desc","Description","dcEDesc"],["co","Company","dcECo"],["lvl","Level","dcELvl"],
+             ["room","Room","dcERoom"],["ch","Champion","dcECh"]];
+    var updE={},chgE=[];
+    eds.forEach(function(f){
+      if(f[0]==="co"&&isCrewUser())return;   /* a crew row never changes hands */
+      var el2=$(f[2]);if(!el2)return;
+      var nv=(el2.value||"").trim(),ov=(rE[f[0]]||"");
+      if(nv!==ov){updE[f[0]]=nv;
+        chgE.push(f[1]+" <b>"+esc(ov||"—")+" → "+esc(nv||"—")+"</b>");}
+    });
+    if(updE.desc===""){$("dcEErr").style.display="block";return;}
+    if(!Object.keys(updE).length){$("dcDlg").close();return;}
+    if(!isCrewUser()){
+      if(updE.co)listAdd("companies",updE.co);
+      if(updE.ch)listAdd("companies",updE.ch);
+      if(updE.room)listAdd("rooms",updE.room);
+    }
+    dcSave(id,updE,{what:"Edited — "+chgE.join(" · ")});
     $("dcDlg").close();return;
   }
   if(act==="dcMccSave"){
@@ -4389,8 +4485,9 @@ document.addEventListener("change",function(e){
     return;
   }
   if(el.classList&&el.classList.contains("mnin")){
-    if(!canEdit())return;
     var mco=el.getAttribute("data-mnc"),mf=el.getAttribute("data-mnf");
+    /* v28.4: a foreman may save his own company's counts; everyone else needs edit rights */
+    if(!canEdit()&&!(isCrewUser()&&mco===crewCo()))return;
     var mwas=el.getAttribute("data-was")||"",mnow=(el.value||"").trim();
     if(mwas===mnow)return;
     if(mnow!==""&&!/^\d{1,4}$/.test(mnow)){el.value=mwas;alert("Manpower has to be a whole number.");return;}
