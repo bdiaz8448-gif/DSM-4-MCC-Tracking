@@ -1123,6 +1123,25 @@
   .dcpg .pgl{font-size:12.5px;font-weight:800;color:var(--mut)}
   .dcpg .pgl b{color:var(--txt)}
   .dcpg .pgn{margin-left:auto;font-size:11px;font-weight:800;color:var(--mut2)}
+  /* ---- v28.8: sign-off log on MCC Closed ---- */
+  .slwrap{margin-top:16px}
+  .slbody{padding:4px 16px 14px}
+  .slgrp{margin-top:12px}
+  .slgh{display:flex;align-items:center;gap:10px;font-size:10.5px;font-weight:900;letter-spacing:1.6px;color:var(--mut2);text-transform:uppercase}
+  .slgh .slpill{background:var(--acc);color:var(--onacc);border-radius:99px;padding:2px 10px;font-size:10.5px;letter-spacing:.5px}
+  .slgh.today .slpill{background:var(--grn)}
+  .slrow{display:grid;grid-template-columns:60px 64px 1fr 118px 260px;gap:12px;align-items:center;
+    padding:9px 4px;border-bottom:1px solid var(--line);font-size:13px}
+  .slgrp .slrow:last-of-type{border-bottom:0}
+  .sld{font-weight:900}
+  .slmc{font-weight:900;color:var(--acc)}
+  .slnm{font-weight:700;min-width:0}.slnm small{display:block;color:var(--mut2);font-weight:600;font-size:10.5px}
+  .slg{justify-self:start;background:rgba(22,163,74,.08);border:1.5px solid var(--grn);color:var(--grng);
+    border-radius:99px;padding:2px 10px;font-weight:900;font-size:11px;white-space:nowrap}
+  .slg.sys{background:var(--card2);border-color:var(--line2);color:var(--mut)}
+  .slw{color:var(--mut);font-weight:700;font-size:12px;word-break:break-word}.slw b{color:var(--txt)}
+  .slmore{padding:8px 4px;font-size:11.5px;font-weight:800;color:var(--mut2)}
+  @media(max-width:700px){.slrow{grid-template-columns:56px 1fr;row-gap:3px}.slg,.slw{grid-column:2}}
   /* ---- crew accounts ---- */
   .hdel{border:1px solid var(--line2);background:var(--card);border-radius:8px;width:22px;height:22px;
     font-size:13px;line-height:1;cursor:pointer;color:var(--mut2);flex:none;align-self:center}
@@ -1857,7 +1876,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v28.7-import-never-reopens-a-signed-off-walk";
+var MC_BUILD="v28.8-signoff-log-and-hand-edit-receipts";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2344,8 +2363,18 @@ function writePunch(sysId,gate,contractor,total,closed,logDelta){
   if(total===0)delete s.gates[gate].punch[contractor];
   else{
     var ent={t:total,c:closed};
-    if(keep.ids)ent.ids=keep.ids;      /* keep the punch-ID history intact on a manual edit */
-    if(keep.cids)ent.cids=keep.cids;
+    /* v28.8: a hand edit MOVES item IDs with the count, so a closure can never
+       be counted twice. Close n by hand -> n IDs move into the closed receipts;
+       undo the edit -> they move back. This is the double-count trap that put
+       closed above total on the WT57 skids (manual close at 14:05, import at
+       14:31 counted the same items again) — closed for good. */
+    var mIds=(keep.ids||[]).map(String),mCids=(keep.cids||[]).map(String);
+    var mDelta=closed-prev.c;
+    while(mDelta>0&&mIds.length){mCids.push(mIds.shift());mDelta--;}
+    while(mDelta<0&&mCids.length){mIds.unshift(mCids.pop());mDelta++;}
+    if(keep.ids)ent.ids=mIds;
+    if(keep.cids||mCids.length)ent.cids=mCids;
+    if(keep.pids)ent.pids=(keep.pids||[]).filter(function(x){return mIds.indexOf(String(x))>=0;});
     s.gates[gate].punch[contractor]=ent;
   }
   /* keep a newly-added contractor pinned to the bottom of the locked order (not on delete) */
@@ -2372,7 +2401,8 @@ function closeAllPunchOnSystem(sysId){
         oids2.forEach(function(x){if(ocids2.indexOf(x)<0)ocids2.push(x);});
         g.punch[n]={t:q.t,c:q.t,p:0,ids:[],cids:ocids2,pids:[]};ch=true;}}
       if(ch){upd["gates."+k+".punch"]=g.punch;dirty=true;}}
-    if(!g.na&&!g.done){g.done=true;g.doneAt=today;upd["gates."+k+".done"]=true;upd["gates."+k+".doneAt"]=today;dirty=true;}
+    if(!g.na&&!g.done){g.done=true;g.doneAt=today;g.doneBy=String((CURRENT_USER&&CURRENT_USER.email)||"");
+      upd["gates."+k+".done"]=true;upd["gates."+k+".doneAt"]=today;upd["gates."+k+".doneBy"]=g.doneBy;dirty=true;}
   });
   render();if(STATE.openSysId)renderModal();
   if(dirty)db.collection(SYS_COL).doc(sysId).update(upd).then(snapshotBurn).catch(function(e){console.warn("closeSysAll",e);});
@@ -2430,6 +2460,9 @@ function toggleDone(sysId,gate,val){var s=STATE.systems[sysId];if(!s)return;var 
   if(val){
     if(!g.doneAt){g.doneAt=todayISO();}                    /* stamp the day it was actually closed */
     upd["gates."+gate+".doneAt"]=g.doneAt;
+    /* v28.8: and WHO signed it off — feeds the Sign-off log on MCC Closed */
+    g.doneBy=String((CURRENT_USER&&CURRENT_USER.email)||"");
+    upd["gates."+gate+".doneBy"]=g.doneBy;
     /* v28.7: closing a walk closes its punch WITH the receipts — the open item
        IDs move into the closed list instead of being erased, so history stays
        whole and the next import can see these items were already dealt with */
@@ -2438,7 +2471,7 @@ function toggleDone(sysId,gate,val){var s=STATE.systems[sysId];if(!s)return;var 
         oids.forEach(function(x){if(ocids.indexOf(x)<0)ocids.push(x);});
         g.punch[n]={t:q.t,c:q.t,p:0,ids:[],cids:ocids,pids:[]};ch=true;}}
       if(ch)upd["gates."+gate+".punch"]=g.punch;}
-  }else{g.doneAt=null;upd["gates."+gate+".doneAt"]=null;}  /* reopened — a fresh close gets a fresh date */
+  }else{g.doneAt=null;g.doneBy=null;upd["gates."+gate+".doneAt"]=null;upd["gates."+gate+".doneBy"]=null;}  /* reopened — a fresh close gets a fresh date and name */
   render();if(STATE.openSysId)renderModal();
   db.collection(SYS_COL).doc(sysId).update(upd).then(snapshotBurn).catch(function(e){console.warn(e);});}
 
@@ -5037,6 +5070,46 @@ function mccClosures(){var out=[];
     if(g&&!g.na&&g.done)out.push({id:id,mc:s.mc,desc:s.desc,date:g.doneAt||g.date||g.target||bestDate(s)}); /* actual close date wins; may be null — still counts */
     else if(g&&g.na&&sysPhase(s)==="done")out.push({id:id,mc:s.mc,desc:s.desc,date:bestDate(s)});}
   out.sort(function(a,b){return (a.date||"")<(b.date||"")?-1:1;});return out;}
+/* v28.8: the Sign-off log — who closed what, and when. Grouped Today / This
+   week / Earlier, newest first, built entirely from the doneAt / doneBy stamps
+   saved at the moment of sign-off. Names fill in from v28.8 onward; older
+   sign-offs say so instead of guessing. */
+function mccSignoffLog(cl){
+  var t=todayISO(),wk=weekStartISO(t);
+  var rows=cl.slice().sort(function(a,b){return (a.date||"")<(b.date||"")?1:-1;});
+  var g={today:[],week:[],earlier:[]};
+  rows.forEach(function(c){
+    if(c.date===t)g.today.push(c);
+    else if(c.date&&weekStartISO(c.date)===wk)g.week.push(c);
+    else g.earlier.push(c);
+  });
+  function line(c){
+    var s=STATE.systems[c.id]||{},mg=(s.gates||{}).MCC;
+    var kind=(mg&&!mg.na&&mg.done)?'MCC':'SYSTEM';
+    var by=(mg&&mg.done&&mg.doneBy)||null;
+    if(!by)GATE_ORDER.forEach(function(k2){var gg=(s.gates||{})[k2];if(gg&&gg.done&&gg.doneBy)by=gg.doneBy;});
+    return '<div class="slrow">'+
+      '<span class="sld num">'+(c.date?fmtMD(c.date):'—')+'</span>'+
+      '<span class="slmc num">'+esc(c.mc||'')+'</span>'+
+      '<span class="slnm">'+esc(c.desc||'')+'<small>'+esc(c.id)+'</small></span>'+
+      '<span class="slg'+(kind==='MCC'?'':' sys')+'">✓ '+(kind==='MCC'?'MCC':'SYSTEM')+'</span>'+
+      '<span class="slw">'+(by?('signed off by <b>'+esc(crewWho(by))+'</b>'):'<i>name not recorded — signed off before names were kept</i>')+'</span></div>';
+  }
+  function grp(title,arr,cls,cap){
+    var body=arr.slice(0,cap||arr.length).map(line).join('');
+    var more=(cap&&arr.length>cap)?'<div class="slmore">… and '+(arr.length-cap)+' earlier — every one is kept</div>':'';
+    return '<div class="slgrp"><div class="slgh'+(cls?' '+cls:'')+'">'+title+
+      ' <span class="slpill">'+arr.length+' closed</span></div>'+
+      (arr.length?body+more:'<div class="slrow"><span class="sld">—</span><span class="slmc"></span><span class="slnm"><i>none yet</i></span><span></span><span></span></div>')+'</div>';
+  }
+  return '<div class="dcwrap slwrap"><div class="dchead"><h2>Sign-off log</h2>'+
+    '<span class="sub">who closed what, and when — straight from the sign-off stamps, nothing extra to type</span></div>'+
+    '<div class="slbody">'+
+    grp('TODAY · '+fmtMD(t),g.today,'today')+
+    grp('THIS WEEK · from '+fmtMD(wk),g.week)+
+    grp('EARLIER',g.earlier,null,30)+
+    '</div></div>';
+}
 function renderMcc(v){
   var cl=mccClosures(),tgt=weeklyTarget();
   var counted={};cl.forEach(function(c){counted[c.id]=1;});
@@ -5048,7 +5121,7 @@ function renderMcc(v){
   var recon=(noMccDone>0||undatedN>0)?' (Total matches the Board’s ✓ Completed.'+(undatedN>0?' '+undatedN+' of them are sign-offs with no dates in the tracker — counted in the total, but they can’t be placed on the weekly chart.':'')+')':'';
   var explain='<div class="infob"><span class="big2">✅ MCC Closed — are we turning systems over fast enough?</span>Every system whose <b>MCC walk is signed off</b> counts as closed, on the week of its MCC date. The dashed line is your goal — <b>'+tgt+' systems a week</b> — so any bar that reaches the line means the week was won. This is the chart that proves the job is on pace for turnover on '+fmtLong(goalEnd())+'.'+recon+'</div>';
   if(!cl.length){v.innerHTML=explain+'<div class="empty">No MCCs signed off yet.<br>As MCC walks get signed off on the Board, each one lands here on its week and the pace chart builds itself.</div>';return;}
-  if(!dated.length){v.innerHTML=explain+'<div class="bd"><div class="bdkpi"><div><div class="k">MCCs closed · total</div><div class="v num" style="color:var(--grn)">'+cl.length+'</div></div></div><div class="empty">None of the closures have dates yet, so there\'s nothing to chart.</div></div>';return;}
+  if(!dated.length){v.innerHTML=explain+'<div class="bd"><div class="bdkpi"><div><div class="k">MCCs closed · total</div><div class="v num" style="color:var(--grn)">'+cl.length+'</div></div></div><div class="empty">None of the closures have dates yet, so there\'s nothing to chart.</div></div>'+mccSignoffLog(cl);return;}
   /* group by week, continuous from first DATED closure to this week */
   var by={};dated.forEach(function(c){var w=weekStartISO(c.date);by[w]=(by[w]||0)+1;});
   var weeks=[],w0=weekStartISO(dated[0].date),wNow=weekStartISO(todayISO()),cur=w0,guard=0;
@@ -5079,7 +5152,7 @@ function renderMcc(v){
   var svg='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+grid+bars+tline+xl+'</svg>';
   var rows="";for(var j=weeks.length-1;j>=0;j--){var x=weeks[j],dl=x.n-tgt;
     rows+='<tr><td>wk of '+esc(fmtMD(x.w))+(x.w===wNow?' <b style="color:var(--acc)">· this week</b>':'')+'</td><td class="num">'+x.n+'</td><td><span class="delta '+(dl>=0?'dn':'up')+'">'+(dl>=0?'+':'')+dl+' vs target</span></td></tr>';}
-  v.innerHTML=explain+'<div class="bd">'+k+svg+'<table class="bdtable"><thead><tr><th>Week</th><th>MCCs closed</th><th>Pace</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  v.innerHTML=explain+'<div class="bd">'+k+svg+'<table class="bdtable"><thead><tr><th>Week</th><th>MCCs closed</th><th>Pace</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+mccSignoffLog(cl);
 }
 
 /* ---------- system detail modal ---------- */
