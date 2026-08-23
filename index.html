@@ -1124,7 +1124,17 @@
   .dcpg .pgl b{color:var(--txt)}
   .dcpg .pgn{margin-left:auto;font-size:11px;font-weight:800;color:var(--mut2)}
   /* ---- v28.8: sign-off log on MCC Closed ---- */
-  .slwrap{margin-top:16px}
+  .slwrap{margin-top:16px;overflow:hidden}
+  .slhead{display:flex;align-items:center;gap:10px;width:100%;border:0;cursor:pointer;text-align:left;
+    background:var(--ink,#0f172a);color:#94a3b8;font-size:10px;font-weight:900;letter-spacing:2px;
+    text-transform:uppercase;padding:11px 14px;font-family:inherit}
+  .slhead:hover{color:#e2e8f0}
+  .slhead .tri{font-size:12px;letter-spacing:0;width:14px;flex:none}
+  .slhead .ttl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .slhead .cnt{flex:none;background:var(--acc);color:var(--onacc);border-radius:99px;padding:2px 9px;
+    font-size:10.5px;letter-spacing:.5px}
+  .slhead .hint{margin-left:auto;flex:none;letter-spacing:.5px;font-size:9px;color:#64748b}
+  .slwrap.open .slhead .hint{color:#94a3b8}
   .slbody{padding:4px 16px 14px}
   .slgrp{margin-top:12px}
   .slgh{display:flex;align-items:center;gap:10px;font-size:10.5px;font-weight:900;letter-spacing:1.6px;color:var(--mut2);text-transform:uppercase}
@@ -1876,7 +1886,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v28.8-signoff-log-and-hand-edit-receipts";
+var MC_BUILD="v28.9-mcc-closed-pages-of-ten";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2818,6 +2828,11 @@ STATE.df={f:"ALL",lvl:"ALL",room:"ALL",co:"ALL",mcc:"ALL",q:"",sort:"new"};
 STATE.dcPage=0;
 STATE.dcDoneOpen=false;               /* the closed section starts tucked away */
 STATE.dcDonePage=0;
+/* v28.9: MCC Closed — the weekly table pages 10 at a time; the sign-off log
+   starts tucked away and pages 10 at a time when opened */
+STATE.mccWkPage=0;
+STATE.mccLogOpen=false;
+STATE.mccLogPage=0;
 STATE.manDate=""; STATE.goalWeek="";
 
 /* ---- crew (contractor) accounts ---- */
@@ -4324,6 +4339,24 @@ document.addEventListener("click",function(e){
     else STATE.dcPage=pages-1;
     render();return;
   }
+  /* v28.9: MCC Closed pagers + the sign-off log tab (render clamps the pages) */
+  if(act==="mccWkPg"){
+    var mwp=t.getAttribute("data-p");
+    if(mwp==="first")STATE.mccWkPage=0;
+    else if(mwp==="prev")STATE.mccWkPage=Math.max(0,STATE.mccWkPage-1);
+    else if(mwp==="next")STATE.mccWkPage=STATE.mccWkPage+1;
+    else STATE.mccWkPage=1e9;
+    render();return;
+  }
+  if(act==="mccLogTog"){STATE.mccLogOpen=!STATE.mccLogOpen;STATE.mccLogPage=0;render();return;}
+  if(act==="mccLogPg"){
+    var mlp=t.getAttribute("data-p");
+    if(mlp==="first")STATE.mccLogPage=0;
+    else if(mlp==="prev")STATE.mccLogPage=Math.max(0,STATE.mccLogPage-1);
+    else if(mlp==="next")STATE.mccLogPage=STATE.mccLogPage+1;
+    else STATE.mccLogPage=1e9;
+    render();return;
+  }
   if(act==="dcDoneTog"){
     STATE.dcDoneOpen=!STATE.dcDoneOpen;
     if(STATE.dcDoneOpen)STATE.dcDonePage=0;
@@ -5095,20 +5128,42 @@ function mccSignoffLog(cl){
       '<span class="slg'+(kind==='MCC'?'':' sys')+'">✓ '+(kind==='MCC'?'MCC':'SYSTEM')+'</span>'+
       '<span class="slw">'+(by?('signed off by <b>'+esc(crewWho(by))+'</b>'):'<i>name not recorded — signed off before names were kept</i>')+'</span></div>';
   }
-  function grp(title,arr,cls,cap){
-    var body=arr.slice(0,cap||arr.length).map(line).join('');
-    var more=(cap&&arr.length>cap)?'<div class="slmore">… and '+(arr.length-cap)+' earlier — every one is kept</div>':'';
-    return '<div class="slgrp"><div class="slgh'+(cls?' '+cls:'')+'">'+title+
-      ' <span class="slpill">'+arr.length+' closed</span></div>'+
-      (arr.length?body+more:'<div class="slrow"><span class="sld">—</span><span class="slmc"></span><span class="slnm"><i>none yet</i></span><span></span><span></span></div>')+'</div>';
-  }
-  return '<div class="dcwrap slwrap"><div class="dchead"><h2>Sign-off log</h2>'+
-    '<span class="sub">who closed what, and when — straight from the sign-off stamps, nothing extra to type</span></div>'+
-    '<div class="slbody">'+
-    grp('TODAY · '+fmtMD(t),g.today,'today')+
-    grp('THIS WEEK · from '+fmtMD(wk),g.week)+
-    grp('EARLIER',g.earlier,null,30)+
-    '</div></div>';
+  /* v28.9: the whole log lives behind a collapsible tab (tucked by default)
+     and pages 10 rows at a time, with the Today / This week / Earlier headers
+     kept as separators inside each page. */
+  var open=!!STATE.mccLogOpen;
+  var flat=[];
+  [['TODAY · '+fmtMD(t),'today',g.today],
+   ['THIS WEEK · from '+fmtMD(wk),'',g.week],
+   ['EARLIER','',g.earlier]].forEach(function(x){
+    x[2].forEach(function(c){flat.push({gt:x[0],gc:x[1],gn:x[2].length,c:c});});
+  });
+  var SLP=10,slPages=Math.max(1,Math.ceil(flat.length/SLP));
+  if(STATE.mccLogPage>=slPages)STATE.mccLogPage=slPages-1;
+  if(STATE.mccLogPage<0)STATE.mccLogPage=0;
+  var slFrom=STATE.mccLogPage*SLP,slSlice=flat.slice(slFrom,slFrom+SLP);
+  var body='',lastG=null;
+  slSlice.forEach(function(e){
+    if(e.gt!==lastG){lastG=e.gt;
+      body+='<div class="slgh'+(e.gc?' '+e.gc:'')+'">'+e.gt+' <span class="slpill">'+e.gn+' closed</span></div>';}
+    body+=line(e.c);
+  });
+  if(!flat.length)body='<div class="slgh today">TODAY · '+fmtMD(t)+' <span class="slpill">0 closed</span></div>'+
+    '<div class="slrow"><span class="sld">—</span><span class="slmc"></span><span class="slnm"><i>none yet</i></span><span></span><span></span></div>';
+  var pager=(open&&slPages>1)?('<div class="dcpg">'+
+      '<button class="btn sm" data-act="mccLogPg" data-p="first"'+(STATE.mccLogPage?"":" disabled")+'>« first</button>'+
+      '<button class="btn sm" data-act="mccLogPg" data-p="prev"'+(STATE.mccLogPage?"":" disabled")+'>‹ back</button>'+
+      '<span class="pgl">page <b>'+(STATE.mccLogPage+1)+'</b> of <b>'+slPages+'</b> · showing '+(slFrom+1)+'–'+(slFrom+slSlice.length)+' of '+flat.length+' sign-offs</span>'+
+      '<button class="btn sm" data-act="mccLogPg" data-p="next"'+(STATE.mccLogPage<slPages-1?"":" disabled")+'>next ›</button>'+
+      '<button class="btn sm" data-act="mccLogPg" data-p="last"'+(STATE.mccLogPage<slPages-1?"":" disabled")+'>last »</button></div>'):'';
+  return '<div class="dcwrap slwrap'+(open?' open':'')+'">'+
+    '<button class="slhead" data-act="mccLogTog" title="'+(open?'tuck the sign-off log away':'open the sign-off log — who closed what, and when')+'">'+
+      '<span class="tri">'+(open?'▾':'▸')+'</span>'+
+      '<span class="ttl">Sign-off log — who closed what, and when</span>'+
+      '<span class="cnt">'+flat.length+'</span>'+
+      '<span class="hint">'+(open?'tap to tuck it away':'tap to view')+'</span></button>'+
+    (open?('<div class="slbody">'+body+'</div>'+pager):'')+
+    '</div>';
 }
 function renderMcc(v){
   var cl=mccClosures(),tgt=weeklyTarget();
@@ -5150,9 +5205,21 @@ function renderMcc(v){
   var tline='<line x1="'+pad+'" y1="'+ty+'" x2="'+(W-pad)+'" y2="'+ty+'" stroke="'+CGold+'" stroke-width="2.5" stroke-dasharray="7 6"/><text x="'+(W-pad)+'" y="'+(ty-7)+'" fill="'+CGold+'" font-size="12.5" font-weight="900" text-anchor="end">target '+tgt+'/wk</text>';
   var xl="",step=Math.max(1,Math.ceil(n/9));for(var i=0;i<n;i+=step)xl+='<text x="'+BX(i)+'" y="'+(H-12)+'" fill="'+CM+'" font-size="11" font-weight="700" text-anchor="middle">'+fmtMD(weeks[i].w)+'</text>';
   var svg='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+grid+bars+tline+xl+'</svg>';
-  var rows="";for(var j=weeks.length-1;j>=0;j--){var x=weeks[j],dl=x.n-tgt;
-    rows+='<tr><td>wk of '+esc(fmtMD(x.w))+(x.w===wNow?' <b style="color:var(--acc)">· this week</b>':'')+'</td><td class="num">'+x.n+'</td><td><span class="delta '+(dl>=0?'dn':'up')+'">'+(dl>=0?'+':'')+dl+' vs target</span></td></tr>';}
-  v.innerHTML=explain+'<div class="bd">'+k+svg+'<table class="bdtable"><thead><tr><th>Week</th><th>MCCs closed</th><th>Pace</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+mccSignoffLog(cl);
+  /* v28.9: the weekly table pages 10 at a time so the tab never runs long */
+  var wkAll=[];for(var j=weeks.length-1;j>=0;j--)wkAll.push(weeks[j]);
+  var WKP=10,wkPages=Math.max(1,Math.ceil(wkAll.length/WKP));
+  if(STATE.mccWkPage>=wkPages)STATE.mccWkPage=wkPages-1;
+  if(STATE.mccWkPage<0)STATE.mccWkPage=0;
+  var wkFrom=STATE.mccWkPage*WKP,wkSlice=wkAll.slice(wkFrom,wkFrom+WKP);
+  var rows="";wkSlice.forEach(function(x){var dl=x.n-tgt;
+    rows+='<tr><td>wk of '+esc(fmtMD(x.w))+(x.w===wNow?' <b style="color:var(--acc)">· this week</b>':'')+'</td><td class="num">'+x.n+'</td><td><span class="delta '+(dl>=0?'dn':'up')+'">'+(dl>=0?'+':'')+dl+' vs target</span></td></tr>';});
+  var wkPager=(wkPages>1)?('<div class="dcpg">'+
+      '<button class="btn sm" data-act="mccWkPg" data-p="first"'+(STATE.mccWkPage?"":" disabled")+'>« first</button>'+
+      '<button class="btn sm" data-act="mccWkPg" data-p="prev"'+(STATE.mccWkPage?"":" disabled")+'>‹ back</button>'+
+      '<span class="pgl">page <b>'+(STATE.mccWkPage+1)+'</b> of <b>'+wkPages+'</b> · showing '+(wkFrom+1)+'–'+(wkFrom+wkSlice.length)+' of '+wkAll.length+' weeks</span>'+
+      '<button class="btn sm" data-act="mccWkPg" data-p="next"'+(STATE.mccWkPage<wkPages-1?"":" disabled")+'>next ›</button>'+
+      '<button class="btn sm" data-act="mccWkPg" data-p="last"'+(STATE.mccWkPage<wkPages-1?"":" disabled")+'>last »</button></div>'):'';
+  v.innerHTML=explain+'<div class="bd">'+k+svg+'<table class="bdtable"><thead><tr><th>Week</th><th>MCCs closed</th><th>Pace</th></tr></thead><tbody>'+rows+'</tbody></table>'+wkPager+'</div>'+mccSignoffLog(cl);
 }
 
 /* ---------- system detail modal ---------- */
