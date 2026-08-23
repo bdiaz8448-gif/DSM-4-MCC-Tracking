@@ -1100,6 +1100,9 @@
        the pinned grid header — it scrolls away like any other content */
     body.crewonly header{position:static}
     body.crewonly .mnwrap{max-height:76vh;overflow-y:auto}
+    /* runway under the last row, so even the bottom company can park its row
+       right beneath the pinned header while the keyboard is up */
+    body.crewonly .dctbl table.mntbl{margin-bottom:46vh}
     body.crewonly .mntbl thead{position:sticky;top:0;z-index:6}
     body.crewonly .mntbl thead th{background:var(--card2)}
     body.crewonly .mntbl thead th.wke{background:var(--bg2)}
@@ -1215,6 +1218,7 @@
   .crewr .cem{flex:1;color:var(--mut);min-width:140px;word-break:break-all}
   .crewr .cph{flex:none;color:var(--mut);font-weight:800;white-space:nowrap}
   .crewr .cco{color:var(--acc);font-weight:900}
+  .crewr .crewkey.on{border-color:var(--org);color:var(--orgg);background:var(--orgbg,rgba(234,88,12,.08))}
   @media(max-width:700px){.crewr{flex-wrap:wrap}.crewr .cem{flex:1 1 100%}}
   .crewr i{color:var(--mut2);font-weight:700}
   /* ---- manpower: room to breathe, and a rule between each block ---- */
@@ -1851,7 +1855,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v28.5-any-foreman-types-any-count-and-sticky-grid-header";
+var MC_BUILD="v28.6-header-stays-while-typing-and-crew-reset-key";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -3853,7 +3857,7 @@ function dcAccess(){
     ["Owner","Everything an editor can do, plus: add and remove people, hand out contractor crew accounts, change anyone's role, and delete a row outright. bdiaz8448@gmail.com is written into the server rules as a permanent owner, so ownership can never be locked out."],
     ["Editor — Jacobs","Read and write the whole board: sign off gates, edit systems and punch, raise and edit constraints, set goals, deliveries and manpower. <b>Only an editor can close a constraint.</b> An editor cannot change the access lists and cannot delete."],
     ["Viewer","Reads everything. Writes nothing. No sign-offs, no edits, no closing."],
-    ["Contractor crew","A crew account reaches <b>this tracker and nothing else</b> — not the systems board, not punch, not MCC Closed, not manpower. They may raise and update rows for their own company and take one as far as <b>Ready to verify</b>. They can never close a row, never hand it to another company, and never delete anything."]
+    ["Contractor crew","A crew account reaches <b>this tracker and nothing else</b> — not the systems board, not punch, not MCC Closed. They may raise and update rows for their own company, take one as far as <b>Ready to verify</b>, and keep the <b>Manpower</b> grid current. They can never close a row, never hand it to another company, and never delete anything."]
   ];
   var lists="";
   if(isOwnerUser()){
@@ -3875,6 +3879,9 @@ function dcAccess(){
           '<span class="cem">'+esc(e)+'</span>'+
           (c.ph?'<span class="cph">📞 '+esc(c.ph)+'</span>':'')+
           '<span class="cco">'+esc(c.co||"—")+'</span>'+
+          (resetQueued(e)
+            ?'<button class="btn sm crewkey on" data-act="crewKey" data-e="'+esc(e)+'" title="Account reset queued — tap to cancel it">🔑 queued</button>'
+            :'<button class="btn sm crewkey" data-act="crewKey" data-e="'+esc(e)+'" title="Forgot their password? Queue an account reset — they keep their access and everything they\'ve done, and choose a new password once it runs.">🔑</button>')+
           '<button class="btn sm" data-act="crewDel" data-e="'+esc(e)+'">remove</button></div>';}).join('')
         :'<div class="crewr"><i>No crew accounts yet.</i></div>')+'</div>'+
       '<div class="dcadd" style="border-radius:12px;margin-top:9px">'+
@@ -4336,6 +4343,24 @@ document.addEventListener("click",function(e){
     if(confirm("Remove crew access for "+ce+"?\n\nTheir rows stay on the tracker; they just cannot sign in any more."))crewDel(ce);
     return;
   }
+  if(act==="crewKey"){
+    /* v28.6: same reset queue as People & roles, right on the crew row */
+    if(!isOwnerUser())return;
+    var ke=String(t.getAttribute("data-e")||"").toLowerCase();
+    var kq=resetQueueList().slice(),ki=-1;
+    for(var kj=0;kj<kq.length;kj++)if(String(kq[kj].e||"").toLowerCase()===ke)ki=kj;
+    if(ki>=0){
+      if(!confirm("Cancel the queued account reset for "+ke+"?"))return;
+      kq.splice(ki,1);
+    }else{
+      if(!confirm("Queue an account reset for "+ke+"?\n\nFor a foreman who forgot his password. He keeps his crew access and everything he's done. Once the reset is run he goes back to the sign-in screen, enters this same email, chooses a NEW password, and he's in.\n\nThe reset itself runs from BDiaz's machine — this puts it on that list. No email is ever sent."))return;
+      kq.push({e:ke,by:dcWho(),at:dcNow()});
+    }
+    META_DOC.set({resetQueue:kq},{merge:true}).then(function(){
+      STATE.meta=Object.assign({},STATE.meta,{resetQueue:kq});render();
+    }).catch(function(e2){alert("Could not save the reset request: "+((e2&&e2.message)||e2));});
+    return;
+  }
   if(act==="histDel"){histDel(t.getAttribute("data-hk"),t.getAttribute("data-hi"),+t.getAttribute("data-i"),t.getAttribute("data-hs"));return;}
   if(act==="histClear"){
     var hk=t.getAttribute("data-hk"),hi=t.getAttribute("data-hi");
@@ -4446,6 +4471,24 @@ document.addEventListener("focusin",function(e){
   if(el.classList.contains("dcin")||el.classList.contains("dvin")||el.classList.contains("mnin")||
      el.classList.contains("gtx")||el.classList.contains("gco")||el.classList.contains("mncoin"))
     el.setAttribute("data-was",el.value);
+  /* v28.6: foreman phone — when the keyboard opens on a manpower cell, the
+     phone used to scroll the page and carry the pinned header off the top.
+     Instead, park the row just UNDER the header inside the grid's own scroll
+     box, so the header never has to leave the screen while they type. */
+  if(el.classList.contains("mnin")&&document.body.classList.contains("crewonly")&&window.innerWidth<=820){
+    var wrp=el.closest?el.closest(".mnwrap"):null;
+    if(wrp){
+      var park=function(){
+        if(document.activeElement!==el)return;   /* they moved on — leave the scroll alone */
+        var thd=wrp.querySelector("thead"),trr=el.closest("tr");
+        if(!thd||!trr)return;
+        wrp.scrollIntoView(true);
+        var wr=wrp.getBoundingClientRect(),rr=trr.getBoundingClientRect();
+        wrp.scrollTop+=(rr.top-wr.top)-thd.offsetHeight;
+      };
+      park();setTimeout(park,60);setTimeout(park,380);
+    }
+  }
 });
 /* the description box grows as it is typed in — never make anyone drag a corner */
 document.addEventListener("input",function(e){
