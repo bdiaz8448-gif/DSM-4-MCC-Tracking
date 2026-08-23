@@ -1101,8 +1101,10 @@
     body.crewonly header{position:static}
     body.crewonly .mnwrap{max-height:76vh;overflow-y:auto}
     /* runway under the last row, so even the bottom company can park its row
-       right beneath the pinned header while the keyboard is up */
-    body.crewonly .dctbl table.mntbl{margin-bottom:46vh}
+       right beneath the pinned header — but ONLY while a cell is being typed
+       in (the keyboard hides it); the moment they tap away it folds up, so
+       there is never a big empty space at the bottom of the grid */
+    body.crewonly .mnwrap.mntype table.mntbl{margin-bottom:46vh}
     body.crewonly .mntbl thead{position:sticky;top:0;z-index:6}
     body.crewonly .mntbl thead th{background:var(--card2)}
     body.crewonly .mntbl thead th.wke{background:var(--bg2)}
@@ -1855,7 +1857,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v28.6-header-stays-while-typing-and-crew-reset-key";
+var MC_BUILD="v28.6.1-runway-only-while-typing";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -4478,6 +4480,7 @@ document.addEventListener("focusin",function(e){
   if(el.classList.contains("mnin")&&document.body.classList.contains("crewonly")&&window.innerWidth<=820){
     var wrp=el.closest?el.closest(".mnwrap"):null;
     if(wrp){
+      wrp.classList.add("mntype");   /* opens the runway under the last row */
       var park=function(){
         if(document.activeElement!==el)return;   /* they moved on — leave the scroll alone */
         var thd=wrp.querySelector("thead"),trr=el.closest("tr");
@@ -4489,6 +4492,19 @@ document.addEventListener("focusin",function(e){
       park();setTimeout(park,60);setTimeout(park,380);
     }
   }
+});
+/* v28.6.1: when they finish typing, fold the runway back up — unless the focus
+   just hopped to another manpower cell */
+document.addEventListener("focusout",function(e){
+  var el=e.target;
+  if(!el.classList||!el.classList.contains("mnin"))return;
+  var wrp=el.closest?el.closest(".mnwrap"):null;
+  if(!wrp||!wrp.classList.contains("mntype"))return;
+  setTimeout(function(){
+    var a=document.activeElement;
+    if(a&&a.classList&&a.classList.contains("mnin"))return;   /* still typing counts */
+    wrp.classList.remove("mntype");
+  },120);
 });
 /* the description box grows as it is typed in — never make anyone drag a corner */
 document.addEventListener("input",function(e){
