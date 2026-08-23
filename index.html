@@ -1092,6 +1092,18 @@
   .acnote{margin:6px 0 0;font-size:11.5px;font-weight:700;color:var(--mut2)}
   body.crewonly #lockBtn,body.crewonly #searchBtn,body.crewonly #ownerBtn,
   body.crewonly #addSysBtn,body.crewonly #goalwrap,body.crewonly .hsearch{display:none!important}
+  /* v28.5: foreman phone view — the manpower grid scrolls inside its own box
+     and the header rows (Company / GRND / LVL 1 / LVL 2 / totals / weekend)
+     stay put while the companies scroll underneath */
+  @media (max-width:820px){
+    /* the page bar gives up its stickiness here so it can never sit on top of
+       the pinned grid header — it scrolls away like any other content */
+    body.crewonly header{position:static}
+    body.crewonly .mnwrap{max-height:76vh;overflow-y:auto}
+    body.crewonly .mntbl thead{position:sticky;top:0;z-index:6}
+    body.crewonly .mntbl thead th{background:var(--card2)}
+    body.crewonly .mntbl thead th.wke{background:var(--bg2)}
+  }
   .acfoot{padding:12px 16px 14px;font-size:11.8px;font-weight:700;color:var(--mut2);line-height:1.6;border-top:1px solid var(--line)}
   /* ---- constraints: level column, paging, owner delete ---- */
   .dctbl td.dlv{width:130px}
@@ -1839,7 +1851,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v28.4-crew-manpower-owner-tools-tucked-tv-log-and-edit";
+var MC_BUILD="v28.5-any-foreman-types-any-count-and-sticky-grid-header";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -3724,8 +3736,9 @@ function manRows(){
 }
 function dcMan(){
   var ed=canEdit(),d=manDate(),doc=manDoc(),wk=manWeekDoc(),cos=manRows(),mon=mondayOf(d);
-  /* v28.4: a foreman types in his own company's row and nothing else — and his
-     row is always on the grid for him, even before the first count is saved */
+  /* v28.5: a foreman can type in EVERY company's row — the log records who
+     typed what. His own company is always on the grid, even before the first
+     count is saved. */
   var crew=isCrewUser(),myco=crewCo();
   if(crew&&myco&&cos.indexOf(myco)<0)cos=cos.concat([myco]);
   var tot={},grand=0,wt={fri:0,sat:0,sun:0};
@@ -3737,7 +3750,7 @@ function dcMan(){
     grand+=manRowTotal(o);
   });
   function cell(c,f,v,cls){
-    var can=ed||(crew&&c===myco);
+    var can=ed||crew;
     return '<td class="mnc'+(cls?" "+cls:"")+'"><input class="mnin" inputmode="numeric" data-mnc="'+esc(c)+'" data-mnf="'+f+'" value="'+
       (v===0||v?esc(String(v)):"")+'"'+(can?"":" readonly")+'></td>';
   }
@@ -4486,8 +4499,8 @@ document.addEventListener("change",function(e){
   }
   if(el.classList&&el.classList.contains("mnin")){
     var mco=el.getAttribute("data-mnc"),mf=el.getAttribute("data-mnf");
-    /* v28.4: a foreman may save his own company's counts; everyone else needs edit rights */
-    if(!canEdit()&&!(isCrewUser()&&mco===crewCo()))return;
+    /* v28.5: any crew account may save manpower counts — the log says who */
+    if(!canEdit()&&!isCrewUser())return;
     var mwas=el.getAttribute("data-was")||"",mnow=(el.value||"").trim();
     if(mwas===mnow)return;
     if(mnow!==""&&!/^\d{1,4}$/.test(mnow)){el.value=mwas;alert("Manpower has to be a whole number.");return;}
