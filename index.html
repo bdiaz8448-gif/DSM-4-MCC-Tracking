@@ -1857,7 +1857,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v28.6.1-runway-only-while-typing";
+var MC_BUILD="v28.7-import-never-reopens-a-signed-off-walk";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1959,8 +1959,9 @@ function pPend(v){var o=pv(v);return Math.max(0,Math.min(o.p,o.t-o.c));}
 function pOpen(v){var o=pv(v);return Math.max(0,o.t-o.c);}   /* pending is inside open */
 function pWaiting(v){var o=pv(v);return Math.max(0,pOpen(v)-pPend(v));}  /* not started / not done */
 /* gate rollup: pure sum of the punch counts. Signing a walk off WRITES closed=total
-   (toggleDone / closeAllPunchOnSystem), so display always follows the real data —
-   and open EIDA items sitting on an already-signed-off walk still read OPEN. */
+   (toggleDone / closeAllPunchOnSystem) with the item IDs kept as receipts — and
+   since v28.7 the importer never reopens a signed-off walk, so a done walk
+   stays at zero open unless someone reopens it on its card first. */
 function gateStats(g){
   if(!g)return{t:0,c:0,o:0,p:0};
   var p=g.punch||{},t=0,c=0,pn=0;
@@ -2366,7 +2367,10 @@ function closeAllPunchOnSystem(sysId){
   GATE_ORDER.forEach(function(k){
     var g=s.gates&&s.gates[k];if(!g)return;
     if(g.punch){var ch=false;
-      for(var n in g.punch){var q=pv(g.punch[n]);if(q.c<q.t){g.punch[n]={t:q.t,c:q.t};ch=true;}}
+      for(var n in g.punch){var q=pv(g.punch[n]);if(q.c<q.t){
+        var ob2=g.punch[n]||{},oids2=(ob2.ids||[]).map(String),ocids2=(ob2.cids||[]).map(String);
+        oids2.forEach(function(x){if(ocids2.indexOf(x)<0)ocids2.push(x);});
+        g.punch[n]={t:q.t,c:q.t,p:0,ids:[],cids:ocids2,pids:[]};ch=true;}}
       if(ch){upd["gates."+k+".punch"]=g.punch;dirty=true;}}
     if(!g.na&&!g.done){g.done=true;g.doneAt=today;upd["gates."+k+".done"]=true;upd["gates."+k+".doneAt"]=today;dirty=true;}
   });
@@ -2426,7 +2430,13 @@ function toggleDone(sysId,gate,val){var s=STATE.systems[sysId];if(!s)return;var 
   if(val){
     if(!g.doneAt){g.doneAt=todayISO();}                    /* stamp the day it was actually closed */
     upd["gates."+gate+".doneAt"]=g.doneAt;
-    if(g.punch){var ch=false;for(var n in g.punch){var q=pv(g.punch[n]);if(q.c<q.t){g.punch[n]={t:q.t,c:q.t};ch=true;}}
+    /* v28.7: closing a walk closes its punch WITH the receipts — the open item
+       IDs move into the closed list instead of being erased, so history stays
+       whole and the next import can see these items were already dealt with */
+    if(g.punch){var ch=false;for(var n in g.punch){var q=pv(g.punch[n]);if(q.c<q.t){
+        var ob=g.punch[n]||{},oids=(ob.ids||[]).map(String),ocids=(ob.cids||[]).map(String);
+        oids.forEach(function(x){if(ocids.indexOf(x)<0)ocids.push(x);});
+        g.punch[n]={t:q.t,c:q.t,p:0,ids:[],cids:ocids,pids:[]};ch=true;}}
       if(ch)upd["gates."+gate+".punch"]=g.punch;}
   }else{g.doneAt=null;upd["gates."+gate+".doneAt"]=null;}  /* reopened — a fresh close gets a fresh date */
   render();if(STATE.openSysId)renderModal();
@@ -6374,8 +6384,16 @@ function impPlanPunch(rows,map){
     var sys=STATE.systems[id];if(!sys)return;
     plan.matched++;
     var lines={},full={},dirty=false;
+    /* v28.7: a system somebody CLOSED OUT on the board (the check-mark circle —
+       every walk signed off, all punch auto-closed) stays closed. The file
+       never reopens it: items it still lists open land as closed, with their
+       IDs kept as receipts, and the review says so. A single walk sign-off is
+       NOT this — walks are routinely signed off while their punch stays open.
+       Reopen the system on its card first if EIDA is the one that's right. */
+    var sysClosedOut=(sysPhase(sys)==="done");
     ALL_BUCKETS.forEach(function(g){
       var nw=agg[id][g]||{},cur=((sys.gates||{})[g]||{}).punch||{},names={},out={};
+      var gDone=sysClosedOut;
       Object.keys(nw).forEach(function(n){names[n]=1;});Object.keys(cur).forEach(function(n){names[n]=1;});
       Object.keys(names).forEach(function(n){
         var a=nw[n],b=cur[n]||{};
@@ -6418,6 +6436,22 @@ function impPlanPunch(rows,map){
         }else{
           var na=a||{t:0,c:0};
           res={t:na.t,c:na.c,ids:na.ids||[],cids:oldCids,pids:newPids,closedNow:[],raisedNow:[],reopenedNow:[]};
+        }
+        /* the sign-off guard: on a done walk, whatever would be open becomes
+           closed-with-receipts, and nothing is ever reported as "reopened" */
+        if(gDone){
+          var wouldOpen=(res.ids&&res.ids.length)?res.ids.length:Math.max(0,(+res.t||0)-(+res.c||0));
+          if(wouldOpen>0){
+            var kcids=(res.cids||[]).map(String);
+            (res.ids||[]).forEach(function(x){if(kcids.indexOf(String(x))<0)kcids.push(String(x));});
+            res={t:res.t,c:res.t,ids:[],cids:kcids,pids:[],
+                 closedNow:res.closedNow||[],raisedNow:res.raisedNow||[],reopenedNow:[]};
+            plan.keptClosed=(plan.keptClosed||0)+wouldOpen;
+            plan.keptSys=plan.keptSys||{};plan.keptSys[id]=1;
+            (plan.keptList=plan.keptList||[]).push({id:id,g:g,c:n,n:wouldOpen});
+          }else if(res.reopenedNow&&res.reopenedNow.length){
+            res.c=res.t;res.reopenedNow=[];
+          }
         }
         var changed=(res.t!==oldT||res.c!==oldC||(oldIds||[]).join(",")!==(res.ids||[]).join(",")||
                      ((b.pids||[]).join(",")!==(res.pids||[]).join(",")));
@@ -6663,6 +6697,11 @@ function impShowReview(){
          '<div class="good"><b>'+(p.closedNow+extraClosed)+'</b><span>closed</span></div>'+
          '<div><b>'+p.raisedNow+'</b><span>newly raised</span></div>'+
          '<div class="'+(p.reopened?"warn":"")+'"><b>'+p.reopened+'</b><span>reopened</span></div></div>';
+      if(p.keptClosed)
+        h+='<div class="impnote">🔏 <b>'+p.keptClosed+' item'+(p.keptClosed>1?'s':'')+' on '+
+          Object.keys(p.keptSys||{}).length+' closed-out system'+(Object.keys(p.keptSys||{}).length>1?'s':'')+
+          ' stay CLOSED.</b> This file still lists them open, but a system closed out on the Board (every walk signed off) outranks the file — '+
+          'nothing that was manually closed is reopened. If EIDA is right, reopen that system on its card first, then import again.</div>';
       if(p.noBaseline&&!p.closedNow&&!p.raisedNow&&!p.reopened)
         h+='<div class="impnote"><b>This file sets the starting point.</b> The board had counts but no item history, so every punch ID in this file is being recorded as the baseline. <b>No count changes</b> — totals, open and closed all stay exactly where they are. From the next file on, closures are tracked item by item.</div>';
       else if(p.noBaseline)
