@@ -300,6 +300,8 @@
   .kpi.red .kn{color:var(--red)} .kpi.red::after{background:radial-gradient(120px 80px at 90% 10%,rgba(255,77,94,.18),transparent 70%)}
   .kpi.yel .kn{color:var(--yel)} .kpi.yel::after{background:radial-gradient(120px 80px at 90% 10%,rgba(251,191,36,.16),transparent 70%)}
   .kpi.grn .kn{color:var(--grn)}
+  /* v29.3: open counts read RED wherever they appear — closed stays green */
+  .kpi.openk .kn{color:var(--red)}
   .kpi.hot{border-color:var(--red)}
   .kpi.hot .kn{font-size:30px;color:var(--redg);letter-spacing:0}
   .kpi.hot .kbar{height:8px;border-radius:6px;background:linear-gradient(90deg,var(--red),var(--redg));margin-top:12px}
@@ -1919,7 +1921,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v29.2-blocker-colors";
+var MC_BUILD="v29.3-open-reads-red";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2717,7 +2719,7 @@ function renderHero(){
   $("hero").innerHTML=
     fatSelBar()+
     totTile+closedTile+
-    kpi(b.o,"Open · remaining","","in "+openSys+" systems · tap","open",f.onlyOpen)+
+    kpi(b.o,"Open · remaining","openk","in "+openSys+" systems · tap","open",f.onlyOpen)+
     kpi(miss,"⚠ Missed MCC","miss","past MCC date · tap","missed",f.comp==="missed")+
     kpi(red,"Red · ≤ "+th.red+"d","red","past due / due soon · tap","red",f.status==="red")+
     kpi(org,"Orange · ≤ "+th.org+"d","org","due in two weeks · tap","org",f.status==="org")+
@@ -5176,7 +5178,8 @@ function renderBurn(v){
      Net open falls slower than closures whenever new items keep arriving,
      and computing it from a pre-import empty snapshot froze it at 0. */
   var closedNow=boardStats(null,useNF?PUNCH_GATES:GATE_ORDER).c;
-  var k='<div class="bdkpi"><div><div class="k">First ('+fmtMD(data[0].date)+')</div><div class="v num">'+first+'</div></div><div><div class="k">Today</div><div class="v num" style="color:'+(last<=first?"var(--grn)":"var(--red)")+'">'+last+'</div></div><div><div class="k">Closed to date</div><div class="v num" style="color:var(--grn)" title="Punch items actually closed — matches the Dashboard. Open items can fall slower than this when new items keep arriving.">'+closedNow+'</div></div><div><div class="k">Series</div><div class="v" style="font-size:13px;font-weight:700;color:var(--mut)">'+seriesNote+'</div></div></div>';
+  /* v29.3: Today is an OPEN count — it reads red, always. Closed stays green. */
+  var k='<div class="bdkpi"><div><div class="k">First ('+fmtMD(data[0].date)+')</div><div class="v num">'+first+'</div></div><div><div class="k">Today</div><div class="v num" style="color:var(--red)">'+last+'</div></div><div><div class="k">Closed to date</div><div class="v num" style="color:var(--grn)" title="Punch items actually closed — matches the Dashboard. Open items can fall slower than this when new items keep arriving.">'+closedNow+'</div></div><div><div class="k">Series</div><div class="v" style="font-size:13px;font-weight:700;color:var(--mut)">'+seriesNote+'</div></div></div>';
   var rows="";for(var j=data.length-1;j>=0;j--){var d=data[j],prev=j>0?(data[j-1].total||0):null,dl=prev==null?null:(d.total-prev);rows+='<tr><td>'+esc(d.date)+'</td><td class="num">'+(d.total||0)+'</td><td>'+(dl==null?'—':'<span class="delta '+(dl<0?'dn':dl>0?'up':'')+'">'+(dl>0?'+':'')+dl+'</span>')+'</td></tr>';}
   v.innerHTML=explain+'<div class="bd">'+k+svg+'<table class="bdtable"><thead><tr><th>Date</th><th>Total open</th><th>Δ vs prior day</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
