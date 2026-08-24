@@ -1916,7 +1916,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v29.0-tag-match-fat-split";
+var MC_BUILD="v29.1-moves-not-closures";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -6589,6 +6589,21 @@ function impPlanPunch(rows,map){
     return resolved[key];
   }
   function tally(c,field,n){var p=plan.perCo[c]||(plan.perCo[c]={closed:0,raised:0,reopened:0,open:0});p[field]+=n;}
+  /* v29.1: TRANSFERS. EIDA sometimes re-homes a punch — a tag correction moves
+     it to a different system, walk or contractor. That is a MOVE, not a closure
+     on the old card plus a brand-new item on the new one. Map where every open
+     item lives on the board vs. where the file puts it; anything that changed
+     home is bookkept as moved: the old cell lets it go (total down, nothing
+     "closed"), the new cell takes it in (nothing "newly raised"). */
+  var boardLoc={};
+  Object.keys(STATE.systems).forEach(function(sid){
+    var ss=STATE.systems[sid];
+    ALL_BUCKETS.forEach(function(gg){
+      var pp=((ss.gates||{})[gg]||{}).punch||{};
+      Object.keys(pp).forEach(function(cn){
+        ((pp[cn]&&pp[cn].ids)||[]).forEach(function(x){boardLoc[String(x)]={id:sid,g:gg,c:cn};});
+      });});});
+  var fileLoc={};
   rows.forEach(function(r){
     var code=map.code>=0?r[map.code]:"",mc=map.mc>=0?r[map.mc]:"";
     /* v29.0: tag first — the punch belongs to the card it is physically on.
@@ -6622,6 +6637,7 @@ function impPlanPunch(rows,map){
     cell.t++;if(closed)cell.c++;
     var pid=map.item>=0?impNorm(r[map.item]):"";
     if(pid&&!closed)cell.ids.push(pid);
+    if(pid&&!closed)fileLoc[pid]={id:id,g:g,c:cname};   /* v29.1: where the file says this item lives */
     if(pid&&pend)cell.pids.push(pid);
     if(pid&&!closed&&(map.pdesc>=0||map.ptype>=0||map.pcat>=0)){
       var dsc=map.pdesc>=0?impText(r[map.pdesc]):"";
@@ -6637,6 +6653,22 @@ function impPlanPunch(rows,map){
       if(/^[1-4]$/.test(cc)){plan.cats[id]=plan.cats[id]||{};plan.cats[id][cc]=(plan.cats[id][cc]||0)+1;}
     }
   });
+  /* v29.1: settle which items MOVED. Contractor names compare through the same
+     roster resolver, so an alias is never mistaken for a move. A system whose
+     items moved away gets processed even though the file no longer names it —
+     that is how the old card lets its moved items go instead of sitting
+     "absent" with a stale open count. */
+  var moved={},_rcache={};
+  function rcanon(n){if(_rcache[n]!==undefined)return _rcache[n];_rcache[n]=impResolveCo(n,rosterNames)||n;return _rcache[n];}
+  if(map.item>=0){
+    Object.keys(fileLoc).forEach(function(x){
+      var bl=boardLoc[x];if(!bl)return;
+      var fl=fileLoc[x];
+      if(bl.id!==fl.id||bl.g!==fl.g||rcanon(bl.c)!==rcanon(fl.c)){
+        moved[x]={from:bl,to:fl};
+        agg[bl.id]=agg[bl.id]||{};
+      }});
+  }
   Object.keys(agg).forEach(function(id){
     var sys=STATE.systems[id];if(!sys)return;
     plan.matched++;
@@ -6649,8 +6681,29 @@ function impPlanPunch(rows,map){
        Reopen the system on its card first if EIDA is the one that's right. */
     var sysClosedOut=(sysPhase(sys)==="done");
     ALL_BUCKETS.forEach(function(g){
-      var nw=agg[id][g]||{},cur=((sys.gates||{})[g]||{}).punch||{},names={},out={};
+      var nw=agg[id][g]||{},cur0=((sys.gates||{})[g]||{}).punch||{},names={},out={};
       var gDone=sysClosedOut;
+      /* v29.1: a hand-typed line ("Blair Duron") and the file's roster name
+         ("Blair") are ONE contractor — fold the board cell into the canonical
+         name before reconciling, or the same items get counted twice. A name
+         is only folded when its canonical form is actually in play here. */
+      var cur={},folded=false;
+      Object.keys(cur0).forEach(function(cn){
+        var canon=cn;
+        if(!nw[cn]){
+          var rn=rcanon(cn);
+          if(rn&&rn!==cn&&(nw[rn]||cur0[rn]||cur[rn])){canon=rn;folded=true;
+            (plan.mergedNames=plan.mergedNames||[]).push({from:cn,to:rn,id:id,g:g});}
+        }
+        var src=cur0[cn],dst=cur[canon];
+        if(!dst){cur[canon]={t:+src.t||0,c:+src.c||0,p:+src.p||0,
+          ids:(src.ids||[]).slice(),cids:(src.cids||[]).slice(),pids:(src.pids||[]).slice()};}
+        else{dst.t+=+src.t||0;dst.c+=+src.c||0;dst.p+=+src.p||0;
+          (src.ids||[]).forEach(function(x){if(dst.ids.indexOf(x)<0)dst.ids.push(x);});
+          (src.cids||[]).forEach(function(x){if(dst.cids.indexOf(x)<0)dst.cids.push(x);});
+          (src.pids||[]).forEach(function(x){if(dst.pids.indexOf(x)<0)dst.pids.push(x);});}
+      });
+      if(folded)dirty=true;
       Object.keys(nw).forEach(function(n){names[n]=1;});Object.keys(cur).forEach(function(n){names[n]=1;});
       Object.keys(names).forEach(function(n){
         var a=nw[n],b=cur[n]||{};
@@ -6665,26 +6718,40 @@ function impPlanPunch(rows,map){
             var oldSet={};oi.forEach(function(x){oldSet[x]=1;});
             var cloSet={};oldCids.forEach(function(x){cloSet[x]=1;});
             var newSet={};newIds.forEach(function(x){newSet[x]=1;});
-            var closedNow=oi.filter(function(x){return !newSet[x];});
+            var gone=oi.filter(function(x){return !newSet[x];});
+            /* v29.1: an id that left this cell but lives elsewhere in the file
+               MOVED — it is not a closure. An id that arrived here from another
+               cell is not "newly raised". */
+            var movedOut=gone.filter(function(x){return moved[x];});
+            var closedNow=gone.filter(function(x){return !moved[x];});
             var reopened=newIds.filter(function(x){return !oldSet[x]&&cloSet[x];});
-            var raised  =newIds.filter(function(x){return !oldSet[x]&&!cloSet[x];});
-            var t=oldT+raised.length, c=oldC+closedNow.length-reopened.length;
+            var arrived=newIds.filter(function(x){return !oldSet[x]&&!cloSet[x];});
+            var movedIn=arrived.filter(function(x){return moved[x];});
+            var raised=arrived.filter(function(x){return !moved[x];});
+            var t=oldT+arrived.length-movedOut.length, c=oldC+closedNow.length-reopened.length;
             if(c<0)c=0;
             if(t-c!==newIds.length)t=c+newIds.length;      /* keep open = total − closed exact */
             var cids=oldCids.filter(function(x){return !newSet[x];}).concat(closedNow);
             res={t:t,c:c,ids:newIds,cids:cids,pids:newPids,
-                 closedNow:closedNow,raisedNow:raised,reopenedNow:reopened};
+                 closedNow:closedNow,raisedNow:raised,reopenedNow:reopened,
+                 movedIn:movedIn,movedOut:movedOut};
           }else{
             /* nothing recorded for this pairing yet — take the file as the baseline,
-               claim no closures we cannot prove */
+               claim no closures we cannot prove. Items that moved in from another
+               cell are reported as moves, not new work. */
+            var mvIn=newIds.filter(function(x){return moved[x];});
             res={t:Math.max(oldT,oldC+newIds.length),c:oldC,ids:newIds,cids:oldCids,pids:newPids,
-                 closedNow:[],raisedNow:[],reopenedNow:[],baseline:true};
+                 closedNow:[],raisedNow:[],reopenedNow:[],movedIn:mvIn,movedOut:[],baseline:true};
             plan.noBaseline++;
           }
         }else if(plan.byId&&!newIds&&oldIds){
-          /* every item this contractor held has gone from the file -> all closed */
-          res={t:oldT,c:oldC+oldIds.length,ids:[],cids:oldCids.concat(oldIds),pids:[],
-               closedNow:oldIds,raisedNow:[],reopenedNow:[]};
+          /* every item this contractor held has gone from the file. The ones the
+             file re-homed elsewhere MOVED (total shrinks, nothing claimed
+             closed); the rest are closed as before. */
+          var mo2=oldIds.filter(function(x){return moved[x];});
+          var tc2=oldIds.filter(function(x){return !moved[x];});
+          res={t:oldT-mo2.length,c:oldC+tc2.length,ids:[],cids:oldCids.concat(tc2),pids:[],
+               closedNow:tc2,raisedNow:[],reopenedNow:[],movedIn:[],movedOut:mo2};
         }else if(plan.byId){
           /* nothing new for this pairing and nothing open on the board: leave the
              record exactly as it stands — a closed-out contractor is history, not
@@ -6725,6 +6792,12 @@ function impPlanPunch(rows,map){
           plan.closedNow+=res.closedNow.length;
           plan.raisedNow+=res.raisedNow.length;
           plan.reopened +=res.reopenedNow.length;
+          /* v29.1: moves reported on arrival — one move, one count */
+          if(res.movedIn&&res.movedIn.length){
+            plan.movedCount=(plan.movedCount||0)+res.movedIn.length;
+            (plan.movedList=plan.movedList||[]).push({id:id,g:g,c:n,n:res.movedIn.length,
+              from:res.movedIn.slice(0,6).map(function(x){var f=moved[x]&&moved[x].from;return f?(STATE.systems[f.id]?(STATE.systems[f.id].code||f.id):f.id):'?';})});
+          }
           tally(n,"closed",res.closedNow.length);
           tally(n,"raised",res.raisedNow.length);
           tally(n,"reopened",res.reopenedNow.length);
@@ -6959,7 +7032,15 @@ function impShowReview(){
       h+='<div class="impsec"><label>Movement since the last file — matched item by item on Punch ID</label><div class="impstat">'+
          '<div class="good"><b>'+(p.closedNow+extraClosed)+'</b><span>closed</span></div>'+
          '<div><b>'+p.raisedNow+'</b><span>newly raised</span></div>'+
+         (p.movedCount?'<div><b>'+p.movedCount+'</b><span>moved (re-homed in EIDA)</span></div>':'')+
          '<div class="'+(p.reopened?"warn":"")+'"><b>'+p.reopened+'</b><span>reopened</span></div></div>';
+      if(p.movedCount)
+        h+='<div class="impnote">🔀 <b>'+p.movedCount+' item'+(p.movedCount>1?'s':'')+' changed home in EIDA</b> (tag or system corrections) — the old card lets them go and the new card takes them. They are <b>not</b> counted as closed and <b>not</b> counted as new, so the totals stay honest.</div>';
+      if(p.mergedNames&&p.mergedNames.length){
+        var seenM={},ml=[];p.mergedNames.forEach(function(m){var k=m.from+'|'+m.to;if(!seenM[k]){seenM[k]=1;ml.push(m);}});
+        h+='<div class="impnote">🤝 Hand-entered contractor line'+(ml.length>1?'s':'')+' folded into the roster name so the same items are never counted twice: '+
+          ml.slice(0,6).map(function(m){return esc(m.from)+' → <b>'+esc(m.to)+'</b>';}).join(' · ')+(ml.length>6?' …':'')+'</div>';
+      }
       if(p.keptClosed)
         h+='<div class="impnote">🔏 <b>'+p.keptClosed+' item'+(p.keptClosed>1?'s':'')+' on '+
           Object.keys(p.keptSys||{}).length+' closed-out system'+(Object.keys(p.keptSys||{}).length>1?'s':'')+
@@ -6980,6 +7061,8 @@ function impShowReview(){
           return esc(impRowName(x.id))+' · <b>'+x.g+'</b> · '+esc(x.c)+' — <b>'+x.n+'</b> new (#'+x.ids.join(", #")+(x.n>x.ids.length?" …":"")+')';});
       h+=impList("Reopened — closed before, back in this file",p.reopenList,function(x){
           return esc(impRowName(x.id))+' · <b>'+x.g+'</b> · '+esc(x.c)+' — <b>'+x.n+'</b> (#'+x.ids.join(", #")+')';},"warn");
+      h+=impList("Items that moved to a different card (re-homed in EIDA)",p.movedList||[],function(x){
+          return esc(impRowName(x.id))+' · <b>'+x.g+'</b> · '+esc(x.c)+' — <b>'+x.n+'</b> arrived (from '+x.from.join(', ')+')';});
     }else{
       h+='<div class="impnote">This file has no Punch ID column, so closures can\'t be matched item by item — the counts are replaced as-is. Map the Punch ID column on the previous screen to get closed / new / reopened tracking.</div>';
     }
