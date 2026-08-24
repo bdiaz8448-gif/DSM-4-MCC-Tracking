@@ -1152,6 +1152,36 @@
   .slw{color:var(--mut);font-weight:700;font-size:12px;word-break:break-word}.slw b{color:var(--txt)}
   .slmore{padding:8px 4px;font-size:11.5px;font-weight:800;color:var(--mut2)}
   @media(max-width:700px){.slrow{grid-template-columns:56px 1fr;row-gap:3px}.slg,.slw{grid-column:2}}
+  /* ---- v29.0: with/without-FAT selector (tiles + Punch Tracker) ---- */
+  .fatsel{grid-column:1/-1;display:flex;align-items:center;gap:9px;flex-wrap:wrap;
+    background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:7px 12px;margin:0 0 2px}
+  .infob+.fatsel{margin:10px 0 12px}
+  .fsl{font-size:10px;font-weight:900;letter-spacing:1.6px;text-transform:uppercase;color:var(--mut2);flex:none}
+  .fsb{border:1.5px solid var(--line2);background:var(--card);color:var(--mut);border-radius:99px;
+    padding:4px 13px;font-size:11.5px;font-weight:900;cursor:pointer;font-family:inherit;flex:none}
+  .fsb.on{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+  .fsn{font-size:11px;color:var(--mut);font-weight:600;min-width:0}
+  .fsn b{color:var(--txt)}
+  @media(max-width:820px){.fsn{flex-basis:100%}}
+  /* ---- v29.0: FAT tucked away inside the system panel ---- */
+  .fatwrap{margin-top:12px;border:1px dashed var(--line2);border-radius:12px;overflow:hidden}
+  .fathead{display:flex;align-items:center;gap:10px;width:100%;border:0;cursor:pointer;text-align:left;
+    background:var(--card2);color:var(--mut);font-size:10px;font-weight:900;letter-spacing:1.6px;
+    text-transform:uppercase;padding:10px 13px;font-family:inherit}
+  .fathead:hover{color:var(--txt)}
+  .fathead .tri{font-size:12px;letter-spacing:0;width:14px;flex:none}
+  .fathead .ttl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fathead .cnt{flex:none;background:var(--card);border:1px solid var(--line2);color:var(--txt);
+    border-radius:99px;padding:2px 9px;font-size:10.5px;letter-spacing:.5px}
+  .fathead .fhint{margin-left:auto;flex:none;letter-spacing:.5px;font-size:9px;color:var(--mut2)}
+  .fatbody{padding:2px 10px 10px}
+  .fatbody .gbox{margin-top:8px}
+  /* ---- v29.0: per-walk open counts on the Top Blockers rows ---- */
+  .lgcs{display:inline-flex;gap:6px;margin-left:8px;vertical-align:1px}
+  .lgc{background:var(--card2);border:1px solid var(--line);border-radius:99px;padding:1px 8px;
+    font-size:10.5px;font-weight:800;color:var(--mut);white-space:nowrap}
+  .lgc.hot{color:var(--txt);border-color:var(--line2)}
+  .lgc b{font-size:11px}
   /* ---- crew accounts ---- */
   .hdel{border:1px solid var(--line2);background:var(--card);border-radius:8px;width:22px;height:22px;
     font-size:13px;line-height:1;cursor:pointer;color:var(--mut2);flex:none;align-self:center}
@@ -1886,7 +1916,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v28.9-mcc-closed-pages-of-ten";
+var MC_BUILD="v29.0-tag-match-fat-split";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -1920,6 +1950,11 @@ var TRADES=["Mechanical/Piping","Electrical","BMS/Controls","Insulation","Envelo
    colors, missed-MCC and the turnover math still run on the four walk gates,
    so the client-facing counts (Completed / Outstanding) never move because of FAT. */
 var GATE_ORDER=["FAT","W0","W1","MC","MCC"];
+/* v29.0: the contractor-facing walks. FAT is vendor scope — tracked in full on
+   every system, but kept OUT of the punch counts the contractor meeting sees:
+   tiles (by default), card faces, Top Blockers, Cat chips. The with-FAT view
+   is one tap away for FUJIFILM / Jacobs. */
+var PUNCH_GATES=["W0","W1","MC","MCC"];
 /* stored on the system like a gate so the importer can reuse the whole merge
    path, but deliberately OUTSIDE GATE_ORDER so no walk rollup ever sees it */
 var VDR_KEY="VDR";
@@ -1927,6 +1962,7 @@ var ALL_BUCKETS=GATE_ORDER.concat([VDR_KEY]);
 
 var STATE={systems:{},meta:null,burn:[],unlocked:false,view:"board",
   f:{comp:"ALL",group:"ALL",status:"ALL",contractor:"ALL",look:7,q:"",onlyOpen:false},
+  fatView:false,fatSecOpen:false,
   openCw:{},openSysId:null,rowOrder:{}};
 
 /* ---- ROW ORDER LOCK ----------------------------------------------------
@@ -1998,13 +2034,20 @@ function gateStats(g){
   return{t:t,c:c,p:pn,o:Math.max(0,t-c)};
 }
 function gateOpen(g){return gateStats(g).o;}
-function sysStats(s){var t=0,c=0,p=0;GATE_ORDER.forEach(function(k){var g=s.gates[k];if(!g)return;var st=gateStats(g);t+=st.t;c+=st.c;p+=st.p;});return{t:t,c:c,p:p,o:Math.max(0,t-c)};}
+function sysStats(s,gl){var t=0,c=0,p=0;(gl||GATE_ORDER).forEach(function(k){var g=s.gates[k];if(!g)return;var st=gateStats(g);t+=st.t;c+=st.c;p+=st.p;});return{t:t,c:c,p:p,o:Math.max(0,t-c)};}
 /* Vendor document packages. Real work, but not a walk — they sit outside
    FAT/W0/W1/MC/MCC so they can never block or flatter a walk number. */
 function vdrStats(s){return gateStats((s&&s.gates)?s.gates[VDR_KEY]:null);}
+/* v29.0: FAT split out of the contractor-facing counts */
+function fatStats(s){return gateStats((s&&s.gates)?s.gates.FAT:null);}
+function sysStatsNF(s){return sysStats(s,PUNCH_GATES);}
+function sysOpenNF(s){return sysStatsNF(s).o;}
+/* which gates the current punch view counts (default: without FAT) */
+function viewGates(){return STATE.fatView?GATE_ORDER:PUNCH_GATES;}
+function viewOpen(s){return sysStats(s,viewGates()).o;}
 function sysPending(s){return sysStats(s).p;}
 function sysOpen(s){return sysStats(s).o;}
-function boardStats(list){var t=0,c=0,p=0;(list||sysList()).forEach(function(s){var st=sysStats(s);t+=st.t;c+=st.c;p+=st.p;});return{t:t,c:c,p:p,o:Math.max(0,t-c)};}
+function boardStats(list,gl){var t=0,c=0,p=0;(list||sysList()).forEach(function(s){var st=sysStats(s,gl);t+=st.t;c+=st.c;p+=st.p;});return{t:t,c:c,p:p,o:Math.max(0,t-c)};}
 /* per-gate date urgency: past due -> red, within yellow-window -> yel, else ok. done/na -> ok */
 /* days-to-due color scale (tracks today's real date):
    past due or < 7 days -> RED, < 14 -> ORANGE, < 30 -> YELLOW, >= 30 -> GREEN. no date -> unset. */
@@ -2071,7 +2114,7 @@ function sysMatchesQ(s,q){
 }
 function passExceptComp(s){var f=STATE.f;
   if(f.group!=="ALL"&&s.board!==f.group)return false;
-  if(f.onlyOpen&&sysOpen(s)<=0)return false;
+  if(f.onlyOpen&&viewOpen(s)<=0)return false;  /* follows the with/without-FAT selector */
   if(f.status!=="ALL"){var st=sysStatus(s);
     if(f.status==="risk"){if(st!=="red"&&st!=="org"&&st!=="yel")return false;}
     else if(f.status==="grn"){if(st!=="grn"&&st!=="done")return false;}
@@ -2125,22 +2168,25 @@ function sysList(){var a=[];for(var k in STATE.systems)a.push(STATE.systems[k]);
   return a;}
 function contractors(){return (STATE.meta&&STATE.meta.contractors)||DEFAULT_CONTRACTORS;}
 function tradeOf(n){var c=contractors();for(var i=0;i<c.length;i++)if(c[i].name===n)return c[i].trade||"Unassigned";return"Unassigned";}
-/* aggregate contractor -> open + systems */
+/* aggregate contractor -> open + systems.
+   v29.0: Top Blockers is the contractor meeting — it NEVER counts FAT, and it
+   carries per-walk open counts (W0 / W1 / MC / MCC) for each contractor. */
 function whoAgg(){
   var agg={},grp=STATE.f.group;
   sysList().forEach(function(s){
     if(grp!=="ALL"&&s.board!==grp)return;
     var st=sysStatus(s);
-    GATE_ORDER.forEach(function(k){var g=s.gates[k];if(!g)return;var p=g.punch||{};
+    PUNCH_GATES.forEach(function(k){var g=s.gates[k];if(!g)return;var p=g.punch||{};
       for(var c in p){var pvv=pv(p[c]),v=Math.max(0,pvv.t-pvv.c);
         if(pvv.t<=0)continue;
-        agg[c]=agg[c]||{name:c,total:0,tot:0,closed:0,systems:{}};
+        agg[c]=agg[c]||{name:c,total:0,tot:0,closed:0,gates:{},systems:{}};
         agg[c].total+=v;agg[c].tot+=pvv.t;agg[c].closed+=pvv.c;
         if(v<=0)continue;
+        agg[c].gates[k]=(agg[c].gates[k]||0)+v;
         agg[c].systems[s.id]=agg[c].systems[s.id]||{id:s.id,mc:s.mc,desc:s.desc,open:0,status:st,gates:[]};
         agg[c].systems[s.id].open+=v;agg[c].systems[s.id].gates.push(k+" "+v);
       }});});
-  return Object.keys(agg).map(function(n){var o=agg[n];return{name:n,total:o.total,tot:o.tot,closed:o.closed,systems:Object.keys(o.systems).map(function(k){return o.systems[k];})};})
+  return Object.keys(agg).map(function(n){var o=agg[n];return{name:n,total:o.total,tot:o.tot,closed:o.closed,gates:o.gates,systems:Object.keys(o.systems).map(function(k){return o.systems[k];})};})
     .sort(function(a,b){return b.total-a.total;});
 }
 
@@ -2343,9 +2389,15 @@ function migrateGates(){ /* name kept for the boot() call site; now runs the v5 
   ops.push(function(b){b.set(META_DOC,{dataVersion:DATA_VERSION},{merge:true});});
   chunkedWrite(ops,function(){console.log("migrated to",DATA_VERSION);snapshotBurn();});
 }
-function totalOpenAll(){var by={};sysList().forEach(function(s){GATE_ORDER.forEach(function(k){var g=s.gates[k];if(g){var p=g.punch||{};for(var c in p){var v=pOpen(p[c]);if(v>0)by[c]=(by[c]||0)+v;}}});});var b=boardStats();return{total:b.o,totalItems:b.t,closed:b.c,by:by};}
+function totalOpenAll(){var by={};sysList().forEach(function(s){GATE_ORDER.forEach(function(k){var g=s.gates[k];if(g){var p=g.punch||{};for(var c in p){var v=pOpen(p[c]);if(v>0)by[c]=(by[c]||0)+v;}}});});
+  var b=boardStats(),bn=boardStats(null,PUNCH_GATES);
+  /* v29.0: both series, forever. total/totalItems/closed keep their original
+     meaning (everything incl. FAT) so the chart history stays honest; the NF
+     fields carry the contractor-facing numbers from today forward. */
+  return{total:b.o,totalItems:b.t,closed:b.c,by:by,
+         totalNF:bn.o,totalItemsNF:bn.t,closedNF:bn.c,fatOpen:Math.max(0,b.o-bn.o)};}
 var burnTimer=null;
-function snapshotBurn(){clearTimeout(burnTimer);burnTimer=setTimeout(function(){var t=totalOpenAll(),d=todayISO();db.collection(BURN_COL).doc(d).set({date:d,total:t.total,totalItems:t.totalItems,closed:t.closed,byContractor:t.by,ts:Date.now()},{merge:true}).catch(function(e){console.warn(e);});},1200);}
+function snapshotBurn(){clearTimeout(burnTimer);burnTimer=setTimeout(function(){var t=totalOpenAll(),d=todayISO();db.collection(BURN_COL).doc(d).set({date:d,total:t.total,totalItems:t.totalItems,closed:t.closed,totalNF:t.totalNF,totalItemsNF:t.totalItemsNF,closedNF:t.closedNF,fatOpen:t.fatOpen,byContractor:t.by,ts:Date.now()},{merge:true}).catch(function(e){console.warn(e);});},1200);}
 /* ---- ACCESS TIERS (identity-based; enforced server-side by Firestore rules) ----
    Owner  = email in OWNER_EMAILS. Everything, incl. delete/reset + manage editors.
    Editor = owner OR email in meta.editorEmails. Full editing, no delete/reset.
@@ -2494,7 +2546,7 @@ function passFilter(s){var f=STATE.f;
     else if(f.comp==="upcoming"){if(!isComingUp(s))return false;}
     else if(f.comp==="cat1"){if(cat1(s)<=0)return false;}
     else if(sysPhase(s)!==f.comp)return false;}
-  if(f.onlyOpen&&sysOpen(s)<=0)return false;
+  if(f.onlyOpen&&viewOpen(s)<=0)return false;  /* follows the with/without-FAT selector */
   if(f.status!=="ALL"){var st=sysStatus(s);
     if(f.status==="risk"){if(st!=="red"&&st!=="org"&&st!=="yel")return false;}
     else if(f.status==="grn"){if(st!=="grn"&&st!=="done")return false;}
@@ -2638,15 +2690,29 @@ function renderWalks(){
   h+='</div></div>';
   el.innerHTML=h;
 }
+/* v29.0: the with/without-FAT selector. Default is WITHOUT — the contractor
+   meeting numbers. One tap shows the full picture including FAT for
+   FUJIFILM / Jacobs. Card faces and Top Blockers stay without-FAT always. */
+function fatSelBar(){
+  var fo=boardStats(null,GATE_ORDER).o-boardStats(null,PUNCH_GATES).o;
+  return '<div class="fatsel"><span class="fsl">Punch counts</span>'+
+    '<button class="fsb'+(STATE.fatView?'':' on')+'" data-act="fatTog" data-v="0">Without FAT</button>'+
+    '<button class="fsb'+(STATE.fatView?' on':'')+'" data-act="fatTog" data-v="1">With FAT</button>'+
+    '<span class="fsn">'+(STATE.fatView
+      ?('showing everything — <b>'+fo+'</b> of the open items are FAT (vendor scope)')
+      :'FAT items are tracked on every system, but kept out of these counts and the Top Blockers')+'</span></div>';
+}
 function renderHero(){
   var all=sysList(),red=0,org=0,yel=0,open=0,openSys=0,miss=0;
-  all.forEach(function(s){var st=sysStatus(s);if(st==="red")red++;if(st==="org")org++;if(st==="yel")yel++;var o=sysOpen(s);open+=o;if(o>0)openSys++;if(missedMCC(s))miss++;});
+  all.forEach(function(s){var st=sysStatus(s);if(st==="red")red++;if(st==="org")org++;if(st==="yel")yel++;var o=viewOpen(s);open+=o;if(o>0)openSys++;if(missedMCC(s))miss++;});
   var f=STATE.f,th=TH();
-  var b=boardStats(all);
+  var b=boardStats(all,viewGates());
   var pct=b.t>0?Math.round(b.c/b.t*100):0;
-  var totTile='<div class="kpi tot"><div class="kn num">'+b.t+'</div><div class="kl">Total punch items</div><div class="ksub">'+all.length+' systems</div><div class="prog"><div class="progfill" style="width:'+pct+'%"></div></div></div>';
-  var closedTile='<div class="kpi grn"><div class="kn num">'+b.c+'</div><div class="kl">Closed to date</div><div class="ksub">'+pct+'% of all items</div></div>';
+  var vtag=STATE.fatView?' · incl. FAT':'';
+  var totTile='<div class="kpi tot"><div class="kn num">'+b.t+'</div><div class="kl">Total punch items</div><div class="ksub">'+all.length+' systems'+vtag+'</div><div class="prog"><div class="progfill" style="width:'+pct+'%"></div></div></div>';
+  var closedTile='<div class="kpi grn"><div class="kn num">'+b.c+'</div><div class="kl">Closed to date</div><div class="ksub">'+pct+'% of all items'+vtag+'</div></div>';
   $("hero").innerHTML=
+    fatSelBar()+
     totTile+closedTile+
     kpi(b.o,"Open · remaining","","in "+openSys+" systems · tap","open",f.onlyOpen)+
     kpi(miss,"⚠ Missed MCC","miss","past MCC date · tap","missed",f.comp==="missed")+
@@ -4349,6 +4415,9 @@ document.addEventListener("click",function(e){
     render();return;
   }
   if(act==="mccLogTog"){STATE.mccLogOpen=!STATE.mccLogOpen;STATE.mccLogPage=0;render();return;}
+  /* v29.0: with/without-FAT selector (tiles + Punch Tracker) and the FAT tuck-away inside a system panel */
+  if(act==="fatTog"){STATE.fatView=t.getAttribute("data-v")==="1";render();return;}
+  if(act==="fatSecTog"){STATE.fatSecOpen=!STATE.fatSecOpen;renderModal();return;}
   if(act==="mccLogPg"){
     var mlp=t.getAttribute("data-p");
     if(mlp==="first")STATE.mccLogPage=0;
@@ -4970,17 +5039,19 @@ function renderBoard(v){
     }
     h+='<div class="schead"><span class="light '+st+'"></span><div class="h1"><div class="mc num">'+esc(s.mc)+'</div><div class="desc">'+esc(s.desc)+'</div><div class="code">'+esc(s.code)+' · target MC '+fmtMD(s.target)+'</div></div>'+quickCk+'<span class="btagcol"><span class="btag">'+esc(s.board||'')+'</span>'+mtag+'</span></div>';
     h+='<div class="gaterow">';
-    GATE_ORDER.forEach(function(k){h+=gatePill(k,s.gates[k]);});
+    /* v29.0: FAT never shows on the card face — it lives inside the panel,
+       collapsed, for when FUJIFILM/Jacobs ask. */
+    PUNCH_GATES.forEach(function(k){h+=gatePill(k,s.gates[k]);});
     h+='</div>';
     /* who's holding each walk: per-gate open punch by contractor */
     var gh="";
-    GATE_ORDER.forEach(function(k){
+    PUNCH_GATES.forEach(function(k){
       var g=s.gates[k];if(!g)return;
       var p=g.punch||{},parts=Object.keys(p).map(function(n){return{n:n,o:pOpen(p[n])};}).filter(function(x){return x.o>0;}).sort(function(a,b){return b.o-a.o;});
       if(parts.length)gh+='<div class="ghold"><span class="ggk">'+k+'</span>'+parts.map(function(x){return '<span class="ghc" data-act="openSysAt" data-sys="'+esc(s.id)+'" data-gate="'+k+'" data-name="'+esc(x.n)+'" title="See what '+esc(x.n)+"'s "+x.o+' open item'+(x.o===1?'':'s')+' are">'+esc(x.n)+' <b>'+x.o+'</b></span>';}).join('')+'</div>';
     });
     if(gh)h+='<div class="gholds">'+gh+'</div>';
-    var sst=sysStats(s);
+    var sst=sysStatsNF(s);   /* card-face totals: contractor punch only, never FAT */
     var _vd=vdrStats(s);
     if(_vd.o>0)h+='<div class="vdrstrip"><span class="vdrchip">📄 '+_vd.o+' vendor package'+(_vd.o===1?'':'s')+' open</span>'+
       '<span class="vdrnote">not a walk — does not hold MC</span></div>';
@@ -5048,7 +5119,10 @@ function renderWho(v){
     var isOpen=STATE.openCw[c.name]; /* every contractor gets the identical row style — no singling anyone out */
     h+='<div class="lc cool'+(c.total===0?" zero":"")+(isOpen?" open":"")+'">';
     h+='<div class="lrow" data-act="toggleCw" data-name="'+esc(c.name)+'"><div class="rank num">#'+(i+1)+'</div>';
-    h+='<div class="lmid"><div class="lname">'+esc(c.name)+'<span class="trade">'+esc(tradeOf(c.name))+'</span></div><div class="track"><div class="fill" style="width:'+Math.max(4,Math.round(c.total/max*100))+'%"></div></div><div class="lsub">'+(c.tot||0)+' total · <b>'+(c.closed||0)+' closed</b> · '+c.total+' open</div></div>';
+    /* v29.0: per-walk open counts ride next to the totals — W0/W1/MC always, MCC when it has any. FAT never counts here. */
+    var _gts=c.gates||{},_gh=["W0","W1","MC"].map(function(k){return '<span class="lgc'+((_gts[k]||0)>0?' hot':'')+'">'+k+' <b class="num">'+(_gts[k]||0)+'</b></span>';}).join('');
+    if(_gts.MCC>0)_gh+='<span class="lgc hot">MCC <b class="num">'+_gts.MCC+'</b></span>';
+    h+='<div class="lmid"><div class="lname">'+esc(c.name)+'<span class="trade">'+esc(tradeOf(c.name))+'</span></div><div class="track"><div class="fill" style="width:'+Math.max(4,Math.round(c.total/max*100))+'%"></div></div><div class="lsub">'+(c.tot||0)+' total · <b>'+(c.closed||0)+' closed</b> · '+c.total+' open'+(c.total>0?' <span class="lgcs">'+_gh+'</span>':'')+'</div></div>';
     h+='<div class="lright"><div class="ltot num">'+c.total+'</div>'+(atRisk>0?'<div class="lrisk">'+atRisk+' at risk</div>':'<div class="lrisk" style="color:var(--mut)">'+c.systems.length+' systems</div>')+'</div><span class="caret">▶</span></div>';
     h+='<div class="lexp">';
     c.systems.forEach(function(x){h+='<div class="mrow go" data-act="gotoSys" data-sys="'+esc(x.id||"")+'" title="Open '+esc(x.mc)+' on the Board"><span class="mlight light '+x.status+'"></span><div class="mtxt"><div class="mt1">'+esc(x.mc)+' · '+esc(x.desc)+'</div><div class="mt2">'+x.gates.join(" · ")+' open</div></div><div class="mo num" style="color:'+(x.status==="red"?"var(--red)":x.status==="org"?"var(--org)":x.status==="yel"?"var(--yel)":"var(--txt)")+'">'+x.open+'</div></div>';});
@@ -5066,8 +5140,21 @@ function renderBurn(v){
      (totalItems>0, total 0 — everything finished) is kept and celebrated. */
   var fz=0;while(fz<data.length-1&&!(data[fz].total||0)&&!(data[fz].totalItems||0))fz++;
   if(fz>0)data=data.slice(fz);
-  var explain='<div class="infob"><span class="big2">📉 Punch Tracker — are we actually closing items?</span>Every day, the board records your <b>total open punch items across the whole job</b> as one dot. Connect the dots and you get a line. If the team is closing faster than new items appear, the line falls — <b>"Monday we had 47 open, today we\'re at 31."</b> That\'s the one slide leadership wants: proof the number is going down, not a list of tasks. It fills in automatically as you edit counts each morning.</div>';
-  if(!data.length){v.innerHTML=explain+'<div class="empty">No history logged yet.<br>As you enter and close counts over the coming days, each day\'s total lands here and the trend line builds itself.</div>';return;}
+  /* v29.0: the chart follows the with/without-FAT selector. The with-FAT line
+     is the original series, history intact. The without-FAT line only exists
+     from the day the split was introduced — older days never stored it, and
+     the board does not invent history. */
+  var useNF=!STATE.fatView;
+  var seriesNote;
+  if(useNF){
+    data=data.filter(function(d){return d.totalNF!=null;})
+             .map(function(d){return {date:d.date,total:d.totalNF,totalItems:d.totalItemsNF};});
+    seriesNote='FAT excluded'+(data.length?' — this series began '+fmtMD(data[0].date)+', when FAT was split out; the full history lives under "With FAT"':'');
+  }else{
+    seriesNote='includes FAT — full history';
+  }
+  var explain='<div class="infob"><span class="big2">📉 Punch Tracker — are we actually closing items?</span>Every day, the board records your <b>total open punch items across the whole job</b> as one dot. Connect the dots and you get a line. If the team is closing faster than new items appear, the line falls — <b>"Monday we had 47 open, today we\'re at 31."</b> That\'s the one slide leadership wants: proof the number is going down, not a list of tasks. It fills in automatically as you edit counts each morning.</div>'+fatSelBar();
+  if(!data.length){v.innerHTML=explain+'<div class="empty">'+(useNF?'The without-FAT series starts with today\'s first snapshot — it can\'t be rebuilt backwards, because older days only stored the combined number. Flip to <b>With FAT</b> for the full history.':'No history logged yet.<br>As you enter and close counts over the coming days, each day\'s total lands here and the trend line builds itself.')+'</div>';return;}
   var w=1000,h=280,pad=36;
   var ys=data.map(function(d){return d.total||0;}),maxY=Math.max(10,Math.max.apply(null,ys)),n=data.length;
   function X(i){return pad+(n<=1?(w-2*pad)/2:(i/(n-1))*(w-2*pad));}
@@ -5085,8 +5172,8 @@ function renderBurn(v){
      items in the punch data (boardStats().c), not the net drop in open.
      Net open falls slower than closures whenever new items keep arriving,
      and computing it from a pre-import empty snapshot froze it at 0. */
-  var closedNow=boardStats().c;
-  var k='<div class="bdkpi"><div><div class="k">First ('+fmtMD(data[0].date)+')</div><div class="v num">'+first+'</div></div><div><div class="k">Today</div><div class="v num" style="color:'+(last<=first?"var(--grn)":"var(--red)")+'">'+last+'</div></div><div><div class="k">Closed to date</div><div class="v num" style="color:var(--grn)" title="Punch items actually closed — matches the Dashboard. Open items can fall slower than this when new items keep arriving.">'+closedNow+'</div></div></div>';
+  var closedNow=boardStats(null,useNF?PUNCH_GATES:GATE_ORDER).c;
+  var k='<div class="bdkpi"><div><div class="k">First ('+fmtMD(data[0].date)+')</div><div class="v num">'+first+'</div></div><div><div class="k">Today</div><div class="v num" style="color:'+(last<=first?"var(--grn)":"var(--red)")+'">'+last+'</div></div><div><div class="k">Closed to date</div><div class="v num" style="color:var(--grn)" title="Punch items actually closed — matches the Dashboard. Open items can fall slower than this when new items keep arriving.">'+closedNow+'</div></div><div><div class="k">Series</div><div class="v" style="font-size:13px;font-weight:700;color:var(--mut)">'+seriesNote+'</div></div></div>';
   var rows="";for(var j=data.length-1;j>=0;j--){var d=data[j],prev=j>0?(data[j-1].total||0):null,dl=prev==null?null:(d.total-prev);rows+='<tr><td>'+esc(d.date)+'</td><td class="num">'+(d.total||0)+'</td><td>'+(dl==null?'—':'<span class="delta '+(dl<0?'dn':dl>0?'up':'')+'">'+(dl>0?'+':'')+dl+'</span>')+'</td></tr>';}
   v.innerHTML=explain+'<div class="bd">'+k+svg+'<table class="bdtable"><thead><tr><th>Date</th><th>Total open</th><th>Δ vs prior day</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
@@ -5272,7 +5359,7 @@ function openIdsFor(s,gate,name){
   var g=(s.gates||{})[gate]||{},e=(g.punch||{})[name]||{};
   var ids=e.ids||[]; return ids.slice();
 }
-function openSys(id,at){if(STATE.openSysId!==id)PT_OPEN={};STATE.openSysId=id;lockRowOrder(id);loadPunchText(id);loadHistory(id);navPush();
+function openSys(id,at){if(STATE.openSysId!==id){PT_OPEN={};STATE.fatSecOpen=false;}STATE.openSysId=id;lockRowOrder(id);loadPunchText(id);loadHistory(id);navPush();
   if(at&&at.gate&&at.name)PT_OPEN[at.gate+"|"+at.name]=1;
   renderModal();var dlg=$("sysDlg");if(!dlg.open)dlg.showModal();}
 function renderModal(){
@@ -5287,13 +5374,14 @@ function renderModal(){
     fk={act:ae.getAttribute('data-act'),sys:ae.getAttribute('data-sys')||'',gate:ae.getAttribute('data-gate')||'',name:ae.getAttribute('data-name')||'',field:ae.getAttribute('data-field')||''};
     if(ae.tagName==='INPUT'&&ae.type!=='number'&&ae.type!=='date'&&typeof ae.selectionStart==='number')caret=ae.selectionStart;
   }
-  var st=sysStatus(s),gg=govGate(s),open=sysOpen(s);
+  var st=sysStatus(s),gg=govGate(s),open=sysOpenNF(s),_fo=fatStats(s).o;
   var stripc=st==="red"?"linear-gradient(90deg,var(--red),var(--redg))":st==="yel"?"linear-gradient(90deg,var(--yel),var(--yelg))":st==="done"?"var(--steel)":"linear-gradient(90deg,var(--grn),var(--grng))";
   var pill=st==="red"?'<span class="mpill red">constraint</span>':st==="yel"?'<span class="mpill yel">upcoming</span>':st==="done"?'<span class="mpill done">complete</span>':'<span class="mpill grn">on track</span>';
   var h='<div class="mhead"><div class="mstrip" style="background:'+stripc+'"></div>';
   h+='<div class="mtop"><span class="light '+st+'"></span><span class="mmc num">'+esc(s.mc)+'</span><span class="btag">'+esc(s.board||'')+'</span>'+pill+'<span style="flex:1"></span><button class="iconbtn" data-act="closeSys">✕</button></div>';
   var _pend=sysPending(s),_vdr=vdrStats(s);
   h+='<div class="mdesc">'+esc(s.desc)+'</div><div class="mmeta">'+esc(s.code)+' · target MC '+fmtMD(s.target)+' · '+open+' open punch item'+(open===1?'':'s')+
+    (_fo>0?' · <span style="color:var(--mut)">'+_fo+' FAT open (vendor — tracked separately)</span>':'')+
     (_pend>0?' · <b style="color:var(--org)">'+_pend+' pending approval to close</b>':'')+
     (_vdr.o>0?' · '+_vdr.o+' vendor package'+(_vdr.o===1?'':'s')+'':'')+
     (STATE.unlocked?'':' · 🔒 unlock to edit')+'</div>';
@@ -5348,6 +5436,7 @@ function renderModal(){
       '</div>';
   })();
   GATE_ORDER.forEach(function(k){
+    var _mark=h.length;   /* v29.0: FAT's section gets wrapped in a collapsible below */
     var g=s.gates[k]||{na:false,date:null,done:false,punch:{}};
     var ds=gateDateState(g),isGov=gg===k;
     var dc=dsColor(ds);
@@ -5408,6 +5497,20 @@ function renderModal(){
     });
     h+='<div class="addc"><input type="text" data-role="addcInput" data-act="addcKey" data-sys="'+esc(s.id)+'" data-gate="'+k+'" list="mcroster" placeholder="Type contractor name…" autocomplete="off" spellcheck="false"><input type="number" min="1" class="addtot" data-role="addcTot" data-act="addcKey" data-sys="'+esc(s.id)+'" data-gate="'+k+'" placeholder="Total" title="Total punch items"><button class="btn pri" data-act="addcGo" data-sys="'+esc(s.id)+'" data-gate="'+k+'">Add</button></div>';
     h+='</div>';
+    /* v29.0: FAT tucks behind a collapsible — full section intact when opened,
+       out of the room's face the rest of the time. Not counted as punch. */
+    if(k==="FAT"){
+      var _inner=h.slice(_mark);h=h.slice(0,_mark);
+      var _fst=gateStats(s.gates.FAT||{});
+      h+='<div class="fatwrap'+(STATE.fatSecOpen?' open':'')+'">'+
+        '<button class="fathead" data-act="fatSecTog" title="'+(STATE.fatSecOpen?'tuck the FAT section away':'open the FAT section — vendor scope, tracked but not counted as punch')+'">'+
+          '<span class="tri">'+(STATE.fatSecOpen?'▾':'▸')+'</span>'+
+          '<span class="ttl">FAT — factory acceptance (vendor)</span>'+
+          '<span class="cnt num">'+_fst.o+' open · '+_fst.t+' total</span>'+
+          '<span class="fhint">'+(STATE.fatSecOpen?'tap to tuck away':'not in punch counts · tap to view')+'</span></button>'+
+        (STATE.fatSecOpen?('<div class="fatbody">'+_inner+'</div>'):'')+
+        '</div>';
+    }
   });
   if(sysPhase(s)==="done"&&isOwnerUser())h+='<div class="reopenrow"><button class="btn" data-act="reopenSys" data-sys="'+esc(s.id)+'">↺ Reopen this system</button><span class="hint" style="margin:0">Owner only — reopens the walks so new punch items can be logged.</span></div>';
   if(STATE.unlocked)h+='<div style="display:flex;justify-content:flex-end;margin-top:4px"><button class="btn danger" data-act="delSys" data-sys="'+esc(s.id)+'">🗑 Delete this system</button></div>';
@@ -6270,6 +6373,12 @@ function impAutoMap(headers){
   if(m.code<0)m.code=find(/system\s*(no\b|#|number|code|id)/);
   if(m.code<0)m.code=find(/^system$/);                            /* the MC tracker heads it just "System" */
   if(m.code<0)m.code=find(/^(code|system\s*tag|tag)$/);          /* last resort only */
+  /* v29.0: the Tag column. On this board some systems ARE tags — AD-DS65U01-01
+     and -02 are their own cards while EIDA's System No. only says AD-DS65U01.
+     The tag is matched FIRST (exact board code only), System No. is the
+     fallback, so tag-level cards finally receive their punches. */
+  m.tag=find(/^tag$/);
+  if(m.tag===m.code)m.tag=-1;                                     /* same column — nothing extra to read */
   m.mc=find(/^(mc\s*#|mc\s*no\.?|mc\s*number|mc\s*group|mc)$/);
   m.desc=find(/(system\s*(name|description)|description|equipment\s*name)/);
   m.group=find(/(priority\s*group|group|area|board)/);
@@ -6482,8 +6591,11 @@ function impPlanPunch(rows,map){
   function tally(c,field,n){var p=plan.perCo[c]||(plan.perCo[c]={closed:0,raised:0,reopened:0,open:0});p[field]+=n;}
   rows.forEach(function(r){
     var code=map.code>=0?r[map.code]:"",mc=map.mc>=0?r[map.mc]:"";
-    var id=impMatch(ix,code,mc);
-    if(!id){if(impNorm(code)||impNorm(mc))plan.unmatched.push({code:impNorm(code),mc:impNorm(mc)});return;}
+    /* v29.0: tag first — the punch belongs to the card it is physically on.
+       Only an EXACT board-code match counts; anything else falls back to System No. */
+    var tg=map.tag>=0?r[map.tag]:"";
+    var id=(impNorm(tg)?impMatch(ix,tg,""):null)||impMatch(ix,code,mc);
+    if(!id){if(impNorm(code)||impNorm(mc)||impNorm(tg))plan.unmatched.push({code:impNorm(code)||impNorm(tg),mc:impNorm(mc)});return;}
     var g=map.gate>=0?impGateOf(r[map.gate]):null;
     if(!g){plan.noGate++;return;}                     /* never guessed onto a gate */
     var cname=map.contractor>=0?impNorm(r[map.contractor]):"";
@@ -6502,6 +6614,9 @@ function impPlanPunch(rows,map){
     plan.totalItems++;
     if(closed)plan.closedItems++;
     if(pend)plan.pendItems++;
+    /* v29.0: FAT is imported and tracked in full, but reported separately —
+       it is not part of the contractor punch counts anywhere on the board. */
+    if(g==="FAT"){plan.fatItems=(plan.fatItems||0)+1;if(!closed)plan.fatOpen=(plan.fatOpen||0)+1;}
     agg[id]=agg[id]||{};agg[id][g]=agg[id][g]||{};
     var cell=agg[id][g][cname]||(agg[id][g][cname]={t:0,c:0,ids:[],pids:[]});
     cell.t++;if(closed)cell.c++;
@@ -6514,8 +6629,10 @@ function impPlanPunch(rows,map){
       var ct=map.pcat>=0?impNorm(r[map.pcat]).trim():"";
       if(dsc||typ||ct){plan.text[id]=plan.text[id]||{};plan.text[id][pid]={d:dsc,p:typ};if(/^[1-4]$/.test(ct))plan.text[id][pid].c=ct;}
     }
-    /* open punch items by EIDA category — a tiny per-system summary the board can read cheaply */
-    if(!closed&&map.pcat>=0){
+    /* open punch items by EIDA category — a tiny per-system summary the board can
+       read cheaply. v29.0: FAT and vendor packages stay out of the Cat chips —
+       Cat counts are contractor punch only. */
+    if(!closed&&map.pcat>=0&&g!=="FAT"&&g!==VDR_KEY){
       var cc=impNorm(r[map.pcat]).trim();
       if(/^[1-4]$/.test(cc)){plan.cats[id]=plan.cats[id]||{};plan.cats[id][cc]=(plan.cats[id][cc]||0)+1;}
     }
@@ -6695,9 +6812,12 @@ function impProject(plan){
       if(done)acc.comp++;else acc.out++;
       var mcc=(s.gates||{}).MCC||{};
       if(!mcc.na&&!mcc.done&&mcc.target&&mcc.target<todayISO())acc.miss++;
+      /* v29.0: acc.open matches the DEFAULT tile (contractor punch, no FAT);
+         acc.openAll is the with-FAT number for the same review line. */
       GATE_ORDER.forEach(function(k){
         var p=((s.gates||{})[k]||{}).punch||{};
-        Object.keys(p).forEach(function(c){acc.open+=Math.max(0,(p[c].t||0)-(p[c].c||0));});
+        Object.keys(p).forEach(function(c){var o=Math.max(0,(p[c].t||0)-(p[c].c||0));
+          acc.openAll=(acc.openAll||0)+o;if(k!=="FAT")acc.open+=o;});
       });
     });
   }
@@ -6831,7 +6951,10 @@ function impShowReview(){
     });
     h+='<div class="impsec"><div class="impstat"><div><b>'+p.totalItems+'</b><span>punch items read</span></div>'+
        '<div><b>'+(p.totalItems-p.closedItems)+'</b><span>open in file</span></div>'+
-       '<div><b>'+p.matched+'</b><span>systems covered</span></div></div></div>';
+       (p.fatItems?'<div><b>'+p.fatItems+'</b><span>of them FAT · '+(p.fatOpen||0)+' open</span></div>':'')+
+       '<div><b>'+p.matched+'</b><span>systems covered</span></div></div>'+
+       (p.fatItems?'<div class="impnote">🏭 <b>'+p.fatItems+' FAT item'+(p.fatItems>1?'s':'')+' ('+(p.fatOpen||0)+' open) are imported and tracked</b> on each system\'s FAT section — but they are NOT counted as punch: the tiles (in the default view), card faces, Top Blockers and Cat chips all exclude FAT. Flip the punch tiles to "With FAT" to see the combined number ('+((p.totalItems-p.closedItems))+' open in this file, '+((p.totalItems-p.closedItems)-(p.fatOpen||0))+' without FAT).</div>':'')+
+       '</div>';
     if(p.byId){
       h+='<div class="impsec"><label>Movement since the last file — matched item by item on Punch ID</label><div class="impstat">'+
          '<div class="good"><b>'+(p.closedNow+extraClosed)+'</b><span>closed</span></div>'+
@@ -6884,7 +7007,8 @@ function impShowReview(){
      '<div><span>Completed</span><b>'+b.comp+' → '+a.comp+'</b>'+delta(b.comp,a.comp)+'</div>'+
      '<div><span>Outstanding</span><b>'+b.out+' → '+a.out+'</b>'+delta(b.out,a.out,true)+'</div>'+
      '<div><span>Missed MCC</span><b>'+b.miss+' → '+a.miss+'</b>'+delta(b.miss,a.miss,true)+'</div>'+
-     '<div><span>Open punch items</span><b>'+b.open+' → '+a.open+'</b>'+delta(b.open,a.open,true)+'</div>'+
+     '<div><span>Open punch items (no FAT)</span><b>'+b.open+' → '+a.open+'</b>'+delta(b.open,a.open,true)+'</div>'+
+     '<div><span>Open incl. FAT</span><b>'+(b.openAll||0)+' → '+(a.openAll||0)+'</b>'+delta(b.openAll||0,a.openAll||0,true)+'</div>'+
      '</div></div>';
   if(nTxt)h+='<div class="impnote">📝 Item detail (description + punch phase type) will be saved for <b>'+nTxt+'</b> systems. This is display only — it touches no count, date or formula.</div>';
   h+='<div class="dlgrow"><span style="flex:1"></span><button class="btn" id="imp_back">← Back</button>'+
@@ -6996,7 +7120,7 @@ function impApply(pr){
     var same=(b.comp===a.comp&&b.out===a.out&&b.miss===a.miss);
     var moved=!!(p.closedNow||p.raisedNow||p.reopened);
     return "Completed "+b.comp+" → "+a.comp+" · Outstanding "+b.out+" → "+a.out+" · Missed MCC "+b.miss+" → "+a.miss+
-      "\nOpen punch items "+b.open+" → "+a.open+
+      "\nOpen punch items (no FAT) "+b.open+" → "+a.open+" · incl. FAT "+(b.openAll||0)+" → "+(a.openAll||0)+
       ((same&&moved)?"\n\nThe top three did not move — closing punch items does not complete a system on its own. That is expected, not a failed import.":"");
   }
   var _mw = keepUndo ? META_DOC.set(metaWrite,{merge:true}) : META_DOC.set(metaWrite,{merge:true});
