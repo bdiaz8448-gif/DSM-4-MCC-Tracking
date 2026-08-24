@@ -1178,10 +1178,13 @@
   .fatbody .gbox{margin-top:8px}
   /* ---- v29.0: per-walk open counts on the Top Blockers rows ---- */
   .lgcs{display:inline-flex;gap:6px;margin-left:8px;vertical-align:1px}
+  /* v29.2: the board's color language — open counts RED, closed counts green */
   .lgc{background:var(--card2);border:1px solid var(--line);border-radius:99px;padding:1px 8px;
     font-size:10.5px;font-weight:800;color:var(--mut);white-space:nowrap}
   .lgc.hot{color:var(--txt);border-color:var(--line2)}
-  .lgc b{font-size:11px}
+  .lgc b{font-size:11px;color:var(--mut2)}
+  .lgc.hot b{color:var(--red)}
+  .lsub b.lop{color:var(--red)}
   /* ---- crew accounts ---- */
   .hdel{border:1px solid var(--line2);background:var(--card);border-radius:8px;width:22px;height:22px;
     font-size:13px;line-height:1;cursor:pointer;color:var(--mut2);flex:none;align-self:center}
@@ -1916,7 +1919,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v29.1-moves-not-closures";
+var MC_BUILD="v29.2-blocker-colors";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -5122,7 +5125,7 @@ function renderWho(v){
     /* v29.0: per-walk open counts ride next to the totals — W0/W1/MC always, MCC when it has any. FAT never counts here. */
     var _gts=c.gates||{},_gh=["W0","W1","MC"].map(function(k){return '<span class="lgc'+((_gts[k]||0)>0?' hot':'')+'">'+k+' <b class="num">'+(_gts[k]||0)+'</b></span>';}).join('');
     if(_gts.MCC>0)_gh+='<span class="lgc hot">MCC <b class="num">'+_gts.MCC+'</b></span>';
-    h+='<div class="lmid"><div class="lname">'+esc(c.name)+'<span class="trade">'+esc(tradeOf(c.name))+'</span></div><div class="track"><div class="fill" style="width:'+Math.max(4,Math.round(c.total/max*100))+'%"></div></div><div class="lsub">'+(c.tot||0)+' total · <b>'+(c.closed||0)+' closed</b> · '+c.total+' open'+(c.total>0?' <span class="lgcs">'+_gh+'</span>':'')+'</div></div>';
+    h+='<div class="lmid"><div class="lname">'+esc(c.name)+'<span class="trade">'+esc(tradeOf(c.name))+'</span></div><div class="track"><div class="fill" style="width:'+Math.max(4,Math.round(c.total/max*100))+'%"></div></div><div class="lsub">'+(c.tot||0)+' total · <b>'+(c.closed||0)+' closed</b> · <b class="lop num">'+c.total+'</b> open'+(c.total>0?' <span class="lgcs">'+_gh+'</span>':'')+'</div></div>';
     h+='<div class="lright"><div class="ltot num">'+c.total+'</div>'+(atRisk>0?'<div class="lrisk">'+atRisk+' at risk</div>':'<div class="lrisk" style="color:var(--mut)">'+c.systems.length+' systems</div>')+'</div><span class="caret">▶</span></div>';
     h+='<div class="lexp">';
     c.systems.forEach(function(x){h+='<div class="mrow go" data-act="gotoSys" data-sys="'+esc(x.id||"")+'" title="Open '+esc(x.mc)+' on the Board"><span class="mlight light '+x.status+'"></span><div class="mtxt"><div class="mt1">'+esc(x.mc)+' · '+esc(x.desc)+'</div><div class="mt2">'+x.gates.join(" · ")+' open</div></div><div class="mo num" style="color:'+(x.status==="red"?"var(--red)":x.status==="org"?"var(--org)":x.status==="yel"?"var(--yel)":"var(--txt)")+'">'+x.open+'</div></div>';});
