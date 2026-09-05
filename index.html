@@ -1921,7 +1921,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v29.4-review-carries-tag";
+var MC_BUILD="v29.5-audit-fixes";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2439,6 +2439,11 @@ function writePunch(sysId,gate,contractor,total,closed,logDelta){
     var mDelta=closed-prev.c;
     while(mDelta>0&&mIds.length){mCids.push(mIds.shift());mDelta--;}
     while(mDelta<0&&mCids.length){mIds.unshift(mCids.pop());mDelta++;}
+    /* v29.5: lowering the TOTAL below the items still listed open used to leave
+       stale open IDs behind (t=24, c=24, one ID still "open") — the next import
+       then "closed" that ghost a second time. An item the total no longer has
+       room for is filed as a closed receipt, so the ID list always fits. */
+    while(mIds.length>total-closed&&mIds.length){mCids.push(mIds.shift());}
     if(keep.ids)ent.ids=mIds;
     if(keep.cids||mCids.length)ent.cids=mCids;
     if(keep.pids)ent.pids=(keep.pids||[]).filter(function(x){return mIds.indexOf(String(x))>=0;});
@@ -2449,6 +2454,8 @@ function writePunch(sysId,gate,contractor,total,closed,logDelta){
   if(total>0&&STATE.rowOrder[rk]&&STATE.rowOrder[rk].indexOf(contractor)<0)STATE.rowOrder[rk].push(contractor);
   render();if(STATE.openSysId)renderModal();
   var upd={};upd["gates."+gate+".punch"]=s.gates[gate].punch;
+  /* v29.5: keep the Cat summary honest as items close by hand (detail is loaded whenever the panel is open) */
+  var _cr=catRecompute(s);if(_cr){s.catOpen=_cr;upd["catOpen"]=_cr;}
   db.collection(SYS_COL).doc(sysId).update(upd).then(snapshotBurn).catch(function(e){console.warn(e);});
   if(logDelta&&closed!==prev.c){
     db.collection(BURN_COL).doc("_events").collection("log").add({ts:Date.now(),date:todayISO(),sys:sysId,mc:s.mc,gate:gate,contractor:contractor,
@@ -2471,6 +2478,8 @@ function closeAllPunchOnSystem(sysId){
     if(!g.na&&!g.done){g.done=true;g.doneAt=today;g.doneBy=String((CURRENT_USER&&CURRENT_USER.email)||"");
       upd["gates."+k+".done"]=true;upd["gates."+k+".doneAt"]=today;upd["gates."+k+".doneBy"]=g.doneBy;dirty=true;}
   });
+  /* v29.5: everything is closed, so no Cat item is open — say so on the record */
+  if(dirty&&s.catOpen&&Object.keys(s.catOpen).length){s.catOpen={};upd["catOpen"]={};}
   render();if(STATE.openSysId)renderModal();
   if(dirty)db.collection(SYS_COL).doc(sysId).update(upd).then(snapshotBurn).catch(function(e){console.warn("closeSysAll",e);});
 }
@@ -2669,9 +2678,20 @@ function gateLate(g){
   var d=daysBetween(g.target,g.doneAt);
   return d>0?d:0;
 }
-/* open punch items by EIDA category, kept as a small summary on the system record */
+/* open punch items by EIDA category, kept as a small summary on the system record.
+   v29.5: the summary is rewritten by imports and by hand-edits (when the item
+   detail is loaded), and it is CAPPED at the system's real open count — a
+   system with nothing open can never wear a Cat-1 badge. */
 function catOpen(s){var c=s&&s.catOpen;return (c&&typeof c==="object")?c:null;}
-function cat1(s){var c=catOpen(s);return c?(+c["1"]||0):0;}
+function cat1(s){var c=catOpen(s);if(!c)return 0;var n=+c["1"]||0;if(n<=0)return 0;return Math.min(n,sysStatsNF(s).o);}
+/* recompute the Cat summary from the open item IDs when their detail is on hand */
+function catRecompute(s){
+  var txt=s&&PTXT[s.id];if(!txt)return null;
+  var out={};
+  PUNCH_GATES.forEach(function(k){var g=(s.gates||{})[k];if(!g)return;Object.keys(g.punch||{}).forEach(function(c){
+    ((g.punch[c]||{}).ids||[]).forEach(function(pid){var it=txt[String(pid)];if(it&&/^[1-4]$/.test(String(it.c||"")))out[it.c]=(out[it.c]||0)+1;});});});
+  return out;
+}
 function renderWalks(){
   var el=$("walks");if(!el)return;
   var ws=walkStats(),open=lsGet(WALK_KEY)==="1";
@@ -5001,7 +5021,8 @@ function goHome(){
 }
 function kpi(n,l,cls,sub,act,active){return '<div class="kpi '+cls+' clk'+(active?' act':'')+'" data-act="kpi" data-kpi="'+esc(act)+'"><div class="go">›</div><div class="kn num">'+n+'</div><div class="kl">'+esc(l)+'</div>'+(sub?'<div class="ksub">'+esc(sub)+'</div>':'')+'</div>';}
 function applyKpi(k){var f=STATE.f;f.onlyOpen=false;f.status="ALL";f.contractor="ALL";f.comp=(k==="missed")?"missed":((k==="cat1")?"cat1":"ALL");
-  if(k==="open")f.onlyOpen=true;else if(k==="risk")f.status="risk";else if(k==="red")f.status="red";else if(k==="yel")f.status="yel";
+  /* v29.5: the Orange tile had no branch here — tapping it reset the board to all 508 */
+  if(k==="open")f.onlyOpen=true;else if(k==="risk")f.status="risk";else if(k==="red")f.status="red";else if(k==="org")f.status="org";else if(k==="yel")f.status="yel";
   else if(k.indexOf("contractor:")===0)f.contractor=k.slice(11);
   STATE.view="board";syncUI();render();document.querySelector('.wrap').scrollIntoView({behavior:'smooth',block:'start'});}
 function syncUI(){var f=STATE.f;
@@ -6611,7 +6632,7 @@ function impPlanPunch(rows,map){
       Object.keys(pp).forEach(function(cn){
         ((pp[cn]&&pp[cn].ids)||[]).forEach(function(x){boardLoc[String(x)]={id:sid,g:gg,c:cn};});
       });});});
-  var fileLoc={};
+  var fileLoc={},_doneSys={};
   rows.forEach(function(r){
     var code=map.code>=0?r[map.code]:"",mc=map.mc>=0?r[map.mc]:"";
     /* v29.0: tag first — the punch belongs to the card it is physically on.
@@ -6657,8 +6678,13 @@ function impPlanPunch(rows,map){
        read cheaply. v29.0: FAT and vendor packages stay out of the Cat chips —
        Cat counts are contractor punch only. */
     if(!closed&&map.pcat>=0&&g!=="FAT"&&g!==VDR_KEY){
-      var cc=impNorm(r[map.pcat]).trim();
-      if(/^[1-4]$/.test(cc)){plan.cats[id]=plan.cats[id]||{};plan.cats[id][cc]=(plan.cats[id][cc]||0)+1;}
+      /* v29.5: an item the sign-off guard will hold CLOSED is not an open Cat item.
+         Without this, a circle-closed system kept wearing "Cat 1" badges. */
+      if(_doneSys[id]===undefined)_doneSys[id]=(sysPhase(STATE.systems[id])==="done");
+      if(!_doneSys[id]){
+        var cc=impNorm(r[map.pcat]).trim();
+        if(/^[1-4]$/.test(cc)){plan.cats[id]=plan.cats[id]||{};plan.cats[id][cc]=(plan.cats[id][cc]||0)+1;}
+      }else{plan.cats[id]=plan.cats[id]||{};}   /* present-but-empty: the apply step clears the stale badge */
     }
   });
   /* v29.1: settle which items MOVED. Contractor names compare through the same
@@ -6739,6 +6765,7 @@ function impPlanPunch(rows,map){
             var t=oldT+arrived.length-movedOut.length, c=oldC+closedNow.length-reopened.length;
             if(c<0)c=0;
             if(t-c!==newIds.length)t=c+newIds.length;      /* keep open = total − closed exact */
+            if(c>t)c=t;                                   /* v29.5: closed can never exceed total */
             var cids=oldCids.filter(function(x){return !newSet[x];}).concat(closedNow);
             res={t:t,c:c,ids:newIds,cids:cids,pids:newPids,
                  closedNow:closedNow,raisedNow:raised,reopenedNow:reopened,
@@ -6758,8 +6785,9 @@ function impPlanPunch(rows,map){
              closed); the rest are closed as before. */
           var mo2=oldIds.filter(function(x){return moved[x];});
           var tc2=oldIds.filter(function(x){return !moved[x];});
-          res={t:oldT-mo2.length,c:oldC+tc2.length,ids:[],cids:oldCids.concat(tc2),pids:[],
-               closedNow:tc2,raisedNow:[],reopenedNow:[],movedIn:[],movedOut:mo2};
+          var t2=oldT-mo2.length,c2=Math.min(oldC+tc2.length,t2);   /* v29.5: a stale ghost ID can never push closed past total */
+          res={t:t2,c:c2,ids:[],cids:oldCids.concat(tc2),pids:[],
+               closedNow:tc2.slice(0,Math.max(0,c2-oldC)),raisedNow:[],reopenedNow:[],movedIn:[],movedOut:mo2};
         }else if(plan.byId){
           /* nothing new for this pairing and nothing open on the board: leave the
              record exactly as it stands — a closed-out contractor is history, not
@@ -7158,7 +7186,8 @@ function impApply(pr){
   catIds.forEach(function(id){
     if(!STATE.systems[id])return;
     var _c=p.cats[id];
-    ops.push(function(b){b.set(db.collection(SYS_COL).doc(id),{catOpen:_c},{merge:true});});
+    /* v29.5: update() REPLACES the map — a set-with-merge of {} would leave the stale badge in place */
+    ops.push(function(b){b.update(db.collection(SYS_COL).doc(id),{catOpen:_c});});
   });
   var txtIds=Object.keys((p&&p.text)||{});
   txtIds.forEach(function(id){
