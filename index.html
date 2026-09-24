@@ -1559,6 +1559,9 @@
   .plcnt b{font-size:28px;color:var(--red);line-height:1}
   .plcnt .g{color:var(--grn);font-weight:900}
   .plcnt small{color:var(--mut);font-weight:700}
+  .plshow{display:inline-flex;align-items:center;gap:4px;margin-left:auto;flex-wrap:wrap}
+  .plshow button{border:1.5px solid var(--line2);background:var(--card);color:var(--txt);border-radius:9999px;padding:4px 10px;font:inherit;font-size:12px;font-weight:800;cursor:pointer}
+  .plshow button.on{background:var(--acc);border-color:var(--acc);color:#fff}
   .pltw{overflow:auto;border-radius:10px;border:1px solid var(--line2);max-width:100%}
   .pltab{border-collapse:collapse;width:100%;font-size:12.5px;min-width:820px}
   .pltab th{background:var(--acc);color:#fff;text-align:left;padding:7px 9px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
@@ -1972,7 +1975,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v29.7-punch-list";
+var MC_BUILD="v29.9-full-eida-rows";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -5623,9 +5626,13 @@ function stepper(sysId,gate,name,val){return '<div class="step"><button data-act
    closed systems hold nothing open, so they never appear.
    ===================================================================== */
 var PL_COLS=["Punch ID","Document Type","Module","Punch Phase Type","Punch Code","Category","Description","Comment","System No.","System Name","Tag","Tag Description","Responsible Contractor","Assigned To","Source","CheckList item","Activity","Days Open","Raised By","Created On","Complete Date","Closed By","Date Verified","Verified By","Target Closure Date","Capacity/Capacity UOM","Drawing Number","Building","Drive Type","Document No.","System Owner","Serial No","Vendor","Set Point","dbowner","Personnel Name","Contractor","Bucket","Activity Group","Workspace"];
-var PL_EXTRA=["MC #","Board Target MC","Walk","Board Status"];
+/* v29.8: the dates the field team sorts by sit right after System No., where they are seen —
+   MC # · Target MC Date. The rest of the EIDA columns keep their order; Walk · Walk Target
+   Date · Board Status close the row. Target dates only — never a live date. */
+var PL_AFTER_SYS=["MC #","Target MC Date"], PL_EXTRA=["Walk","Walk Target Date","Board Status"];
+function plHeaders(){var i=PL_COLS.indexOf("System No.");return PL_COLS.slice(0,i+1).concat(PL_AFTER_SYS,PL_COLS.slice(i+1),PL_EXTRA);}
 var PL_GROUP={W0:"W0 Walkdown (W0)",W1:"W1 Walkdown (W1)",MC:"MC Walkdown (MC)",MCC:"Post MCC Activities"};
-STATE.pl={open:false,from:todayISO(),to:addDays(todayISO(),30),sort:"asc",items:"open",walk:"ALL",contractor:"ALL",mcs:""};
+STATE.pl={open:false,from:todayISO(),to:addDays(todayISO(),30),sort:"asc",items:"open",walk:"ALL",contractor:"ALL",mcs:"",show:8};
 function plParent(code){ /* AD-DS65U01-02 is a tag card of AD-DS65U01 when that card exists */
   var m=/^(.*)-(\d\d)$/.exec(code||"");if(!m)return code;
   if(!plParent._ix)plParent._ix=impIndexSystems();
@@ -5653,8 +5660,8 @@ function plRows(){
       Object.keys(gt.punch||{}).forEach(function(co){
         if(pl.contractor!=="ALL"&&co!==pl.contractor)return;
         var v=gt.punch[co]||{};
-        if(pl.items!=="closed")(v.ids||[]).forEach(function(pid){var it=txt[String(pid)]||{};rows.push({s:s,g:g,co:co,pid:String(pid),st:"Open",d:it.d||"",p:it.p||"",c:it.c||""});});
-        if(pl.items!=="open")(v.cids||[]).forEach(function(pid){var it=txt[String(pid)]||{};rows.push({s:s,g:g,co:co,pid:String(pid),st:"Closed",d:it.d||"",p:it.p||"",c:it.c||""});});
+        if(pl.items!=="closed")(v.ids||[]).forEach(function(pid){var it=txt[String(pid)]||{};rows.push({s:s,g:g,co:co,pid:String(pid),st:"Open",d:it.d||"",p:it.p||"",c:it.c||"",r:it.r});});
+        if(pl.items!=="open")(v.cids||[]).forEach(function(pid){var it=txt[String(pid)]||{};rows.push({s:s,g:g,co:co,pid:String(pid),st:"Closed",d:it.d||"",p:it.p||"",c:it.c||"",r:it.r});});
       });
     });
   });
@@ -5708,32 +5715,43 @@ function _renderPL(w){
     '<div class="plf"><label>Systems</label><input type="text" id="pl_mcs" placeholder="All in range · or type MC #s (overrides dates)" value="'+esc(pl.mcs)+'"></div>'+
     '</div>';
   h+='<div class="plcnt"><b>'+(pl.items==="closed"?closedN:openN)+'</b><small>'+(pl.items==="closed"?"closed":"open")+' items'+(pl.items==="both"?' · '+closedN+' closed':'')+'</small><span class="g">'+nSys+' system'+(nSys===1?'':'s')+'</span><small>'+plRange()+(pl.walk!=="ALL"?' · '+pl.walk:'')+(pl.contractor!=="ALL"?' · '+esc(pl.contractor):'')+'</small>'+
-    (loading?'<span class="plload">loading descriptions…</span>':'')+'</div>';
+    (loading?'<span class="plload">loading descriptions…</span>':'')+
+    '<span class="plshow"><small>Show</small> '+[8,25,50,100,300,"ALL"].map(function(n){return '<button data-show="'+n+'"'+(String(pl.show)===String(n)?' class="on"':'')+'>'+(n==="ALL"?"All":n)+'</button>';}).join('')+'</span></div>';
   h+='<div class="pltw"><table class="pltab"><tr><th>Target MC</th><th>MC #</th><th>System</th><th>Walk</th><th>Contractor</th><th>Punch ID</th><th>Cat</th><th>Description</th>'+(pl.items!=="open"?'<th>Status</th>':'')+'</tr>';
   var td=todayISO();
-  rows.slice(0,8).forEach(function(r){var late=r.s.target&&r.s.target<td;
+  var lim=(pl.show==="ALL")?rows.length:(+pl.show||8);
+  rows.slice(0,lim).forEach(function(r){var late=r.s.target&&r.s.target<td;
     h+='<tr><td class="'+(late?'rd':'')+'">'+fmtMD(r.s.target)+'</td><td class="plmc">'+esc(r.s.mc)+'</td><td>'+esc(r.s.code)+' · '+esc(r.s.desc)+'</td><td>'+r.g+'</td><td>'+esc(r.co)+'</td><td>'+esc(r.pid)+'</td><td>'+esc(r.c)+'</td><td>'+esc(r.d||(PTXT[r.s.id]?'':'…'))+'</td>'+(pl.items!=="open"?'<td class="'+(r.st==="Closed"?'cl':'rd')+'">'+r.st+'</td>':'')+'</tr>';});
   if(!rows.length)h+='<tr><td colspan="9" class="plmore">Nothing matches — widen the dates, or check the walk / contractor filters.</td></tr>';
-  else if(rows.length>8)h+='<tr><td colspan="9" class="plmore">… '+(rows.length-8)+' more row'+(rows.length-8===1?'':'s')+' in the export</td></tr>';
+  else if(rows.length>lim)h+='<tr><td colspan="9" class="plmore">… '+(rows.length-lim)+' more row'+(rows.length-lim===1?'':'s')+' in the export — tap a larger Show to see them here</td></tr>';
+  else if(lim>8&&rows.length>8)h+='<tr><td colspan="9" class="plmore">all '+rows.length+' rows shown</td></tr>';
   h+='</table></div>';
   h+='<div class="placts"><button class="b1" id="pl_xlsx"'+(rows.length?'':' disabled')+'>&#11015; Export to Excel (EIDA columns)</button><button class="b2" id="pl_print"'+(rows.length?'':' disabled')+'>&#128424; Print</button>'+
-     '<div class="tiny">Excel keeps the 40 EIDA column headers in EIDA order, then adds <b>MC # · Board Target MC · Walk · Board Status</b> at the end. Columns the board does not hold (Raised By, Created On…) stay blank — nothing is invented. Sorted exactly like this preview.</div></div>';
+     '<div class="tiny">Excel carries every EIDA column, in EIDA order, filled from the row as it was in the last EIDA file (Days Open recomputed to today), with <b>MC # · Target MC Date</b> inserted right after System No. so they sort by date from the header, and <b>Walk · Walk Target Date · Board Status</b> at the end. Nothing is invented — an item whose row was never imported shows only what the board knows.</div></div>';
   h+='</div>';
   w.innerHTML=h;
 }
 function plRowToCells(r){
-  var s=r.s,cells={};
-  cells["Punch ID"]=+r.pid||r.pid;cells["Punch Phase Type"]=r.p;cells["Category"]=r.c;cells["Description"]=r.d;
-  cells["System No."]=plParent(s.code);cells["System Name"]=s.desc||"";cells["Tag"]=s.code||"";cells["Tag Description"]=s.desc||"";
-  cells["Responsible Contractor"]=r.co;cells["Activity Group"]=PL_GROUP[r.g]||r.g;
-  cells["MC #"]=s.mc||"";cells["Board Target MC"]=s.target?{date:s.target}:"";cells["Walk"]=r.g;cells["Board Status"]=r.st;
+  var s=r.s,cells={},raw=r.r||{};
+  /* the EIDA row as it was in the last file — every column it carried */
+  PL_COLS.forEach(function(h){var k=h.replace(/[.$#\[\]\/]/g,"_");var v=raw[k];if(v==null||v==="")return;
+    if(/^\d{4}-\d{2}-\d{2}$/.test(v))cells[h]={date:v};else if(h==="Days Open"&&/^\d+$/.test(v))cells[h]=+v;else cells[h]=v;});
+  /* what the board itself knows — fills a gap, never overrides the file's own value */
+  function fb(h,v){if(cells[h]===undefined&&v!==""&&v!=null)cells[h]=v;}
+  cells["Punch ID"]=+r.pid||r.pid;fb("Punch Phase Type",r.p);fb("Category",r.c);fb("Description",r.d);
+  fb("System No.",plParent(s.code));fb("System Name",s.desc||"");fb("Tag",s.code||"");fb("Tag Description",s.desc||"");
+  fb("Responsible Contractor",r.co);fb("Activity Group",PL_GROUP[r.g]||r.g);
+  /* Days Open is "as of today" in EIDA — recompute it from Created On rather than ship a stale number */
+  if(cells["Created On"]&&cells["Created On"].date)cells["Days Open"]=Math.max(0,daysBetween(cells["Created On"].date,todayISO()));
+  cells["MC #"]=s.mc||"";cells["Target MC Date"]=s.target?{date:s.target}:"";cells["Walk"]=r.g;cells["Board Status"]=r.st;
+  var wt=((s.gates||{})[r.g]||{}).target;cells["Walk Target Date"]=wt?{date:wt}:"";
   return cells;
 }
 function plFileName(ext){var pl=STATE.pl;var tag=pl.mcs&&pl.mcs.trim()?"MCs":((pl.from||"")+"_to_"+(pl.to||""));return "Punch_List_by_Target_MC_"+tag+(pl.walk!=="ALL"?"_"+pl.walk:"")+(pl.contractor!=="ALL"?"_"+pl.contractor.replace(/[^\w]+/g,"-"):"")+"_"+todayISO()+"."+ext;}
 function plExportXlsx(){
   var btn=$("pl_xlsx");if(btn){btn.disabled=true;btn.textContent="Loading item detail…";}
   plEnsureText(function(){
-    var rows=plRows(),hdr=PL_COLS.concat(PL_EXTRA);
+    var rows=plRows(),hdr=plHeaders();
     var data=rows.map(function(r){var c=plRowToCells(r);return hdr.map(function(h){return c[h]===undefined?"":c[h];});});
     xlsxBuild("Punch List",hdr,data,function(blob){
       var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=plFileName("xlsx");document.body.appendChild(a);a.click();
@@ -5792,7 +5810,7 @@ function xlsxBuild(sheet,hdr,rows,cb,err){
   try{
     var X=function(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,"");};
     var out=['<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>'];
-    hdr.forEach(function(h,i){var w=Math.min(Math.max(10,String(h).length+2),40);if(h==="Description")w=60;if(h==="System Name"||h==="Tag Description")w=30;out.push('<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>');});
+    hdr.forEach(function(h,i){var w=Math.min(Math.max(10,String(h).length+2),40);if(h==="Description")w=60;if(/Date$/.test(h))w=14;if(h==="System Name"||h==="Tag Description")w=30;out.push('<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>');});
     out.push('</cols><sheetData><row r="1">');
     hdr.forEach(function(h,i){out.push('<c r="'+xlsxCol(i)+'1" t="inlineStr" s="1"><is><t>'+X(h)+'</t></is></c>');});
     out.push('</row>');
@@ -5909,6 +5927,7 @@ $("plWrap").addEventListener("change",function(e){var t=e.target,pl=STATE.pl;if(
 $("plWrap").addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target&&e.target.id==="pl_mcs"){e.preventDefault();e.target.blur();/* blur fires change → re-render */}});
 $("plWrap").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
   if(b.hasAttribute("data-w")){STATE.pl.walk=b.getAttribute("data-w");renderPL(true);return;}
+  if(b.hasAttribute("data-show")){var sv=b.getAttribute("data-show");STATE.pl.show=(sv==="ALL")?"ALL":+sv;renderPL(true);return;}
   if(b.id==="pl_xlsx"){plExportXlsx();return;}
   if(b.id==="pl_print"){plPrint();return;}});
 $("searchF").addEventListener("input",function(){STATE.f.q=this.value;render();});
@@ -6938,6 +6957,18 @@ function impPlanPunch(rows,map){
       var typ=map.ptype>=0?impNorm(r[map.ptype]).trim():"";
       var ct=map.pcat>=0?impNorm(r[map.pcat]).trim():"";
       if(dsc||typ||ct){plan.text[id]=plan.text[id]||{};plan.text[id][pid]={d:dsc,p:typ};if(/^[1-4]$/.test(ct))plan.text[id][pid].c=ct;}
+      /* v29.9: keep the WHOLE EIDA row (every non-empty column, by its header) so the
+         punch-list export can reproduce the file column for column — Assigned To,
+         Source, CheckList item, Raised By, Created On, Set Point… nothing invented. */
+      if(typeof IMP!=="undefined"&&IMP&&IMP.headers){
+        plan.text[id]=plan.text[id]||{};plan.text[id][pid]=plan.text[id][pid]||{d:dsc,p:typ};
+        var full={},hs=IMP.headers;
+        for(var hi=0;hi<hs.length;hi++){var hv=r[hi];if(hv==null||hv==="")continue;var hk=impNorm(hs[hi]);
+          if(!hk||hi===map.item||hi===map.pdesc||hi===map.ptype||hi===map.pcat)continue;
+          hk=hk.replace(/[.$#\[\]\/]/g,"_");            /* Firestore field names cannot carry these */
+          full[hk]=impText(hv);}
+        plan.text[id][pid].r=full;
+      }
     }
     /* open punch items by EIDA category — a tiny per-system summary the board can
        read cheaply. v29.0: FAT and vendor packages stay out of the Cat chips —
