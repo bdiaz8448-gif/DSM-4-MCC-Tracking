@@ -1539,6 +1539,55 @@
     .seg button,.chips button{min-height:44px}
     .chips{gap:8px}
   }
+  /* ---- v29.7 Punch list builder + Excel export ---- */
+  .plbtn{background:var(--acc);color:#fff;border:2px solid var(--acc);border-radius:11px;padding:9px 14px;font-size:12.5px;font-weight:900;cursor:pointer;box-shadow:0 2px 10px rgba(7,104,139,.35);white-space:nowrap}
+  .plbtn.on{background:var(--card);color:var(--acc)}
+  .plbtn .plcar{display:inline-block;transition:.15s}
+  .plbtn.on .plcar{transform:rotate(180deg)}
+  .plwrap{margin:0 0 16px}
+  .plpanel{background:var(--card);border:2px solid var(--acc);border-radius:18px;padding:16px 18px;box-shadow:0 10px 30px rgba(0,0,0,.12)}
+  .plpanel h3{margin:0 0 3px;font-size:17px;letter-spacing:.02em;color:var(--txt)}
+  .plsub{font-size:12.5px;font-weight:700;color:var(--mut);margin-bottom:12px}
+  .plgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px 16px;margin-bottom:10px}
+  .plf label{display:block;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--mut);font-weight:900;margin-bottom:5px}
+  .plf input,.plf select{width:100%;box-sizing:border-box;border:1.5px solid var(--line2);border-radius:10px;padding:9px 11px;font:inherit;font-weight:700;font-size:14px;color:var(--txt);background:var(--bg)}
+  .plf input:focus,.plf select:focus{border-color:var(--acc)}
+  .plchips{display:flex;flex-wrap:wrap;gap:6px}
+  .plchips button{border:1.5px solid var(--line2);background:var(--card);color:var(--txt);border-radius:9999px;padding:6px 12px;font:inherit;font-size:12.5px;font-weight:800;cursor:pointer}
+  .plchips button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+  .plcnt{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin:8px 0 10px}
+  .plcnt b{font-size:28px;color:var(--red);line-height:1}
+  .plcnt .g{color:var(--grn);font-weight:900}
+  .plcnt small{color:var(--mut);font-weight:700}
+  .pltw{overflow:auto;border-radius:10px;border:1px solid var(--line2);max-width:100%}
+  .pltab{border-collapse:collapse;width:100%;font-size:12.5px;min-width:820px}
+  .pltab th{background:var(--acc);color:#fff;text-align:left;padding:7px 9px;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+  .pltab td{padding:6px 9px;border-bottom:1px solid var(--line2);vertical-align:top;color:var(--txt)}
+  .pltab td.plmc{font-weight:900}
+  .pltab td.rd{color:var(--red);font-weight:900}
+  .pltab td.cl{color:var(--grn);font-weight:900}
+  .plmore{padding:7px 9px;font-size:12px;font-weight:700;color:var(--mut)}
+  .placts{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+  .placts .b1{background:var(--grn);color:#fff;border:2px solid var(--grn);border-radius:12px;padding:10px 16px;font:inherit;font-weight:900;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(26,127,75,.35)}
+  .placts .b1[disabled]{opacity:.55;cursor:default}
+  .placts .b2{background:var(--card);color:var(--acc);border:2px solid var(--acc);border-radius:12px;padding:9px 14px;font:inherit;font-weight:900;font-size:13.5px;cursor:pointer}
+  .placts .tiny{font-size:11.5px;font-weight:700;color:var(--mut);margin-left:auto;max-width:520px;text-align:right}
+  .plload{font-size:12.5px;font-weight:800;color:var(--acc)}
+  body.locked .plbtn{display:inline-block}
+  .plspan2{grid-column:span 2}
+  @media (max-width:820px){.plgrid{grid-template-columns:repeat(2,minmax(0,1fr))}.placts .tiny{margin-left:0;text-align:left;max-width:none}}
+  @media (max-width:560px){.plgrid{grid-template-columns:minmax(0,1fr)}.plspan2{grid-column:auto}.plpanel{padding:12px 12px}}
+  #plPrint{display:none}
+  @media print{
+    body.plprinting>*{display:none!important}
+    body.plprinting #plPrint{display:block!important;font:11px/1.35 -apple-system,Helvetica,Arial,sans-serif;color:#000}
+    #plPrint h2{font-size:15px;margin:0 0 2px}
+    #plPrint .psub{font-size:10px;color:#444;margin-bottom:8px}
+    #plPrint table{border-collapse:collapse;width:100%}
+    #plPrint th{text-align:left;border-bottom:1.5px solid #000;padding:3px 5px;font-size:10px;text-transform:uppercase}
+    #plPrint td{border-bottom:.5px solid #999;padding:3px 5px;vertical-align:top}
+    #plPrint tr{page-break-inside:avoid}
+  }
   /* ---- Excel import ---- */
   .impdrop{margin-top:12px;border:2px dashed var(--line2);border-radius:16px;padding:26px 18px;text-align:center;cursor:pointer;background:var(--bg);transition:.15s}
   .impdrop:hover,.impdrop.over{border-color:var(--acc);background:var(--card2);box-shadow:0 0 0 4px rgba(56,189,248,.12)}
@@ -1897,8 +1946,10 @@
       <button data-s="grn">Green</button>
     </div>
     <select id="contractorF"><option value="ALL">All contractors</option></select>
+    <button class="plbtn" id="plBtn" title="Build a sorted punch list and export it to Excel">&#128203; Punch list <span class="plcar">&#9662;</span></button>
     <button class="clearf" id="clearF" style="display:none">✕ Clear filters</button>
   </div>
+  <div id="plWrap" class="plwrap" style="display:none"></div>
   <div id="view"></div>
   <div class="foot">Build <b id="buildStamp"></b> · live Firestore sync<span id="sysCount"></span></div>
 </div>
@@ -1921,7 +1972,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v29.6-file-scope";
+var MC_BUILD="v29.7-punch-list";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -2591,6 +2642,7 @@ function render(){
   var v=$("view");
   var chartView=(STATE.view==="burn"||STATE.view==="mcc"||STATE.view==="daily");
   $("toolbar").style.display=chartView?"none":"flex";
+  renderPL();
   $("clearF").style.display=isFiltered()?"":"none";
   /* the systems KPI strip is about punch items — it has no meaning on the daily tracker */
   $("hero").style.display=(STATE.view==="daily")?"none":"";
@@ -5561,6 +5613,209 @@ function renderModal(){
 /* stepper shows OPEN. − closes one item, + re-opens one. Total is untouched. */
 function stepper(sysId,gate,name,val){return '<div class="step"><button data-act="dec" data-sys="'+esc(sysId)+'" data-gate="'+gate+'" data-name="'+esc(name)+'" title="Close one item">−</button><input type="number" min="0" value="'+val+'" data-act="setinput" data-sys="'+esc(sysId)+'" data-gate="'+gate+'" data-name="'+esc(name)+'"><button data-act="inc" data-sys="'+esc(sysId)+'" data-gate="'+gate+'" data-name="'+esc(name)+'" title="Re-open one item">+</button></div>';}
 
+/* =====================================================================
+   v29.7 PUNCH LIST BUILDER — "give me the open punch for the systems with a
+   target MC between these dates, sorted soonest first, as an Excel that looks
+   like the EIDA export." Reads only what the board already holds (no new data,
+   no server): the open item IDs per system / walk / contractor, and the item
+   detail (description · phase type · category) the import stores in mc_punch.
+   FAT is never included — the field team said they do not need it. Circle-
+   closed systems hold nothing open, so they never appear.
+   ===================================================================== */
+var PL_COLS=["Punch ID","Document Type","Module","Punch Phase Type","Punch Code","Category","Description","Comment","System No.","System Name","Tag","Tag Description","Responsible Contractor","Assigned To","Source","CheckList item","Activity","Days Open","Raised By","Created On","Complete Date","Closed By","Date Verified","Verified By","Target Closure Date","Capacity/Capacity UOM","Drawing Number","Building","Drive Type","Document No.","System Owner","Serial No","Vendor","Set Point","dbowner","Personnel Name","Contractor","Bucket","Activity Group","Workspace"];
+var PL_EXTRA=["MC #","Board Target MC","Walk","Board Status"];
+var PL_GROUP={W0:"W0 Walkdown (W0)",W1:"W1 Walkdown (W1)",MC:"MC Walkdown (MC)",MCC:"Post MCC Activities"};
+STATE.pl={open:false,from:todayISO(),to:addDays(todayISO(),30),sort:"asc",items:"open",walk:"ALL",contractor:"ALL",mcs:""};
+function plParent(code){ /* AD-DS65U01-02 is a tag card of AD-DS65U01 when that card exists */
+  var m=/^(.*)-(\d\d)$/.exec(code||"");if(!m)return code;
+  if(!plParent._ix)plParent._ix=impIndexSystems();
+  return plParent._ix.byCode[impKey(m[1]).replace(/\s/g,"")]?m[1]:code;
+}
+function plSystems(){
+  var pl=STATE.pl,out=[];
+  var want=null;
+  if(pl.mcs&&pl.mcs.trim()){want={};pl.mcs.split(/[\s,;]+/).forEach(function(x){x=x.trim();if(x)want[x.toLowerCase()]=1;});}
+  sysList().forEach(function(s){
+    if(want){if(!(want[String(s.mc||"").toLowerCase()]||want[String(s.code||"").toLowerCase()]))return;}
+    else{var t=s.target||"";if(!t)return;if(pl.from&&t<pl.from)return;if(pl.to&&t>pl.to)return;}
+    out.push(s);
+  });
+  out.sort(function(a,b){var ta=a.target||"9999",tb=b.target||"9999";if(ta!==tb)return pl.sort==="desc"?(ta<tb?1:-1):(ta<tb?-1:1);return String(a.mc).localeCompare(String(b.mc),undefined,{numeric:true});});
+  return out;
+}
+function plRows(){
+  var pl=STATE.pl,rows=[];
+  plSystems().forEach(function(s){
+    var txt=PTXT[s.id]||{};
+    PUNCH_GATES.forEach(function(g){
+      if(pl.walk!=="ALL"&&pl.walk!==g)return;
+      var gt=(s.gates||{})[g];if(!gt)return;
+      Object.keys(gt.punch||{}).forEach(function(co){
+        if(pl.contractor!=="ALL"&&co!==pl.contractor)return;
+        var v=gt.punch[co]||{};
+        if(pl.items!=="closed")(v.ids||[]).forEach(function(pid){var it=txt[String(pid)]||{};rows.push({s:s,g:g,co:co,pid:String(pid),st:"Open",d:it.d||"",p:it.p||"",c:it.c||""});});
+        if(pl.items!=="open")(v.cids||[]).forEach(function(pid){var it=txt[String(pid)]||{};rows.push({s:s,g:g,co:co,pid:String(pid),st:"Closed",d:it.d||"",p:it.p||"",c:it.c||""});});
+      });
+    });
+  });
+  var go={W0:0,W1:1,MC:2,MCC:3};
+  rows.sort(function(a,b){var ta=a.s.target||"9999",tb=b.s.target||"9999";if(ta!==tb)return pl.sort==="desc"?(ta<tb?1:-1):(ta<tb?-1:1);
+    var m=String(a.s.mc).localeCompare(String(b.s.mc),undefined,{numeric:true});if(m)return m;
+    if(go[a.g]!==go[b.g])return go[a.g]-go[b.g];if(a.co!==b.co)return a.co<b.co?-1:1;return (+a.pid||0)-(+b.pid||0);});
+  return rows;
+}
+/* item detail is loaded lazily per system — pull it for every system in range before export */
+function plEnsureText(cb){
+  var need=plSystems().filter(function(s){return !PTXT[s.id];});
+  if(!need.length){cb&&cb();return;}
+  var left=need.length;
+  need.forEach(function(s){
+    if(PTXT_LOADING[s.id]){var t=setInterval(function(){if(!PTXT_LOADING[s.id]){clearInterval(t);if(--left===0)cb&&cb();}},150);return;}
+    PTXT_LOADING[s.id]=1;
+    db.collection(PUNCH_COL).doc(s.id).get().then(function(d){PTXT[s.id]=(d.exists&&d.data()&&d.data().items)||{};})
+      .catch(function(e){console.warn("punchText",e);PTXT[s.id]={};})
+      .then(function(){delete PTXT_LOADING[s.id];if(--left===0)cb&&cb();});
+  });
+}
+function plRange(){var pl=STATE.pl;if(pl.mcs&&pl.mcs.trim())return "MC #s: "+esc(pl.mcs.trim());return (pl.from?fmtMD(pl.from):"…")+" → "+(pl.to?fmtMD(pl.to):"…");}
+function renderPL(force){
+  var w=$("plWrap");if(!w)return;
+  if(renderPL._busy)return;                                   /* a blur/change fired mid-render: ignore the re-entry */
+  if(!force&&document.activeElement&&w.contains(document.activeElement)&&/^(INPUT|SELECT)$/.test(document.activeElement.tagName))return;
+  renderPL._busy=true;try{_renderPL(w);}finally{renderPL._busy=false;}
+}
+function _renderPL(w){
+  if(document.activeElement&&w.contains(document.activeElement))document.activeElement.blur();
+  var show=STATE.view==="board"&&STATE.pl.open;
+  w.style.display=show?"":"none";$("plBtn").classList.toggle("on",!!STATE.pl.open);
+  if(!show){w.innerHTML="";return;}
+  plParent._ix=null;
+  var pl=STATE.pl,rows=plRows(),systems={};rows.forEach(function(r){systems[r.s.id]=1;});
+  var nSys=Object.keys(systems).length,loading=Object.keys(PTXT_LOADING).length,noTxt=plSystems().filter(function(s){return !PTXT[s.id];}).length;
+  if(noTxt&&!loading&&window.db){plEnsureText(function(){renderPL();});loading=noTxt;noTxt=0;}   /* descriptions arrive in a moment; the table fills itself in */
+  var openN=rows.filter(function(r){return r.st==="Open";}).length,closedN=rows.length-openN;
+  var h='<div class="plpanel"><h3>Punch list — sorted by target MC date</h3>'+
+    '<div class="plsub">Same rules as the board: EIDA is the source, FAT is never included, systems closed with the ✓ circle hold nothing open. '+
+    'Punch list as of '+esc(((STATE.meta||{}).lastImport||{}).file?fmtMD(String(((STATE.meta||{}).lastImport||{}).at||"").slice(0,10))||"—":"—")+'.</div>';
+  h+='<div class="plgrid">'+
+    '<div class="plf"><label>Target MC from</label><input type="date" id="pl_from" value="'+esc(pl.from)+'"></div>'+
+    '<div class="plf"><label>Target MC to</label><input type="date" id="pl_to" value="'+esc(pl.to)+'"></div>'+
+    '<div class="plf"><label>Sort</label><select id="pl_sort"><option value="asc"'+(pl.sort==="asc"?" selected":"")+'>Target MC date · soonest first</option><option value="desc"'+(pl.sort==="desc"?" selected":"")+'>Target MC date · latest first</option></select></div>'+
+    '<div class="plf"><label>Items</label><select id="pl_items"><option value="open"'+(pl.items==="open"?" selected":"")+'>Open only</option><option value="both"'+(pl.items==="both"?" selected":"")+'>Open + closed</option><option value="closed"'+(pl.items==="closed"?" selected":"")+'>Closed only</option></select></div>'+
+    '</div><div class="plgrid">'+
+    '<div class="plf plspan2"><label>Walk</label><div class="plchips" id="pl_walk">'+["ALL","W0","W1","MC","MCC"].map(function(g){return '<button data-w="'+g+'"'+(pl.walk===g?' class="on"':'')+'>'+(g==="ALL"?"All":g)+'</button>';}).join('')+'</div></div>'+
+    '<div class="plf"><label>Contractor</label><select id="pl_co"><option value="ALL">All contractors</option>'+contractors().slice().sort(function(a,b){return a.name<b.name?-1:1;}).map(function(c){return '<option value="'+esc(c.name)+'"'+(pl.contractor===c.name?' selected':'')+'>'+esc(c.name)+'</option>';}).join('')+'</select></div>'+
+    '<div class="plf"><label>Systems</label><input type="text" id="pl_mcs" placeholder="All in range · or type MC #s (overrides dates)" value="'+esc(pl.mcs)+'"></div>'+
+    '</div>';
+  h+='<div class="plcnt"><b>'+(pl.items==="closed"?closedN:openN)+'</b><small>'+(pl.items==="closed"?"closed":"open")+' items'+(pl.items==="both"?' · '+closedN+' closed':'')+'</small><span class="g">'+nSys+' system'+(nSys===1?'':'s')+'</span><small>'+plRange()+(pl.walk!=="ALL"?' · '+pl.walk:'')+(pl.contractor!=="ALL"?' · '+esc(pl.contractor):'')+'</small>'+
+    (loading?'<span class="plload">loading descriptions…</span>':'')+'</div>';
+  h+='<div class="pltw"><table class="pltab"><tr><th>Target MC</th><th>MC #</th><th>System</th><th>Walk</th><th>Contractor</th><th>Punch ID</th><th>Cat</th><th>Description</th>'+(pl.items!=="open"?'<th>Status</th>':'')+'</tr>';
+  var td=todayISO();
+  rows.slice(0,8).forEach(function(r){var late=r.s.target&&r.s.target<td;
+    h+='<tr><td class="'+(late?'rd':'')+'">'+fmtMD(r.s.target)+'</td><td class="plmc">'+esc(r.s.mc)+'</td><td>'+esc(r.s.code)+' · '+esc(r.s.desc)+'</td><td>'+r.g+'</td><td>'+esc(r.co)+'</td><td>'+esc(r.pid)+'</td><td>'+esc(r.c)+'</td><td>'+esc(r.d||(PTXT[r.s.id]?'':'…'))+'</td>'+(pl.items!=="open"?'<td class="'+(r.st==="Closed"?'cl':'rd')+'">'+r.st+'</td>':'')+'</tr>';});
+  if(!rows.length)h+='<tr><td colspan="9" class="plmore">Nothing matches — widen the dates, or check the walk / contractor filters.</td></tr>';
+  else if(rows.length>8)h+='<tr><td colspan="9" class="plmore">… '+(rows.length-8)+' more row'+(rows.length-8===1?'':'s')+' in the export</td></tr>';
+  h+='</table></div>';
+  h+='<div class="placts"><button class="b1" id="pl_xlsx"'+(rows.length?'':' disabled')+'>&#11015; Export to Excel (EIDA columns)</button><button class="b2" id="pl_print"'+(rows.length?'':' disabled')+'>&#128424; Print</button>'+
+     '<div class="tiny">Excel keeps the 40 EIDA column headers in EIDA order, then adds <b>MC # · Board Target MC · Walk · Board Status</b> at the end. Columns the board does not hold (Raised By, Created On…) stay blank — nothing is invented. Sorted exactly like this preview.</div></div>';
+  h+='</div>';
+  w.innerHTML=h;
+}
+function plRowToCells(r){
+  var s=r.s,cells={};
+  cells["Punch ID"]=+r.pid||r.pid;cells["Punch Phase Type"]=r.p;cells["Category"]=r.c;cells["Description"]=r.d;
+  cells["System No."]=plParent(s.code);cells["System Name"]=s.desc||"";cells["Tag"]=s.code||"";cells["Tag Description"]=s.desc||"";
+  cells["Responsible Contractor"]=r.co;cells["Activity Group"]=PL_GROUP[r.g]||r.g;
+  cells["MC #"]=s.mc||"";cells["Board Target MC"]=s.target?{date:s.target}:"";cells["Walk"]=r.g;cells["Board Status"]=r.st;
+  return cells;
+}
+function plFileName(ext){var pl=STATE.pl;var tag=pl.mcs&&pl.mcs.trim()?"MCs":((pl.from||"")+"_to_"+(pl.to||""));return "Punch_List_by_Target_MC_"+tag+(pl.walk!=="ALL"?"_"+pl.walk:"")+(pl.contractor!=="ALL"?"_"+pl.contractor.replace(/[^\w]+/g,"-"):"")+"_"+todayISO()+"."+ext;}
+function plExportXlsx(){
+  var btn=$("pl_xlsx");if(btn){btn.disabled=true;btn.textContent="Loading item detail…";}
+  plEnsureText(function(){
+    var rows=plRows(),hdr=PL_COLS.concat(PL_EXTRA);
+    var data=rows.map(function(r){var c=plRowToCells(r);return hdr.map(function(h){return c[h]===undefined?"":c[h];});});
+    xlsxBuild("Punch List",hdr,data,function(blob){
+      var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=plFileName("xlsx");document.body.appendChild(a);a.click();
+      setTimeout(function(){URL.revokeObjectURL(a.href);a.remove();},4000);
+      renderPL();
+    },function(e){alert("Could not build the Excel file: "+(e&&e.message||e));renderPL();});
+  });
+}
+function plPrint(){
+  plEnsureText(function(){
+    var rows=plRows(),pl=STATE.pl,box=$("plPrint");
+    if(!box){box=document.createElement("div");box.id="plPrint";document.body.appendChild(box);}
+    var h='<h2>Punch list — sorted by target MC date · '+plRange().replace(/<[^>]+>/g,"")+(pl.walk!=="ALL"?' · '+pl.walk:'')+(pl.contractor!=="ALL"?' · '+esc(pl.contractor):'')+'</h2>'+
+      '<div class="psub">'+rows.length+' item'+(rows.length===1?'':'s')+' · printed '+fmtMD(todayISO())+' · DSM-4 MC Tracker Board · FAT not included</div>'+
+      '<table><tr><th>Target MC</th><th>MC #</th><th>System</th><th>Walk</th><th>Contractor</th><th>Punch ID</th><th>Cat</th><th>Type</th><th>Description</th>'+(pl.items!=="open"?'<th>Status</th>':'')+'</tr>';
+    rows.forEach(function(r){h+='<tr><td>'+fmtMD(r.s.target)+'</td><td><b>'+esc(r.s.mc)+'</b></td><td>'+esc(r.s.code)+' · '+esc(r.s.desc)+'</td><td>'+r.g+'</td><td>'+esc(r.co)+'</td><td>'+esc(r.pid)+'</td><td>'+esc(r.c)+'</td><td>'+esc(r.p)+'</td><td>'+esc(r.d)+'</td>'+(pl.items!=="open"?'<td>'+r.st+'</td>':'')+'</tr>';});
+    box.innerHTML=h+'</table>';
+    document.body.classList.add("plprinting");
+    var done=function(){document.body.classList.remove("plprinting");window.removeEventListener("afterprint",done);};
+    window.addEventListener("afterprint",done);
+    setTimeout(function(){window.print();setTimeout(done,1500);},50);
+  });
+}
+/* ---------- tiny XLSX writer: a ZIP of the minimum OOXML parts, inline strings,
+   real dates. Deflated with the browser's own CompressionStream when it has one,
+   stored uncompressed otherwise. Runs entirely in the browser — nothing leaves it. ---------- */
+var _crcT=null;
+function crc32(u8){if(!_crcT){_crcT=[];for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);_crcT[n]=c>>>0;}}
+  var c=0xFFFFFFFF;for(var i=0;i<u8.length;i++)c=_crcT[(c^u8[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;}
+function zipDeflate(u8,cb){
+  if(typeof CompressionStream==="undefined"||typeof Response==="undefined"){cb(null);return;}
+  try{new Response(new Blob([u8]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer().then(function(b){cb(new Uint8Array(b));},function(){cb(null);});}
+  catch(e){cb(null);}
+}
+function zipBuild(files,cb){ /* files: [{name,data:Uint8Array}] */
+  var enc=new TextEncoder(),parts=[],cd=[],off=0,i=0;
+  function u16(v){return [v&255,(v>>8)&255];}function u32(v){return [v&255,(v>>8)&255,(v>>16)&255,(v>>>24)&255];}
+  var dt=new Date(),dosT=((dt.getHours()<<11)|(dt.getMinutes()<<5)|(dt.getSeconds()>>1))&0xFFFF,dosD=(((dt.getFullYear()-1980)<<9)|((dt.getMonth()+1)<<5)|dt.getDate())&0xFFFF;
+  (function next(){
+    if(i>=files.length){
+      var cdStart=off,cdBytes=[].concat.apply([],cd),eocd=[0x50,0x4b,5,6].concat(u16(0),u16(0),u16(files.length),u16(files.length),u32(cdBytes.length),u32(cdStart),u16(0));
+      cb(new Blob(parts.concat([new Uint8Array(cdBytes),new Uint8Array(eocd)]),{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));return;}
+    var f=files[i++],name=enc.encode(f.name),raw=f.data,crc=crc32(raw);
+    zipDeflate(raw,function(def){
+      var method=(def&&def.length<raw.length)?8:0,body=method?def:raw;
+      var lh=[0x50,0x4b,3,4].concat(u16(20),u16(0x0800),u16(method),u16(dosT),u16(dosD),u32(crc),u32(body.length),u32(raw.length),u16(name.length),u16(0));
+      parts.push(new Uint8Array(lh),name,body);
+      cd.push([0x50,0x4b,1,2].concat(u16(20),u16(20),u16(0x0800),u16(method),u16(dosT),u16(dosD),u32(crc),u32(body.length),u32(raw.length),u16(name.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(off),Array.prototype.slice.call(name)));
+      off+=lh.length+name.length+body.length;next();
+    });
+  })();
+}
+function xlsxCol(n){var s="";n++;while(n>0){var m=(n-1)%26;s=String.fromCharCode(65+m)+s;n=(n-m-1)/26;}return s;}
+function xlsxSerial(iso){var d=new Date(iso+"T00:00:00Z");return Math.round((d.getTime()/86400000)+25569);}
+function xlsxBuild(sheet,hdr,rows,cb,err){
+  try{
+    var X=function(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g,"");};
+    var out=['<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols>'];
+    hdr.forEach(function(h,i){var w=Math.min(Math.max(10,String(h).length+2),40);if(h==="Description")w=60;if(h==="System Name"||h==="Tag Description")w=30;out.push('<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>');});
+    out.push('</cols><sheetData><row r="1">');
+    hdr.forEach(function(h,i){out.push('<c r="'+xlsxCol(i)+'1" t="inlineStr" s="1"><is><t>'+X(h)+'</t></is></c>');});
+    out.push('</row>');
+    rows.forEach(function(r,ri){out.push('<row r="'+(ri+2)+'">');
+      r.forEach(function(v,ci){if(v===""||v==null)return;var ref=xlsxCol(ci)+(ri+2);
+        if(v&&typeof v==="object"&&v.date)out.push('<c r="'+ref+'" s="2"><v>'+xlsxSerial(v.date)+'</v></c>');
+        else if(typeof v==="number"&&isFinite(v))out.push('<c r="'+ref+'"><v>'+v+'</v></c>');
+        else out.push('<c r="'+ref+'" t="inlineStr"><is><t xml:space="preserve">'+X(v)+'</t></is></c>');});
+      out.push('</row>');});
+    var last=xlsxCol(hdr.length-1)+(rows.length+1);
+    out.push('</sheetData><autoFilter ref="A1:'+last+'"/></worksheet>');
+    var enc=new TextEncoder();
+    var files=[
+      {name:"[Content_Types].xml",data:enc.encode('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>')},
+      {name:"_rels/.rels",data:enc.encode('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>')},
+      {name:"xl/workbook.xml",data:enc.encode('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="'+X(sheet)+'" sheetId="1" r:id="rId1"/></sheets></workbook>')},
+      {name:"xl/_rels/workbook.xml.rels",data:enc.encode('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>')},
+      {name:"xl/styles.xml",data:enc.encode('<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><numFmts count="1"><numFmt numFmtId="164" formatCode="m/d/yyyy"/></numFmts><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF07688B"/></patternFill></fill></fills><borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>')},
+      {name:"xl/worksheets/sheet1.xml",data:enc.encode(out.join(""))}
+    ];
+    zipBuild(files,cb);
+  }catch(e){err&&err(e);}
+}
 function refreshContractorFilter(){var sel=$("contractorF");if(!sel)return;var cur=sel.value;var opts='<option value="ALL">All contractors</option>'+contractors().slice().sort(function(a,b){return a.name<b.name?-1:1;}).map(function(c){return '<option value="'+esc(c.name)+'">'+esc(c.name)+'</option>';}).join('');if(sel.innerHTML!==opts){sel.innerHTML=opts;sel.value=cur||"ALL";}}
 
 /* ---------- events (delegation) ---------- */
@@ -5646,6 +5901,16 @@ $("compF").addEventListener("click",function(e){var b=e.target.closest("[data-c]
 $("groupF").addEventListener("change",function(){STATE.f.group=this.value;render();});
 $("statusF").addEventListener("click",function(e){var b=e.target.closest("[data-s]");if(!b)return;STATE.f.status=b.getAttribute("data-s");STATE.f.onlyOpen=false;[].forEach.call(this.children,function(c){c.classList.toggle("on",c===b);});render();});
 $("contractorF").addEventListener("change",function(){STATE.f.contractor=this.value;render();});
+$("plBtn").addEventListener("click",function(){STATE.pl.open=!STATE.pl.open;renderPL(true);if(STATE.pl.open){var w=$("plWrap");if(w&&w.scrollIntoView)setTimeout(function(){w.scrollIntoView({block:"nearest",behavior:"smooth"});},30);}});
+$("plWrap").addEventListener("change",function(e){var t=e.target,pl=STATE.pl;if(!t||!t.id)return;
+  if(t.id==="pl_from")pl.from=t.value;else if(t.id==="pl_to")pl.to=t.value;else if(t.id==="pl_sort")pl.sort=t.value;else if(t.id==="pl_items")pl.items=t.value;
+  else if(t.id==="pl_co")pl.contractor=t.value;else if(t.id==="pl_mcs")pl.mcs=t.value;else return;
+  renderPL(true);});
+$("plWrap").addEventListener("keydown",function(e){if(e.key==="Enter"&&e.target&&e.target.id==="pl_mcs"){e.preventDefault();e.target.blur();/* blur fires change → re-render */}});
+$("plWrap").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+  if(b.hasAttribute("data-w")){STATE.pl.walk=b.getAttribute("data-w");renderPL(true);return;}
+  if(b.id==="pl_xlsx"){plExportXlsx();return;}
+  if(b.id==="pl_print"){plPrint();return;}});
 $("searchF").addEventListener("input",function(){STATE.f.q=this.value;render();});
 /* the account circle behaves like every other profile menu: click to open,
    click anywhere else or press Esc to close, and picking anything closes it */
