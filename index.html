@@ -1921,7 +1921,7 @@
 <script>window.MC_SEED=[];</script>
 <script>
 "use strict";
-var MC_BUILD="v29.5-audit-fixes";
+var MC_BUILD="v29.6-file-scope";
 /* crisp drawn icons for the header ring buttons (no emoji — consistent on every device) */
 var I_SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"><circle cx="12" cy="12" r="4.3"/><line x1="12" y1="2.2" x2="12" y2="4.7"/><line x1="12" y1="19.3" x2="12" y2="21.8"/><line x1="2.2" y1="12" x2="4.7" y2="12"/><line x1="19.3" y1="12" x2="21.8" y2="12"/><line x1="5.1" y1="5.1" x2="6.9" y2="6.9"/><line x1="17.1" y1="17.1" x2="18.9" y2="18.9"/><line x1="18.9" y1="5.1" x2="17.1" y2="6.9"/><line x1="6.9" y1="17.1" x2="5.1" y2="18.9"/></svg>';
 var I_MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 14.6A8.6 8.6 0 1 1 9.4 3.4a6.9 6.9 0 0 0 11.2 11.2z" fill="currentColor" fill-opacity=".3"/></svg>';
@@ -6703,6 +6703,29 @@ function impPlanPunch(rows,map){
         agg[bl.id]=agg[bl.id]||{};
       }});
   }
+  /* v29.6: SCOPE. A walk that appears NOWHERE in the file was filtered out of
+     the export (EIDA_Punch List (17) carried W0/W1/MC only — no FAT, no MCC).
+     Such a walk is out of the file's scope: its items are neither closed nor
+     touched, on any system. Only an item the file re-homed onto an in-scope
+     walk is let go by its old cell (a move), and that claims no closure. */
+  var fileGates={};
+  Object.keys(agg).forEach(function(id){Object.keys(agg[id]).forEach(function(g){if(Object.keys(agg[id][g]).length)fileGates[g]=1;});});
+  plan.fileGates=ALL_BUCKETS.filter(function(g){return !!fileGates[g];});
+  plan.outOfScope=ALL_BUCKETS.filter(function(g){return !fileGates[g];});
+  function scopeKeep(cur0){
+    /* copy the gate as it stands, letting only MOVED items go */
+    var o2={},d2=false;
+    Object.keys(cur0).forEach(function(cn){
+      var b0=cur0[cn]||{},ids0=(b0.ids||[]).map(String),mo=ids0.filter(function(x){return moved[x];});
+      if(mo.length){
+        var keep=ids0.filter(function(x){return !moved[x];});
+        var t0=Math.max(0,(+b0.t||0)-mo.length),c0=Math.min(+b0.c||0,t0);
+        o2[cn]={t:t0,c:c0,p:0,ids:keep,cids:(b0.cids||[]).slice(),pids:(b0.pids||[]).filter(function(x){return keep.indexOf(String(x))>=0;})};
+        d2=true;
+      }else o2[cn]=b0;
+    });
+    return {out:o2,dirty:d2};
+  }
   Object.keys(agg).forEach(function(id){
     var sys=STATE.systems[id];if(!sys)return;
     plan.matched++;
@@ -6716,6 +6739,7 @@ function impPlanPunch(rows,map){
     var sysClosedOut=(sysPhase(sys)==="done");
     ALL_BUCKETS.forEach(function(g){
       var nw=agg[id][g]||{},cur0=((sys.gates||{})[g]||{}).punch||{},names={},out={};
+      if(!fileGates[g]){var sk=scopeKeep(cur0);full[g]=sk.out;if(sk.dirty)dirty=true;return;}   /* v29.6: out of the file's scope */
       var gDone=sysClosedOut;
       /* v29.1: a hand-typed line ("Blair Duron") and the file's roster name
          ("Blair") are ONE contractor — fold the board cell into the canonical
@@ -6861,6 +6885,7 @@ function impPlanPunch(rows,map){
     var sys=STATE.systems[id],open=0,full={},lines={},any=false;
     ALL_BUCKETS.forEach(function(g){
       var p=((sys.gates||{})[g]||{}).punch||{},out={};
+      if(!fileGates[g]){full[g]=p;return;}   /* v29.6: a walk the file does not cover is never closed by absence */
       Object.keys(p).forEach(function(n){
         var b=p[n],t=+b.t||0,c=+b.c||0,ids=impPunchIds(b),cids=impClosedIds(b);
         var o=ids?ids.length:Math.max(0,t-c);
@@ -7070,6 +7095,13 @@ function impShowReview(){
        '<div><b>'+p.matched+'</b><span>systems covered</span></div></div>'+
        (p.fatItems?'<div class="impnote">🏭 <b>'+p.fatItems+' FAT item'+(p.fatItems>1?'s':'')+' ('+(p.fatOpen||0)+' open) are imported and tracked</b> on each system\'s FAT section — but they are NOT counted as punch: the tiles (in the default view), card faces, Top Blockers and Cat chips all exclude FAT. Flip the punch tiles to "With FAT" to see the combined number ('+((p.totalItems-p.closedItems))+' open in this file, '+((p.totalItems-p.closedItems)-(p.fatOpen||0))+' without FAT).</div>':'')+
        '</div>';
+    if(p.outOfScope&&p.outOfScope.length&&p.fileGates&&p.fileGates.length){
+      var oos=p.outOfScope.filter(function(g){return g!==VDR_KEY;});
+      if(oos.length)
+        h+='<div class="impnote">🔎 <b>This file covers '+p.fileGates.filter(function(g){return g!==VDR_KEY;}).join(' · ')+' only.</b> '+
+           'It has no '+oos.join(' or ')+' rows at all, so those walks are out of its scope: their items are <b>left exactly as they are</b> — '+
+           'not closed, not counted as missing. A walk is only reconciled from a file that actually carries it.</div>';
+    }
     if(p.byId){
       h+='<div class="impsec"><label>Movement since the last file — matched item by item on Punch ID</label><div class="impstat">'+
          '<div class="good"><b>'+(p.closedNow+extraClosed)+'</b><span>closed</span></div>'+
